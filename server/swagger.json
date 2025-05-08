@@ -1,0 +1,47 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "CBA-MASTER-MIND-GEOPARDY API",
+    "version": "0.0.1",
+    "description": "API documentation for the CBA-MASTER-MIND-GEOPARDY project.",
+    "contact": {
+      "name": "CBA-MASTER-MIND-GEOPARDY Team",
+      "email": ["subelzaolivitocabezas@gmail.com","ronaldgallardoarce78@gmail.com","limber.rodrigo.tj@gmail.com"]
+    },
+    "license": {
+      "name": "AGPL-3.0",
+      "url": "https://www.gnu.org/licenses/agpl-3.0.html"
+    }
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "tags": [
+    {
+      "name": "API",
+      "description": "API related endpoints"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Get the API version",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Welcome to CBA-MASTER-MIND-GEOPARDY API! 🌿"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

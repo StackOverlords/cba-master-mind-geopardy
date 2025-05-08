@@ -1,0 +1,55 @@
+{
+  "name": "cba-master-mind-geopardy",
+  "version": "0.1.0",
+  "description": "cba,games,geopardy,master-mind,master,mind",
+  "keywords": [
+    "cba",
+    "games",
+    "geopardy",
+    "cba-master-mind",
+    "master",
+    "mind"
+  ],
+  "homepage": "https://github.com/StackOverlords/cba-master-mind-geopardy#readme",
+  "bugs": {
+    "url": "https://github.com/StackOverlords/cba-master-mind-geopardy/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StackOverlords/cba-master-mind-geopardy.git"
+  },
+  "license": "AGPL-3.0",
+  "author": "StackOverlords",
+  "type": "commonjs",
+  "main": "app.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "nodemon --exec ts-node app.ts",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.14.2",
+    "socket.io": "^4.8.1",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.18",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.1",
+    "@types/mongoose": "^5.11.96",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.15.17",
+    "@types/socket.io": "^3.0.1",
+    "@types/swagger-ui-express": "^4.1.8",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
