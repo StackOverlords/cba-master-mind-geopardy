@@ -18,7 +18,9 @@ export class DBConnectorMongoose {
     public async connect(): Promise<void> {
         try {
             await mongoose.connect(this.uri);
-            console.log("Connected to MongoDB");
+            if (process.env.NODE_ENV === 'development') {
+                console.log("Connected to MongoDB");
+            }
         } catch (error) {
             console.error("Error connecting to MongoDB", error);
             throw error;
