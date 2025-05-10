@@ -14,7 +14,7 @@
     }
   }, 
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": ["http", "https"],
   "tags": [
     {
       "name": "API",
