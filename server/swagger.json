@@ -13,8 +13,8 @@
       "url": "https://www.gnu.org/licenses/agpl-3.0.html"
     }
   }, 
-  "basePath": "/",
-  "schemes": ["http"],
+  "basePath": "/api/v1",
+  "schemes": ["http", "https"],
   "tags": [
     {
       "name": "API",
