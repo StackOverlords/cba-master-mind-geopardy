@@ -1,5 +1,5 @@
 {
-    "watch": [".","swagger.json"],
+    "watch": [".","swagger.json",".env"],
     "ext": ".ts,.js",
     "ignore": ["src/**/*.spec.ts", "node_modules"],
     "exec": "ts-node ./src/app.ts"
