@@ -24,7 +24,7 @@
   "main": "app.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node app.js",
+    "start": "node dist/app.js",
     "dev": "nodemon --exec ts-node app.ts",
     "watch": "tsc --watch"
   },
