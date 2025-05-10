@@ -6,14 +6,13 @@
     "description": "API documentation for the CBA-MASTER-MIND-GEOPARDY project.",
     "contact": {
       "name": "CBA-MASTER-MIND-GEOPARDY Team",
-      "email": ["subelzaolivitocabezas@gmail.com","ronaldgallardoarce78@gmail.com","limber.rodrigo.tj@gmail.com"]
+      "email": "subelzaolivitocabezas@gmail.com"
     },
     "license": {
       "name": "AGPL-3.0",
       "url": "https://www.gnu.org/licenses/agpl-3.0.html"
     }
-  },
-  "host": "localhost:3000",
+  }, 
   "basePath": "/",
   "schemes": ["http"],
   "tags": [
@@ -36,6 +35,129 @@
                 "message": {
                   "type": "string",
                   "example": "Welcome to CBA-MASTER-MIND-GEOPARDY API! 🌿"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "summary": "Get the API version",
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "parameters":[
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User object to be created",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firebaseUid": {
+                  "type": "string",
+                  "example": "123AD45678DX90AAE",
+                  "description": "Firebase UID of the user"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "John Doe"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "JohnDoe@gmail.com",
+                  "format": "email",
+                  "description": "User email"
+                }
+              },
+              "required": ["firebaseUid", "email", "role"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version create successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "JohnDoe@gmail.com",
+                  "format": "email",
+                  "description": "User email"
+                },
+                "firebaseUid": {
+                  "type": "string",
+                  "example": "123AD45678DX90AAE",
+                  "description": "Firebase UID of the user"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "John Doe"
+                },
+                "role": {
+                  "type": "string",
+                  "example": "admin",
+                  "description": "User role"
+                },
+                "_id": {
+                  "type": "string",
+                  "example": "681e633ed9c854db5056a5ce",
+                  "description": "User ID"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2023-10-01T12:00:00Z"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2023-10-01T12:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "User already exists with this email"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/firebase/{uuid}": {
+      "get": {
+        "summary": "Get the API version",
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "parameters":[
+          {
+            "name": "uuid",
+            "in": "path",
+            "description": "Firebase UID of the user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "User created successfully"
                 }
               }
             }
