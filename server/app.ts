@@ -23,7 +23,7 @@ app.use(morgan('dev'));
 
 app.use('/api/v1', router) // router
 
-app.get('/', (_, res) => {
+app.get('/api/v1', (_, res) => {
     res.send('Welcome to the API CBA-MASTER-MIND-GEOPARDY 🌿');
 })
 
