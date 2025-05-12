@@ -37,12 +37,12 @@ export class UserService {
     return await this.userRepository.findAll();
   }
 
-  async updateUser(id: string, userData: Partial<IUser>): Promise<IUser | null> {
-    const user = await this.userRepository.findById(id);
+  async updateUser(uuid: string, userData: Partial<IUser>): Promise<IUser | null> {
+    const user = await this.userRepository.findByFirebaseUUID(uuid);
     if (!user) {
       throw new CustomError('User not found', 404);
     }
-    return await this.userRepository.update(id, userData);
+    return await this.userRepository.update(uuid, userData);
   }
 
   async deleteUser(uuid: string): Promise<IUser | null> {
