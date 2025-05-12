@@ -1,6 +1,7 @@
 import { UserModel, IUser } from '../../core/models/User.model';
 
 export class UserRepository {
+  
   async create(userData: Partial<IUser>): Promise<IUser> {
     const user = new UserModel(userData);
     return await user.save();
@@ -18,17 +19,21 @@ export class UserRepository {
     return await UserModel.findOne({
       firebaseUid: uuid,
     });
-  } 
+  }
 
   async findAll(): Promise<IUser[]> {
     return await UserModel.find();
   }
 
-  async update(id: string, userData: Partial<IUser>): Promise<IUser | null> {
-    return await UserModel.findByIdAndUpdate(id, userData, { new: true });
+  async update(uuid: string, userData: Partial<IUser>): Promise<IUser | null> {
+    return await UserModel.findOneAndUpdate({ firebaseUid: uuid }, userData, { new: true });
   }
 
   async delete(uuid: string): Promise<IUser | null> {
-    return await UserModel.findByIdAndDelete(uuid);
+    return await UserModel.findOneAndUpdate({ firebaseUid: uuid }, {
+      isDeleted: true
+    }, {
+      new: true
+    });
   }
 } 
