@@ -4,8 +4,9 @@ export interface IUser extends Document {
   firebaseUid: string;
   email: string;
   name: string;
-  role: "user" | "admin";
+  role: "player" | "admin";
   isDeleted: boolean;
+  completedRegister: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,11 +34,17 @@ const userSchema = new Schema<IUser>({
   },
   role: {
     type: String,
-    enum: ["user", "admin"],
-    default: "user",
+    // Se podran crear 2 tipos de roles
+    enum: ["player", "admin"],
+    default: "player",
   },
   isDeleted: {
-    type: Boolean, 
+    type: Boolean,
+    default: false,
+    required:false
+  },
+  completedRegister: {
+    type: Boolean,
     default: false,
   }
 },
