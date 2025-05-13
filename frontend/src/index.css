@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
-@theme{
-    
+:root {
+  /* color-scheme: ligth dark; */
+  font-family: 'Onest Variable', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
+
+@theme {}
+
 .bg-grid-pattern {
-    background-image: 
-      linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
-    background-size: 30px 30px;
-  }
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
