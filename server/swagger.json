@@ -12,7 +12,7 @@
       "name": "AGPL-3.0",
       "url": "https://www.gnu.org/licenses/agpl-3.0.html"
     }
-  }, 
+  },
   "basePath": "/api/v1",
   "schemes": ["http", "https"],
   "tags": [
@@ -43,11 +43,79 @@
       }
     },
     "/users": {
-      "post": {
-        "summary": "Get the API version",
+      "get": {
+        "summary": "Retrieve all users",
         "produces": ["application/json"],
         "tags": ["users"],
-        "parameters":[
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API version create successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "JohnDoe@gmail.com",
+                    "format": "email",
+                    "description": "User email"
+                  },
+                  "firebaseUid": {
+                    "type": "string",
+                    "example": "123AD45678DX90AAE",
+                    "description": "Firebase UID of the user"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "admin",
+                    "description": "User role"
+                  },
+                  "_id": {
+                    "type": "string",
+                    "example": "681e633ed9c854db5056a5ce",
+                    "description": "User ID"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2023-10-01T12:00:00Z"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2023-10-01T12:00:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "User already exists with this email"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/create": {
+      "post": {
+        "summary": "Create a new user",
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "parameters": [
           {
             "name": "user",
             "in": "body",
@@ -135,12 +203,117 @@
         }
       }
     },
-    "/users/firebase/{uuid}": {
-      "get": {
-        "summary": "Get the API version",
+    "/users/{uuid}/update": {
+      "put": {
+        "summary": "Update a user",
         "produces": ["application/json"],
         "tags": ["users"],
-        "parameters":[
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "description": "User ID to be updated",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User object to be created",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "John Doe"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "JohnDoe@gmail.com",
+                  "format": "email",
+                  "description": "User email"
+                },
+                "role": {
+                  "type": "string",
+                  "example": "user",
+                  "description": "User role"
+                },
+                "completedRegister": {
+                  "type": "boolean",
+                  "example": true,
+                  "description": "User completed registration"
+                }
+              },
+              "required": ["firebaseUid", "email", "role"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version create successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "JohnDoe@gmail.com",
+                  "format": "email",
+                  "description": "User email"
+                },
+                "firebaseUid": {
+                  "type": "string",
+                  "example": "123AD45678DX90AAE",
+                  "description": "Firebase UID of the user"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "John Doe"
+                },
+                "role": {
+                  "type": "string",
+                  "example": "admin",
+                  "description": "User role"
+                },
+                "_id": {
+                  "type": "string",
+                  "example": "681e633ed9c854db5056a5ce",
+                  "description": "User ID"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2023-10-01T12:00:00Z"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2023-10-01T12:00:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "User already exists with this email"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/firebase/{uuid}": {
+      "get": {
+        "summary": "Get user by Firebase UID",
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "parameters": [
           {
             "name": "uuid",
             "in": "path",
@@ -158,6 +331,598 @@
                 "message": {
                   "type": "string",
                   "example": "User created successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{uuid}/delete": {
+      "delete": {
+        "summary": "Get user by Firebase UID",
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "description": "Firebase UID of the user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "User deleted successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/game": {
+      "get": {
+        "summary": "Get games",
+        "produces": ["application/json"],
+        "tags": ["game"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Prueba"
+                  },
+                  "user": {
+                    "type": "object"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "playing"
+                  },
+                  "gameMode": {
+                    "type": "string",
+                    "example": "championship"
+                  },
+                  "players": {
+                    "type": "array"
+                  },
+                  "isDeleted": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/create": {
+      "post": {
+        "summary": "Create games",
+        "produces": ["application/json"],
+        "tags": ["game"],
+        "parameters": [
+          {
+            "name": "game",
+            "in": "body",
+            "description": "Create game",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Prueba"
+                },
+                "user": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "example": "waiting"
+                },
+                "gameMode": {
+                  "type": "string",
+                  "example": "championship"
+                },
+                "players": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Prueba"
+                  },
+                  "user": {
+                    "type": "object"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "playing"
+                  },
+                  "gameMode": {
+                    "type": "string",
+                    "example": "championship"
+                  },
+                  "players": {
+                    "type": "array"
+                  },
+                  "isDeleted": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/{id}/update": {
+      "put": {
+        "summary": "Update games",
+        "produces": ["application/json"],
+        "tags": ["game"],
+        "parameters": [
+          {
+            "name": "game",
+            "in": "body",
+            "description": "Update game",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Prueba"
+                },
+                "user": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "example": "waiting"
+                },
+                "players": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Prueba"
+                  },
+                  "user": {
+                    "type": "object"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "playing"
+                  },
+                  "gameMode": {
+                    "type": "string",
+                    "example": "championship"
+                  },
+                  "players": {
+                    "type": "array"
+                  },
+                  "isDeleted": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/{id}/delete": {
+      "delete": {
+        "summary": "Delete games",
+        "produces": ["application/json"],
+        "tags": ["game"],
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Game deleted successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/question": {
+      "get": {
+        "summary": "Get questions",
+        "produces": ["application/json"],
+        "tags": ["question"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "categoryId": {
+                    "type": "string",
+                    "example": "Prueba"
+                  },
+                  "user": {
+                    "type": "object"
+                  },
+                  "question": {
+                    "type": "string",
+                    "example": "playing"
+                  },
+                  "answers": {
+                    "type": "array",
+                    "example": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/question/create": {
+      "post": {
+        "summary": "Create questions",
+        "produces": ["application/json"],
+        "tags": ["question"],
+        "parameters": [
+          {
+            "name": "question",
+            "in": "body",
+            "properties": {
+              "categoryId": {
+                "type": "string",
+                "example": "Prueba"
+              },
+              "user": {
+                "type": "object"
+              },
+              "question": {
+                "type": "string",
+                "example": "playing"
+              },
+              "answers": {
+                "type": "array",
+                "example": []
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "categoryId": {
+                    "type": "string",
+                    "example": "Prueba"
+                  },
+                  "user": {
+                    "type": "object"
+                  },
+                  "question": {
+                    "type": "string",
+                    "example": "playing"
+                  },
+                  "answers": {
+                    "type": "array",
+                    "example": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/question/{id}/update": {
+      "put": {
+        "summary": "Update questions",
+        "produces": ["application/json"],
+        "tags": ["question"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "question",
+            "in": "body",
+            "properties": {
+              "categoryId": {
+                "type": "string",
+                "example": "Prueba"
+              },
+              "user": {
+                "type": "string"
+              },
+              "question": {
+                "type": "string"
+              },
+              "answers": {
+                "type": "array",
+                "example": []
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "categoryId": {
+                    "type": "string",
+                    "example": "Prueba"
+                  },
+                  "user": {
+                    "type": "object"
+                  },
+                  "question": {
+                    "type": "string",
+                    "example": "playing"
+                  },
+                  "answers": {
+                    "type": "array",
+                    "example": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/question/{id}/delete": {
+      "delete": {
+        "summary": "Delete questions",
+        "produces": ["application/json"],
+        "tags": ["question"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Question deleted successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/category": {
+      "get": {
+        "summary": "Get categorys",
+        "produces": ["application/json"],
+        "tags": ["category"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "isDeleted": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/category/create": {
+      "post": {
+        "summary": "Create new category",
+        "produces": ["application/json"],
+        "tags": ["category"],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "body",
+            "properties": {
+              "name": {
+                "type": "string",
+                "required": true,
+                "default": "Music"
+              },
+              "user": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "object"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "isDeleted": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/{id}/update": {
+      "put": {
+        "summary": "Update category",
+        "produces": ["application/json"],
+        "tags": ["category"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "name": "category",
+            "in": "body",
+            "properties": {
+              "name": {
+                "type": "string",
+                "required": true,
+                "default": "Music"
+              },
+              "user": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "user": {
+                  "type": "object"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "isDeleted": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/{id}/delete": {
+      "delete": {
+        "summary": "Delete category",
+        "produces": ["application/json"],
+        "tags": ["category"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Category deleted successfully"
                 }
               }
             }
