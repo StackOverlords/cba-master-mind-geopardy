@@ -30,12 +30,12 @@ export class UserController {
   });
 
   updateUser = asyncHandler(async (req: Request, res: Response) => {
-    const user = await this.userService.updateUser(req.params.id, req.body);
+    const user = await this.userService.updateUser(req.params.uuid, req.body);
     res.status(200).json(user);
   });
 
   deleteUser = asyncHandler(async (req: Request, res: Response) => {
     const user = await this.userService.deleteUser(req.params.uuid);
-    res.status(200).json(user);
+    res.status(200).json({message:"User deleted successfully"});
   });
 } 
