@@ -7,8 +7,13 @@ export interface IUser extends Document {
   role: "player" | "admin";
   isDeleted: boolean;
   completedRegister: boolean;
+  permissions: object,
   createdAt: Date;
   updatedAt: Date;
+}
+
+const permission = {
+  type: String
 }
 
 const userSchema = new Schema<IUser>({
@@ -38,10 +43,15 @@ const userSchema = new Schema<IUser>({
     enum: ["player", "admin"],
     default: "player",
   },
+  permissions: [{
+    type: Schema.Types.ObjectId,
+    ref: "Permission", 
+    default: []
+  }],
   isDeleted: {
     type: Boolean,
     default: false,
-    required:false
+    required: false
   },
   completedRegister: {
     type: Boolean,

@@ -11,8 +11,8 @@ export class UserService {
 
   async createUser(userData: Partial<IUser>): Promise<IUser> {
     const existingUser = await this.userRepository.findByEmail(userData.email!);
-    if (existingUser) { 
-      throw new CustomError('User already exists with this email', 400);
+    if (existingUser) {
+      return existingUser;
     }
     return await this.userRepository.create(userData);
   }

@@ -1,15 +1,16 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import fs from 'fs';
 import path from 'path';
 
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import { DBConnectorMongoose } from './src/config/database';
 import router from './src/api/routes/index.route';
 import { errorHandler } from './src/api/middlewares/error.middleware';
-dotenv.config();
 
 
 const app = express();
