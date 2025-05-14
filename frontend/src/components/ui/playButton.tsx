@@ -1,0 +1,93 @@
+
+import "./gradient-button-animations.css"
+
+interface GradientButtonProps {
+  text?: string
+  onClick?: () => void
+  className?: string
+}
+
+const GradientButton: React.FC<GradientButtonProps> = ({ text = "Play now", onClick, className = "" }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        gradient-btn
+        bg-black
+        border-none
+        rounded-[22px]
+        shadow-xl
+        text-gray-100
+        cursor-pointer
+        font-semibold
+        text-2xl
+        h-[84px]
+        min-w-[230px]
+        p-4
+        relative
+        transition-all
+        duration-300
+        ease-in-out
+        transform
+        -rotate-10
+        skew-x-2
+        ${className}
+      `}
+    >
+      <div className="fx"></div>
+      <div className="fx bottom"></div>
+      <div
+        className="
+        content-wrapper
+        rounded-[20px]
+        flex
+        items-center
+        justify-center
+        gap-3.5
+        absolute
+        inset-0
+        pb-[5px]
+        transform
+        translate-x-[6px]
+        -translate-y-[8px]
+        transition-all
+        duration-300
+        ease-in-out
+        z-[3]
+      "
+      >
+        <span
+          className="
+          relative
+          pointer-events-none
+          select-none
+          drop-shadow-md
+        "
+        >
+          {text}
+        </span>
+        <svg
+          viewBox="0 0 1200 1200"
+          version="1.1"
+          height="30"
+          width="30"
+          xmlns="http://www.w3.org/2000/svg"
+          className="
+            relative
+            pointer-events-none
+            select-none
+            drop-shadow-md
+            transition-all
+            duration-400
+            ease-out
+          "
+        >
+          <path fill="#e5e5e5" d="m150 550h775v100h-775z"></path>
+          <path fill="#e5e5e5" d="m710 935-70-70 265-265-265-265 70-70 335 335z"></path>
+        </svg>
+      </div>
+    </button>
+  )
+}
+
+export default GradientButton

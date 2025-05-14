@@ -1,13 +1,13 @@
-import type { CommonProps } from "../../shared/types";
-
-interface Props extends CommonProps {
-    children?: React.ReactNode;
-    onClick?: () => void;
+import type { ButtonHTMLAttributes } from "react";
+interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
+    name?: string;
 }
 
-const GlowButton: React.FC<Props> = ({ children, onClick, className }) => {
+const GlowButton: React.FC<Props> = ({ children, onClick, className, type, ...props }) => {
     return (
         <button
+            {...props}
+            type={type}
             onClick={onClick}
             className={`relative bg-[#170a2e] text-white border border-purple-500/50 rounded-md px-6 py-3 group cursor-pointer ${className}`}
         >
