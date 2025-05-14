@@ -4,11 +4,15 @@ export interface CommonProps {
 }
 export interface LoginCredentials {
     firebaseUid: string;
-    name: string;
     email: string;
+    name?: string;
     password?: string;
 }
-
+export interface SignUpCredentials {
+    name: string;
+    email: string;
+    password: string;
+}
 export interface LoginResponse {
     token: string;
     user: {

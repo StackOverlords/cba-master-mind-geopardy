@@ -5,11 +5,115 @@
   font-family: 'Onest Variable', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-@theme {}
+@theme {
+  
+}
 
 .bg-grid-pattern {
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
   background-size: 30px 30px;
+}
+
+
+
+/* play button styles */
+
+.gradient-btn {
+  --tw-shadow: 0 0 10px #000000;
+}
+
+.gradient-btn .content-wrapper {
+  background: linear-gradient(to top, #0a0a0a 5%, #262626 30%, #525252 60%, #737373 80%, #d4d4d4 100%);
+  box-shadow: #000000 -16px 20px 30px 2px;
+}
+
+.gradient-btn .content-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: linear-gradient(to bottom, #525252, #404040, #171717);
+  border-radius: inherit;
+  box-shadow: inset 0 -8px 20px -3px rgba(0, 0, 0, 0.43), inset 0 10px 14px -5px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.gradient-btn:active .content-wrapper {
+  box-shadow: none;
+  transform: translate(3px, -4px);
+}
+
+.gradient-btn:active .content-wrapper::before {
+  box-shadow: inset 0 8px 20px -3px rgba(0, 0, 0, 0.43), inset 0 -10px 14px -5px rgba(255, 255, 255, 0.3);
+}
+
+.gradient-btn span,
+.gradient-btn svg {
+  text-shadow: 1px 2px #171717;
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+}
+
+.gradient-btn:hover {
+  filter: brightness(1.1);
+}
+
+.gradient-btn:active {
+  filter: none;
+}
+
+.gradient-btn:hover svg {
+  transform: translateX(7px);
+}
+
+.gradient-btn .fx {
+  content: "";
+  background-repeat: no-repeat;
+  position: absolute;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+}
+
+.gradient-btn:active .bottom {
+  transform: scale(-1) translateY(-185%) translateX(60%);
+}
+
+.gradient-btn:active .fx {
+  background-image: radial-gradient(circle, #525252 10%, transparent 10%),
+    radial-gradient(circle, #d4d4d4 15%, transparent 15%), radial-gradient(circle, #a3a3a3 22%, transparent 22%),
+    radial-gradient(circle, #0a0a0a 10%, transparent 22%), radial-gradient(circle, #262626 15%, transparent 15%),
+    radial-gradient(circle, #525252 20%, transparent 20%), radial-gradient(circle, #737373 22%, transparent 22%),
+    radial-gradient(circle, #737373 10%, transparent 10%), radial-gradient(circle, #a3a3a3 22%, transparent 22%),
+    radial-gradient(circle, #000000 10%, transparent 10%), radial-gradient(circle, #000000 15%, transparent 15%);
+  background-size: 15% 15%, 25% 25%, 20% 20%, 25% 25%, 18% 18%, 18% 18%, 15% 15%, 22% 22%, 15% 15%, 25% 25%, 20% 20%;
+  background-position: 50% 125%;
+  animation: bubblesAnimation 0.9s ease;
+  top: -90%;
+}
+
+@keyframes bubblesAnimation {
+  0% {
+    background-position: 10% 95%, 15% 95%, 15% 95%, 20% 95%, 30% 95%, 30% 95%, 45% 95%, 65% 95%, 75% 95%, 10% 95%, 15% 95%, 15% 95%;
+  }
+
+  70% {
+    background-position: 5% 85%, 5% 25%, 15% 45%, 25% 5%, 35% 35%, 27% 55%, 55% 55%, 75% 25%, 95% 35%, 5% 85%, 15% 45%;
+  }
+
+  100% {
+    background-position: 5% 75%, 5% 15%, 15% 35%, 25% 0%, 35% 25%, 27% 45%, 55% 45%, 70% 15%, 95% 25%, 5% 75%, 15% 35%;
+    background-size: 0% 0%;
+  }
 }
