@@ -6,7 +6,8 @@
 }
 
 @theme {
-  
+  --font-Onest: 'Onest Variable', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-PressStart2P:'Press Start 2P', 'Onest Variable', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 .bg-grid-pattern {
@@ -21,58 +22,106 @@
 /* play button styles */
 
 .gradient-btn {
-  --tw-shadow: 0 0 10px #000000;
+  --tw-shadow: -10px 15px 50px rgba(156, 59, 246, 0.2);
 }
 
 .gradient-btn .content-wrapper {
-  background: linear-gradient(to top, #0a0a0a 5%, #262626 30%, #525252 60%, #737373 80%, #d4d4d4 100%);
-  box-shadow: #000000 -16px 20px 30px 2px;
+  background: rgba(30, 27, 75, 0.4);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(147, 51, 234, 0.15), inset 0 0 0 2px
+    rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  overflow: hidden; /* For the light reflection */
+}
+
+/* Light reflection effect */
+.gradient-btn .light-reflection {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.3) 30%,
+    transparent 70%
+  );
+  transform: rotate(45deg);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.gradient-btn:hover .light-reflection {
+  opacity: 0.25;
 }
 
 .gradient-btn .content-wrapper::before {
   content: "";
   position: absolute;
-  inset: 3px;
-  background: linear-gradient(to bottom, #525252, #404040, #171717);
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(59, 130, 246, 0.05) 0%,
+    rgba(30, 27, 75, 0.2) 50%,
+    rgba(88, 28, 135, 0.3) 100%
+  );
   border-radius: inherit;
-  box-shadow: inset 0 -8px 20px -3px rgba(0, 0, 0, 0.43), inset 0 10px 14px -5px rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 -8px 20px -3px rgba(0, 0, 0, 0.3), inset 0 10px 14px -5px rgba(59, 130, 246, 0.15);
   transition: all 0.3s ease;
   z-index: -1;
 }
 
+/* Glass edge highlight */
+.gradient-btn .content-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 40%;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  border-radius: 0 20px 0 0;
+  z-index: 2;
+}
+
 .gradient-btn:active .content-wrapper {
-  box-shadow: none;
-  transform: translate(3px, -4px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(147, 51, 234, 0.2);
+  transform: translate(-4px, 3px);
 }
 
 .gradient-btn:active .content-wrapper::before {
-  box-shadow: inset 0 8px 20px -3px rgba(0, 0, 0, 0.43), inset 0 -10px 14px -5px rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 8px 20px -3px rgba(0, 0, 0, 0.4), inset 0 -10px 14px -5px rgba(59, 130, 246, 0.1);
 }
 
 .gradient-btn span,
-.gradient-btn svg {
-  text-shadow: 1px 2px #171717;
-  -webkit-touch-callout: none;
-  /* iOS Safari */
-  -webkit-user-select: none;
-  /* Safari */
-  -khtml-user-select: none;
-  /* Konqueror HTML */
-  -moz-user-select: none;
-  /* Old versions of Firefox */
-  -ms-user-select: none;
-  /* Internet Explorer/Edge */
+.gradient-btn .arrow-svg {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  position: relative;
+  z-index: 3;
 }
 
 .gradient-btn:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.2);
+}
+
+.gradient-btn:hover .content-wrapper {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(147, 51, 234, 0.25), inset 0 0 0 2px
+    rgba(59, 130, 246, 0.1);
 }
 
 .gradient-btn:active {
   filter: none;
 }
 
-.gradient-btn:hover svg {
+.gradient-btn:hover .arrow-svg {
   transform: translateX(7px);
 }
 
@@ -91,29 +140,27 @@
 }
 
 .gradient-btn:active .fx {
-  background-image: radial-gradient(circle, #525252 10%, transparent 10%),
-    radial-gradient(circle, #d4d4d4 15%, transparent 15%), radial-gradient(circle, #a3a3a3 22%, transparent 22%),
-    radial-gradient(circle, #0a0a0a 10%, transparent 22%), radial-gradient(circle, #262626 15%, transparent 15%),
-    radial-gradient(circle, #525252 20%, transparent 20%), radial-gradient(circle, #737373 22%, transparent 22%),
-    radial-gradient(circle, #737373 10%, transparent 10%), radial-gradient(circle, #a3a3a3 22%, transparent 22%),
-    radial-gradient(circle, #000000 10%, transparent 10%), radial-gradient(circle, #000000 15%, transparent 15%);
-  background-size: 15% 15%, 25% 25%, 20% 20%, 25% 25%, 18% 18%, 18% 18%, 15% 15%, 22% 22%, 15% 15%, 25% 25%, 20% 20%;
+  background-image: radial-gradient(circle, rgba(59, 130, 246, 0.8) 10%, transparent 10%),
+    radial-gradient(circle, rgba(96, 165, 250, 0.6) 15%, transparent 15%),
+    radial-gradient(circle, rgba(147, 51, 234, 0.4) 22%, transparent 22%),
+    radial-gradient(circle, rgba(168, 85, 247, 0.6) 10%, transparent 22%),
+    radial-gradient(circle, rgba(192, 132, 252, 0.4) 15%, transparent 15%),
+    radial-gradient(circle, rgba(216, 180, 254, 0.2) 20%, transparent 20%);
+  background-size: 15% 15%, 25% 25%, 20% 20%, 25% 25%, 18% 18%, 18% 18%;
   background-position: 50% 125%;
-  animation: bubblesAnimation 0.9s ease;
+  animation: bubblesAnimation 0.5s ease;
   top: -90%;
 }
 
 @keyframes bubblesAnimation {
   0% {
-    background-position: 10% 95%, 15% 95%, 15% 95%, 20% 95%, 30% 95%, 30% 95%, 45% 95%, 65% 95%, 75% 95%, 10% 95%, 15% 95%, 15% 95%;
+    background-position: 10% 95%, 15% 95%, 15% 95%, 20% 95%, 30% 95%, 30% 95%;
   }
-
   70% {
-    background-position: 5% 85%, 5% 25%, 15% 45%, 25% 5%, 35% 35%, 27% 55%, 55% 55%, 75% 25%, 95% 35%, 5% 85%, 15% 45%;
+    background-position: 5% 85%, 5% 25%, 15% 45%, 25% 5%, 35% 35%, 27% 55%;
   }
-
   100% {
-    background-position: 5% 75%, 5% 15%, 15% 35%, 25% 0%, 35% 25%, 27% 45%, 55% 45%, 70% 15%, 95% 25%, 5% 75%, 15% 35%;
+    background-position: 5% 75%, 5% 15%, 15% 35%, 25% 0%, 35% 25%, 27% 45%;
     background-size: 0% 0%;
   }
 }

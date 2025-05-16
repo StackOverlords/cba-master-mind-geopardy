@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fontsource-variable/onest": "^5.2.8",
+    "@fontsource/press-start-2p": "^5.2.5",
     "@tailwindcss/vite": "^4.1.6",
     "axios": "^1.9.0",
     "firebase": "^11.7.1",

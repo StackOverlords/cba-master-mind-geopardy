@@ -1,19 +1,32 @@
+import { useEffect, type ButtonHTMLAttributes } from "react"
+import useSound from "../../hooks/useSound"
+import keytypeSound from "../../assets/sounds/keytype.mp3"
 
-import "./gradient-button-animations.css"
-
-interface GradientButtonProps {
-  text?: string
-  onClick?: () => void
-  className?: string
+interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
+    text?: string
 }
 
-const GradientButton: React.FC<GradientButtonProps> = ({ text = "Play now", onClick, className = "" }) => {
-  return (
-    <button
-      onClick={onClick}
-      className={`
+const PlayButton: React.FC<Props> = ({ children, text = "Play now", className, ...props }) => {
+    const { play, stop } = useSound(keytypeSound)
+
+    const handleClick = () => {
+        // if (isNavigating) return;
+        // add(char);
+        stop();
+        play();
+        // setTimeout(() => {
+        // 	remove(char);
+        // 	handleNavigation();
+        // }, 100);
+    };
+
+    return (
+        <button
+            {...props}
+            onClick={() => handleClick()}
+            className={`
         gradient-btn
-        bg-black
+        bg-purple-700/10
         border-none
         rounded-[22px]
         shadow-xl
@@ -30,14 +43,14 @@ const GradientButton: React.FC<GradientButtonProps> = ({ text = "Play now", onCl
         ease-in-out
         transform
         -rotate-10
-        skew-x-2
+        skew-x-2 
         ${className}
       `}
-    >
-      <div className="fx"></div>
-      <div className="fx bottom"></div>
-      <div
-        className="
+        >
+            <div className="fx"></div>
+            <div className="fx bottom"></div>
+            <div
+                className="
         content-wrapper
         rounded-[20px]
         flex
@@ -55,24 +68,26 @@ const GradientButton: React.FC<GradientButtonProps> = ({ text = "Play now", onCl
         ease-in-out
         z-[3]
       "
-      >
-        <span
-          className="
+            >
+                {/* Light reflection element */}
+                <div className="light-reflection"></div>
+                <span
+                    className="flex items-center justify-center gap-3.5
           relative
           pointer-events-none
           select-none
           drop-shadow-md
         "
-        >
-          {text}
-        </span>
-        <svg
-          viewBox="0 0 1200 1200"
-          version="1.1"
-          height="30"
-          width="30"
-          xmlns="http://www.w3.org/2000/svg"
-          className="
+                >
+                    {children}
+                </span>
+                <svg
+                    viewBox="0 0 1200 1200"
+                    version="1.1"
+                    height="30"
+                    width="30"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="arrow-svg 
             relative
             pointer-events-none
             select-none
@@ -81,13 +96,13 @@ const GradientButton: React.FC<GradientButtonProps> = ({ text = "Play now", onCl
             duration-400
             ease-out
           "
-        >
-          <path fill="#e5e5e5" d="m150 550h775v100h-775z"></path>
-          <path fill="#e5e5e5" d="m710 935-70-70 265-265-265-265 70-70 335 335z"></path>
-        </svg>
-      </div>
-    </button>
-  )
+                >
+                    <path fill="#e5e5e5" d="m150 550h775v100h-775z"></path>
+                    <path fill="#e5e5e5" d="m710 935-70-70 265-265-265-265 70-70 335 335z"></path>
+                </svg>
+            </div>
+        </button>
+    )
 }
 
-export default GradientButton
+export default PlayButton
