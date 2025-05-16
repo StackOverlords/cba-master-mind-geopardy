@@ -1,3 +1,4 @@
+import { CategoryFilter } from "../../core/interfaces/category.filter.interface";
 import { ICategory, CategoryModel } from "../../core/models/Category.model";
 
 export class CategoryRepository {
@@ -11,8 +12,63 @@ export class CategoryRepository {
         return await CategoryModel.findById(id);
     }
 
-    async findAll(): Promise<ICategory[] | null> {
-        return await CategoryModel.find();
+    async findAll({ name, user, description, page = 1, limit = 10, sort = "desc" }: Partial<CategoryFilter>): Promise<any> {
+        const pageNumber = Math.max(1, parseInt(page as any) || 1);
+        const limitNumber = Math.max(1, parseInt(limit as any) || 10);
+
+        const isUnlimited = limitNumber === -1;
+
+        const filter: Record<string, any> = { isDeleted: false };
+
+        if (name) filter.name = { $regex: name, $options: 'i' };
+        if (user) filter.user = user;
+        if (description) filter.description = { $regex: description, $options: 'i' };
+
+        const dataPipeline: any[] = [
+            { $sort: { createdAt: sort === 'desc' ? -1 : 1 } },
+        ]
+
+        if (!isUnlimited) {
+            dataPipeline.push(
+                { $skip: (pageNumber - 1) * limitNumber },
+                { $limit: limitNumber }
+            )
+        }
+
+        const query = [
+            {
+                $match: filter
+            },
+            {
+                $facet: {
+                    data: dataPipeline,
+                    totalCount: [
+                        { $count: 'count' }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    data: 1,
+                    totalCount: { $arrayElemAt: ['$totalCount.count', 0] }
+                }
+            }
+        ];
+
+        const [result] = await CategoryModel.aggregate(query);
+
+        const totalCount = result.totalCount || 0;
+        const totalPages = Math.ceil(totalCount / limitNumber);
+
+        return {
+            page: pageNumber,
+            limit: limitNumber,
+            sort,
+            totalPages,
+            totalCount,
+            data: result.data
+        }
+
     }
 
     async update(id: string, categoryData: Partial<ICategory>): Promise<ICategory | null> {

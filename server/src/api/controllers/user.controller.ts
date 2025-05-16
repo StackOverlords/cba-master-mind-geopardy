@@ -25,7 +25,7 @@ export class UserController {
   });
 
   getAllUsers = asyncHandler(async (req: Request, res: Response) => {
-    const users = await this.userService.getAllUsers();
+    const users = await this.userService.getAllUsers(req.query);
     res.status(200).json(users);
   });
 

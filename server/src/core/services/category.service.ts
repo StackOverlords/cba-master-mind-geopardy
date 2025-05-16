@@ -1,6 +1,7 @@
 import { CategoryRepository } from "../../infrastructure/repositories/category.repository";
-import { CategoryModel, ICategory } from "../models/Category.model";
+import { ICategory } from "../models/Category.model";
 import { CustomError } from "../../api/middlewares/error.middleware";
+import { CategoryFilter } from "../interfaces/category.filter.interface";
 
 export class CategoryService {
     private categoryService: CategoryRepository;
@@ -14,14 +15,14 @@ export class CategoryService {
             throw new CustomError("Category name is required", 400);
         }
         const exist = await this.categoryService.findByText(categoryData.name);
-        if (exist && exist.length >= 0) {
+        if (exist && exist.length > 0) {
             throw new CustomError("Category already exists", 400);
         }
         return await this.categoryService.create(categoryData);
     }
 
-    async findAll(): Promise<ICategory[] | null> {
-        return await this.categoryService.findAll();
+    async findAll({ name, user, description, page, limit, sort }: Partial<CategoryFilter>): Promise<ICategory[] | null> {
+        return await this.categoryService.findAll({ name, user, description, page, limit, sort });
     }
 
     async findById(id: string): Promise<ICategory | null> {

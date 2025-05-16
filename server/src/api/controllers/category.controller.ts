@@ -14,8 +14,8 @@ export class CategoryController {
         res.status(201).json(category);
     })
 
-    findAll = asyncHandler(async (_: Request, res: Response) => {
-        const categorys = await this.categoryService.findAll();
+    findAll = asyncHandler(async (req: Request, res: Response) => {
+        const categorys = await this.categoryService.findAll(req.query);
         res.status(201).json(categorys);
     })
 
