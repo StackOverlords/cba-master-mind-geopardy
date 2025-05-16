@@ -52,6 +52,7 @@
     },
     "/users": {
       "get": {
+        "security":[{"Bearer":[]}],
         "summary": "Retrieve all users",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -161,6 +162,7 @@
     },
     "/users/create": {
       "post": {
+        "security":[{"Bearer":[]}],
         "summary": "Create a new user",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -242,6 +244,7 @@
     },
     "/users/{uuid}/update": {
       "put": {
+        "security":[{"Bearer":[]}],
         "summary": "Update a user",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -347,6 +350,7 @@
     },
     "/users/firebase/{uuid}": {
       "get": {
+        "security":[{"Bearer":[]}],
         "summary": "Get user by Firebase UID",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -377,6 +381,7 @@
     },
     "/users/{uuid}/delete": {
       "delete": {
+        "security":[{"Bearer":[]}],
         "summary": "Get user by Firebase UID",
         "produces": ["application/json"],
         "tags": ["users"],
