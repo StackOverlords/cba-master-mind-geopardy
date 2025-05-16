@@ -1,18 +1,19 @@
 import { Route, Routes } from "react-router";
 import MainLayout from "./layouts/mainLayout";
 import LoginPage from "./pages/loginPage";
-import HomePage from "./pages/homePage";
+// import HomePage from "./pages/homePage";
 import LoginForm from "./components/auth/loginForm";
 import SignUpForm from "./components/auth/registerForm";
+import LandingPage from "./pages/landingPage";
 
 const App = () => {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route index path="/" element={<HomePage />} />
+        <Route index path="/" element={<LandingPage />} />
         <Route element={<LoginPage />}>
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/signup" element={<SignUpForm />} />
+          <Route path="/auth/sign-in" element={<LoginForm />} />
+          <Route path="/auth/sign-up" element={<SignUpForm />} />
         </Route>
       </Route>
     </Routes>
