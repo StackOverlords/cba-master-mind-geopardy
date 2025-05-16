@@ -99,7 +99,7 @@ const LoginForm = () => {
                 </GlowButton>
                 <p className="text-sm">Don't have an account?
                     <a
-                        href="/signup"
+                        href="/auth/sign-up"
                         className="text-purple-400 hover:text-purple-300 transition-colors duration-300 ease-in-out"> Sign up</a>
                 </p>
             </form>
