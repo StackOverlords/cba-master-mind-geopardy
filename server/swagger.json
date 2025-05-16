@@ -14,6 +14,14 @@
     }
   },
   "basePath": "/api/v1",
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "id": "header",
+      "description": "Ingrese el token JWT en formato: Bearer <token>"
+    }
+  },
   "schemes": ["http", "https"],
   "tags": [
     {
@@ -44,10 +52,52 @@
     },
     "/users": {
       "get": {
+        "security": [{ "Bearer": [] }],
         "summary": "Retrieve all users",
         "produces": ["application/json"],
         "tags": ["users"],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "firebaseUid",
+            "in": "query",
+            "description": "Firebase UID of the user",
+            "required": false,
+            "type": "string",
+            "example": "123AD45678DX90AAE"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of users per page",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Filter users by role",
+            "required": false,
+            "type": "string",
+            "default": "player"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort users by field [asc|desc]",
+            "required": false,
+            "type": "string",
+            "default": "desc"
+          }
+        ],
         "responses": {
           "200": {
             "description": "API version create successfully",
@@ -112,6 +162,7 @@
     },
     "/users/create": {
       "post": {
+        "security": [{ "Bearer": [] }],
         "summary": "Create a new user",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -187,24 +238,13 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "User already exists with this email"
-                }
-              }
-            }
           }
         }
       }
     },
     "/users/{uuid}/update": {
       "put": {
+        "security": [{ "Bearer": [] }],
         "summary": "Update a user",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -310,6 +350,7 @@
     },
     "/users/firebase/{uuid}": {
       "get": {
+        "security": [{ "Bearer": [] }],
         "summary": "Get user by Firebase UID",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -340,6 +381,7 @@
     },
     "/users/{uuid}/delete": {
       "delete": {
+        "security": [{ "Bearer": [] }],
         "summary": "Get user by Firebase UID",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -374,7 +416,54 @@
         "summary": "Get games",
         "produces": ["application/json"],
         "tags": ["game"],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "description": "Name of the game",
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "description": "User ID to be created",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Status of the game",
+            "type": "string",
+            "enum": ["waiting", "playing", "paused", "finished"]
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of categorys per page",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort categorys by field [asc|desc]",
+            "required": false,
+            "type": "string",
+            "default": "desc"
+          }
+        ],
         "responses": {
           "200": {
             "description": "API version retrieved successfully",
@@ -585,6 +674,7 @@
     },
     "/question": {
       "get": {
+        "security": [{ "Bearer": [] }],
         "summary": "Get questions",
         "produces": ["application/json"],
         "tags": ["question"],
@@ -621,6 +711,7 @@
     },
     "/question/create": {
       "post": {
+        "security": [{ "Bearer": [] }],
         "summary": "Create questions",
         "produces": ["application/json"],
         "tags": ["question"],
@@ -679,6 +770,7 @@
     },
     "/question/{id}/update": {
       "put": {
+        "security": [{ "Bearer": [] }],
         "summary": "Update questions",
         "produces": ["application/json"],
         "tags": ["question"],
@@ -741,6 +833,7 @@
     },
     "/question/{id}/delete": {
       "delete": {
+        "security": [{ "Bearer": [] }],
         "summary": "Delete questions",
         "produces": ["application/json"],
         "tags": ["question"],
@@ -770,10 +863,58 @@
 
     "/category": {
       "get": {
+        "security": [{ "Bearer": [] }],
         "summary": "Get categorys",
         "produces": ["application/json"],
         "tags": ["category"],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name of the category",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "description": "User ID who created the category",
+            "required": false,
+            "type": "string",
+            "example": "123AD45678DX90AAE"
+          },
+          {
+            "name": "description",
+            "in": "query",
+            "description": "Filter by category description",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of categorys per page",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort categorys by field [asc|desc]",
+            "required": false,
+            "type": "string",
+            "default": "desc"
+          }
+        ],
         "responses": {
           "200": {
             "description": "API version retrieved successfully",
@@ -805,6 +946,7 @@
     },
     "/category/create": {
       "post": {
+        "security": [{ "Bearer": [] }],
         "summary": "Create new category",
         "produces": ["application/json"],
         "tags": ["category"],
@@ -853,6 +995,7 @@
     },
     "/category/{id}/update": {
       "put": {
+        "security": [{ "Bearer": [] }],
         "summary": "Update category",
         "produces": ["application/json"],
         "tags": ["category"],
@@ -905,6 +1048,7 @@
     },
     "/category/{id}/delete": {
       "delete": {
+        "security": [{ "Bearer": [] }],
         "summary": "Delete category",
         "produces": ["application/json"],
         "tags": ["category"],
@@ -923,6 +1067,242 @@
                 "message": {
                   "type": "string",
                   "example": "Category deleted successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/auth/validSession": {
+      "post": {
+        "summary": "Authentication user",
+        "produces": ["application/json"],
+        "tags": ["auth"],
+        "parameters": [
+          {
+            "name": "accessToken",
+            "in": "body",
+            "properties": {
+              "accessToken": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Category deleted successfully"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/permission/create": {
+      "post": {
+        "security": [{ "Bearer": [] }],
+        "summary": "Create permission",
+        "produces": ["application/json"],
+        "tags": ["permission"],
+        "parameters": [
+          {
+            "name": "permission",
+            "in": "body",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "write.category"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "example": "write.category"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "isDeleted": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permission": {
+      "get": {
+        "security": [{ "Bearer": [] }],
+        "summary": "Retrieve permissions",
+        "produces": ["application/json"],
+        "tags": ["permission"],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "Code of the permission",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "in": "query",
+            "description": "Filter by permission description",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of categorys per page",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort categorys by field [asc|desc]",
+            "required": false,
+            "type": "string",
+            "default": "desc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "write.category"
+                  },
+                  "description": {
+                    "type": "Create categorys"
+                  },
+                  "isDeleted": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permission/{id}/update": {
+      "put": {
+        "security": [{ "Bearer": [] }],
+        "summary": "Update permissions",
+        "produces": ["application/json"],
+        "tags": ["permission"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "permission",
+            "in": "body",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "edit.category"
+              },
+              "description": {
+                "type": "string"
+              },
+              "isDeleted": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "write.category"
+                  },
+                  "description": {
+                    "type": "Create categorys"
+                  },
+                  "isDeleted": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permission/{id}/delete": {
+      "delete": {
+        "security": [{ "Bearer": [] }],
+        "summary": "Delete permission",
+        "produces": ["application/json"],
+        "tags": ["permission"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Permission deleted successfully"
                 }
               }
             }
