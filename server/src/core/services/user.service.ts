@@ -1,6 +1,7 @@
 import { UserRepository } from '../../infrastructure/repositories/user.repository';
 import { IUser } from '../models/User.model';
 import { CustomError } from '../../api/middlewares/error.middleware';
+import { UserFilter } from '../interfaces/user.filter.interface';
 
 export class UserService {
   private userRepository: UserRepository;
@@ -33,8 +34,8 @@ export class UserService {
     return user;
   }
 
-  async getAllUsers(): Promise<IUser[]> {
-    return await this.userRepository.findAll();
+  async getAllUsers({ firebaseUid, name, role, page, limit, sort }: Partial<UserFilter>): Promise<any> {
+    return await this.userRepository.findAll({ firebaseUid, name, role, page, limit, sort });
   }
 
   async updateUser(uuid: string, userData: Partial<IUser>): Promise<IUser | null> {

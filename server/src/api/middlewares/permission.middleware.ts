@@ -2,7 +2,7 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 import { CustomError } from "./error.middleware";
 import { UserModel } from "../../core/models/User.model";
 
-type PermissionCode = "category.create" | "category.update" | "category.delete"; // Añade todos los permisos necesarios
+type PermissionCode = "create" | "update" | "delete" | "retrieve";
 
 interface AuthenticatedRequest extends Request {
     user?: { uid: string;[key: string]: any };
@@ -11,12 +11,6 @@ interface AuthenticatedRequest extends Request {
 export const checkPermission = (requiredPermissionCode: PermissionCode) => {
     return async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> => {
         const uid = req.user?.uid;
-        console.log(
-            uid, "Estoy en mi middleware de permissions"
-        )
-        console.log(
-            requiredPermissionCode, "Estoy validando los permisos"
-        )
         if (!uid) {
             throw new CustomError("Auth error: UID missing", 401);
         }
@@ -30,10 +24,11 @@ export const checkPermission = (requiredPermissionCode: PermissionCode) => {
             if (!user) {
                 return res.status(404).json({ error: "User not found" });
             }
+            if (user.role === "admin") return next();
+
             if (!user?.permissions) {
                 throw new CustomError("Insufficient permissions", 403);
             }
-            if (user.role === "admin") return next();
             
             if (!user.permissions.some(p => p.code === requiredPermissionCode)) {
                 return res.status(403).json({
