@@ -52,7 +52,7 @@
     },
     "/users": {
       "get": {
-        "security":[{"Bearer":[]}],
+        "security": [{ "Bearer": [] }],
         "summary": "Retrieve all users",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -162,7 +162,7 @@
     },
     "/users/create": {
       "post": {
-        "security":[{"Bearer":[]}],
+        "security": [{ "Bearer": [] }],
         "summary": "Create a new user",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -244,7 +244,7 @@
     },
     "/users/{uuid}/update": {
       "put": {
-        "security":[{"Bearer":[]}],
+        "security": [{ "Bearer": [] }],
         "summary": "Update a user",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -350,7 +350,7 @@
     },
     "/users/firebase/{uuid}": {
       "get": {
-        "security":[{"Bearer":[]}],
+        "security": [{ "Bearer": [] }],
         "summary": "Get user by Firebase UID",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -381,7 +381,7 @@
     },
     "/users/{uuid}/delete": {
       "delete": {
-        "security":[{"Bearer":[]}],
+        "security": [{ "Bearer": [] }],
         "summary": "Get user by Firebase UID",
         "produces": ["application/json"],
         "tags": ["users"],
@@ -416,7 +416,54 @@
         "summary": "Get games",
         "produces": ["application/json"],
         "tags": ["game"],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "description": "Name of the game",
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "required": false,
+            "description": "User ID to be created",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Status of the game",
+            "type": "string",
+            "enum": ["waiting", "playing", "paused", "finished"]
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "type": "integer",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of categorys per page",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort categorys by field [asc|desc]",
+            "required": false,
+            "type": "string",
+            "default": "desc"
+          }
+        ],
         "responses": {
           "200": {
             "description": "API version retrieved successfully",

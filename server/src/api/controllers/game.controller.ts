@@ -15,7 +15,7 @@ export class GameController {
     })
 
     findAll = asyncHandler(async (req: Request, res: Response) => {
-        const games = await this.gameService.findAll();
+        const games = await this.gameService.findAll(req.query);
         res.status(201).json(games);
     })
     getById = asyncHandler(async (req: Request, res: Response) => {

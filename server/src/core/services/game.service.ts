@@ -1,6 +1,7 @@
 import { GameRepository } from "../../infrastructure/repositories/game..repository";
 import { IGame } from "../models/Game.model";
 import { CustomError } from "../../api/middlewares/error.middleware";
+import { GameFilter } from "../interfaces/game.filter.interface";
 
 export class GameService {
     private gameRepository: GameRepository;
@@ -13,8 +14,8 @@ export class GameService {
         return await this.gameRepository.create(gameData);
     }
     
-    async findAll():Promise<IGame[] | null>{
-        return await this.gameRepository.findAll();
+    async findAll({name,user,status,gameMode,players,isDeleted,questions,page,limit,sort}:Partial<GameFilter>):Promise<IGame[] | null>{
+        return await this.gameRepository.findAll({name,user,status,gameMode,players,isDeleted,questions,page,limit,sort});
     }
 
     async findById(id: string): Promise<IGame | null> {
