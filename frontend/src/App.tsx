@@ -9,12 +9,12 @@ import LandingPage from "./pages/landingPage";
 const App = () => {
   return (
     <Routes>
+      <Route element={<LoginPage />}>
+        <Route path="/auth/sign-in" element={<LoginForm />} />
+        <Route path="/auth/sign-up" element={<SignUpForm />} />
+      </Route>
       <Route element={<MainLayout />}>
         <Route index path="/" element={<LandingPage />} />
-        <Route element={<LoginPage />}>
-          <Route path="/auth/sign-in" element={<LoginForm />} />
-          <Route path="/auth/sign-up" element={<SignUpForm />} />
-        </Route>
       </Route>
     </Routes>
   );
