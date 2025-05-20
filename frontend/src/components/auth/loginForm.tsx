@@ -1,19 +1,21 @@
 import { useState, type FormEvent } from "react";
-import { signIn_EmailAndPassword, signInWithGoogle } from "../../lib/firebase";
 import InputField from "../ui/inputField";
 import EyeIcon from "../ui/icons/eyeIcon";
 import EyeClosedIcon from "../ui/icons/eye-closedIcon";
 import GlowButton from "../ui/glowButton";
 import SeparatorWithText from "../ui/separatorWithText";
 import GoogleIcon from "../ui/icons/googleIcon";
-import type { LoginCredentials } from "../../shared/types";
-import { createUserApi } from "../../api/authApi";
 import AuthProviderButton from "../ui/authProviderButton";
+import type { LoginCredentials } from "../../shared/auth.types";
+import { useAuthStore } from "../../stores/authStore";
+import { useNavigate } from "react-router";
+import SpinnerIcon from "../ui/icons/spinnerIcon";
 
 const LoginForm = () => {
+    const { login, loginWithGoogle, isLoading } = useAuthStore()
+    const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loginData, setLoginData] = useState<LoginCredentials>({
-        firebaseUid: '',
         email: '',
         password: ''
     })
@@ -26,26 +28,25 @@ const LoginForm = () => {
         setLoginData({ ...loginData, [e.target.name]: e.target.value });
     };
     const handleSignInWithGoogle = async () => {
-        const userResponse = await signInWithGoogle()
-        if (userResponse) {
-            setError(null)
-            console.log(await createUserApi(userResponse))
-        }
-        else {
-            setError('Error signIn with Google');
+        try {
+            setError(null);
+            await loginWithGoogle()
+            setTimeout(() => {
+                navigate('/');
+            }, 500);
+        } catch (error) {
+            setError('Error with Google sign in');
         }
     }
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        setError(null);
         if (!loginData.email || !loginData.password) {
             setError('Please fill in all fields');
             return;
         }
         try {
-            const userResponse = await signIn_EmailAndPassword(loginData.email, loginData.password);
-            console.log(userResponse);
+            await login(loginData);
             setError(null);
         } catch (error) {
             setError('Invalid email or password');
@@ -58,11 +59,12 @@ const LoginForm = () => {
             <form className="mt-4 px-4 py-2 
             flex flex-col gap-4 
             items-center 
-            max-w-sm w-sm"
+            max-w-sm w-sm text-sm"
                 action="" onSubmit={handleSubmit}>
                 <div className="w-full">
-                    <label htmlFor="">Email</label>
+                    <label htmlFor="email">Email</label>
                     <InputField
+                        id="email"
                         name="email"
                         type="email"
                         value={loginData?.email}
@@ -73,8 +75,9 @@ const LoginForm = () => {
                 </div>
 
                 <div className="relative w-full">
-                    <label htmlFor="">Password</label>
+                    <label htmlFor="password">Password</label>
                     <InputField
+                        id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
                         value={loginData?.password}
@@ -106,8 +109,16 @@ const LoginForm = () => {
             <section className="flex flex-col items-center justify-center max-w-sm w-sm px-6 mt-5 gap-6">
                 <SeparatorWithText text="Or" className="w-full" />
 
-                <AuthProviderButton onClick={() => handleSignInWithGoogle()}>
-                    <GoogleIcon className="size-5" />
+                <AuthProviderButton
+                    onClick={() => handleSignInWithGoogle()}
+                    disabled={isLoading}
+                    className={`${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                    {isLoading ? (
+                        <SpinnerIcon className="size-4 animate-spin" />
+                    ) : (
+                        <GoogleIcon className="size-4" />
+                    )}
                     Continue with Google
                 </AuthProviderButton>
 
