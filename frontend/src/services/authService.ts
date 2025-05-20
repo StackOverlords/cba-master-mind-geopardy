@@ -11,7 +11,7 @@ export const checkAuthOnStart = () => {
                 name: firebaseUser.displayName || '',
                 email: firebaseUser.email || '',
             };
-            useAuthStore.getState().setUser(user);
+            // useAuthStore.getState().setUser(user);
         } else {
             useAuthStore.getState().logout();
         }
