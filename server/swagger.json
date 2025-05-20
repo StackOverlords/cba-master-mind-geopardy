@@ -581,6 +581,13 @@
         "tags": ["game"],
         "parameters": [
           {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the game to be updated",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "game",
             "in": "body",
             "description": "Update game",
