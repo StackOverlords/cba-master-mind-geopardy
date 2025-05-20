@@ -5,16 +5,24 @@ import LoginPage from "./pages/loginPage";
 import LoginForm from "./components/auth/loginForm";
 import SignUpForm from "./components/auth/registerForm";
 import LandingPage from "./pages/landingPage";
+import { useEffect } from "react";
+import { unsubscribeAuth } from "./stores/authStore";
 
 const App = () => {
+  useEffect(() => {
+    return () => {
+      unsubscribeAuth()
+    }
+  }, [])
+
   return (
     <Routes>
+      <Route element={<LoginPage />}>
+        <Route path="/auth/sign-in" element={<LoginForm />} />
+        <Route path="/auth/sign-up" element={<SignUpForm />} />
+      </Route>
       <Route element={<MainLayout />}>
         <Route index path="/" element={<LandingPage />} />
-        <Route element={<LoginPage />}>
-          <Route path="/auth/sign-in" element={<LoginForm />} />
-          <Route path="/auth/sign-up" element={<SignUpForm />} />
-        </Route>
       </Route>
     </Routes>
   );

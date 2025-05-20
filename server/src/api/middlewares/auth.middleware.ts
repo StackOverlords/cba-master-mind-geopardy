@@ -7,6 +7,7 @@ interface RequestExtend extends Request {
 }
 
 export async function authenticateToken(req: RequestExtend, res: Response, next: NextFunction) {
+    console.log(req.file);
     const token = req.headers.authorization?.split(" ")[1] || req?.body?.accessToken;
     if (!token) {
         throw new CustomError("Token not provided", 401);
@@ -18,6 +19,7 @@ export async function authenticateToken(req: RequestExtend, res: Response, next:
             uid: decodedToken.uid,
             email: decodedToken.email
         };
+        console.log(req.user)
         next();
     } catch (error) {
         console.log(error);

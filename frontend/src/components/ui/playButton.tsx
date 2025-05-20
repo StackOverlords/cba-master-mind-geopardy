@@ -1,6 +1,7 @@
-import { useEffect, type ButtonHTMLAttributes } from "react"
+import { type ButtonHTMLAttributes } from "react"
 import useSound from "../../hooks/useSound"
-import keytypeSound from "../../assets/sounds/keytype.mp3"
+// import keytypeSound from "../../assets/sounds/keytype.mp3"
+import keytypeSound from "../../assets/sounds/game-start-6104.mp3"
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
     text?: string

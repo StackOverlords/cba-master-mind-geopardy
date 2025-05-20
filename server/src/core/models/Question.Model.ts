@@ -5,7 +5,7 @@ export interface IQuestion extends Document {
     user: mongoose.Types.ObjectId;
     question: string;
     isDeleted:boolean;
-    answers: object[]
+    answers: { text: string; isCorrect: boolean }[]
 };
 const answer = {
     text: String,

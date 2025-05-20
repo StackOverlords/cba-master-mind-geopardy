@@ -5,15 +5,22 @@ export interface IGame extends Document {
     user: mongoose.Types.ObjectId;
     gameMode: "championship" | 'playerVsPlayer';
     status: "waiting" | "playing" | "paused" | "finished";
-    players: object[];
-    questions: object[];
+    players: Array<{
+        socketId: string; // ID del socket del jugador
+        userId: string; // ID del jugador
+        playerId: string;
+        username: string;
+        score: number; // Añadimos el puntaje persistente
+        hasAnsweredThisTurn: boolean; // Indica si el jugador ha respondido en su turno
+    }>; // Arreglo de jugadores con sus IDs y nombres, y sus puntajes
+    questions: mongoose.Types.ObjectId[]; // IDs de las preguntas usadas en la partida
     isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;
 
-    // Agregar campos para almacenar el codigo del juego, turnos, resultados finales como posiciones y scores,
-    code?: string; // Código del juego, opcional
-    turns?: number; // Número de turnos jugados, opcional
+    code: string; // Código del juego único
+    currentRound: number; // El número de la ronda actual
+    currentPlayerDbId: mongoose.Types.ObjectId | null | string; // ID del jugador en turno (para persistencia)
     finalResults?: {
         positions: { playerId: string; position: number, score: number }[]; // Posiciones finales de los jugadores
     };
@@ -57,8 +64,12 @@ const gameSchema = new Schema<IGame>({
         // championship=tablero, playerVsPlayer=varios jugadores con cuenta
         enum: ["championship", "playerVsPlayer"]
     },
-    players: {
-        type: [Object],
+     players: {
+        type: [{
+            playerId: { type: Schema.Types.ObjectId, ref: "User" },
+            username: { type: String, required: true },
+            score: { type: Number, default: 0 },
+        }],
         default: [],
     },
     isDeleted: {
@@ -80,7 +91,16 @@ const gameSchema = new Schema<IGame>({
         type:[positions],
         required: false,
         default: []
-    }
+    },
+     currentRound: {
+        type: Number,
+        default: 0,
+    },
+    currentPlayerDbId: { // Para saber quién tiene el turno si la partida persiste
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+    },
 },
     {
         timestamps: true,

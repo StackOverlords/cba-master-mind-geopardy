@@ -30,4 +30,8 @@ export class QuestionRepository {
             question: text
         })
     }
+
+    async createMany(questions: IQuestion[]): Promise<IQuestion[] | null> {
+        return await QuestionModel.insertMany(questions);
+    }
 }
