@@ -29,10 +29,21 @@ const LandingPage = () => {
             className="relative flex flex-col min-h-screen w-full bg-cover bg-no-repeat bg-center">
             {/* Contenedor para el contenido principal */}
             <div className="flex-1 flex flex-col items-center justify-center w-full py-6 px-4">
-                <img
+                {/* <img
                     className="h-12 sm:h-16 mt-20 drop-shadow-xl/35 drop-shadow-blue-500"
                     src={logoMastermindDark}
-                    alt={LANDING_PAGE_CONTENT.altTexts.jeopardyMasterMind} />
+                    alt={LANDING_PAGE_CONTENT.altTexts.jeopardyMasterMind} /> */}
+
+                <div className="relative mt-10">
+                    <div
+                        className="absolute inset-[-8px] animate-[pulse_3s_ease-in-out_infinite] rounded-full bg-blue-500/20 blur-lg"
+                        style={{ transform: "scale(1.2)" }}
+                    />
+                    <img
+                        className="h-12 sm:h-16"
+                        src={logoMastermindDark}
+                        alt={LANDING_PAGE_CONTENT.altTexts.jeopardyMasterMind} />
+                </div>
                 <h1
                     className="text-3xl sm:text-5xl mt-8 font-extrabold mb-2
                     bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent font-PressStart2P">
@@ -63,13 +74,13 @@ const LandingPage = () => {
                     </div>
                     <AnimatedBadge />
                     <div className="flex gap-3">
-                        <SocialButton href="">
+                        <SocialButton href="https://es-la.facebook.com/centrobolivianoamericano.tarija">
                             <FacebookIcon className="size-6" />
                         </SocialButton>
-                        <SocialButton href="">
+                        <SocialButton href="https://api.whatsapp.com/send/?phone=59176192765&text&type=phone_number&app_absent=0">
                             <WhatsAppIcon className="size-6" />
                         </SocialButton>
-                        <SocialButton href="">
+                        <SocialButton href="https://cba.org.bo/">
                             <WorldIcon className="size-6" />
                         </SocialButton>
                     </div>
