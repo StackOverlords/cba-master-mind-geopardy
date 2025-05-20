@@ -15,10 +15,10 @@ import http from 'http';
 import { SocketConnection } from './src/config/websockets';
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, 'swagger.json'), 'utf-8'));
 const server = http.createServer(app);
-
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN || '*',

@@ -1,6 +1,6 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { useAuthStore } from "../stores/authStore";
-import { auth } from "./firebase";
+import { auth } from "../lib/firebase";
 import type { LoginCredentials } from "../shared/types";
 
 export const checkAuthOnStart = () => {
@@ -11,7 +11,7 @@ export const checkAuthOnStart = () => {
                 name: firebaseUser.displayName || '',
                 email: firebaseUser.email || '',
             };
-            useAuthStore.getState().setUser(user);
+            // useAuthStore.getState().setUser(user);
         } else {
             useAuthStore.getState().logout();
         }

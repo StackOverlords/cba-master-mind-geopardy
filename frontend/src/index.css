@@ -3,11 +3,21 @@
 :root {
   /* color-scheme: ligth dark; */
   font-family: 'Onest Variable', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --background: oklch(0.2 0 0);
+	--foreground: oklch(0.92 0 0);
+  --muted: oklch(0.27 0 0);
+	--muted-foreground: oklch(0.72 0 0);
+  --border: oklch(0.37 0 0);
 }
 
 @theme {
   --font-Onest: 'Onest Variable', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   --font-PressStart2P:'Press Start 2P', 'Onest Variable', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --color-background: var(--background);
+	--color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
 }
 
 .bg-grid-pattern {

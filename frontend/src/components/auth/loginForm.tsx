@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { signIn_EmailAndPassword, signInWithGoogle } from "../../services/firebase";
+import { signIn_EmailAndPassword, signInWithGoogle } from "../../lib/firebase";
 import InputField from "../ui/inputField";
 import EyeIcon from "../ui/icons/eyeIcon";
 import EyeClosedIcon from "../ui/icons/eye-closedIcon";
