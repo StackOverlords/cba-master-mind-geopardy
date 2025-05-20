@@ -10,10 +10,31 @@ export interface IGame extends Document {
     isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;
+
+    // Agregar campos para almacenar el codigo del juego, turnos, resultados finales como posiciones y scores,
+    code?: string; // Código del juego, opcional
+    turns?: number; // Número de turnos jugados, opcional
+    finalResults?: {
+        positions: { playerId: string; position: number, score: number }[]; // Posiciones finales de los jugadores
+    };
 }
 const question = {
     type: mongoose.Types.ObjectId,
     ref: "Question"
+}
+const positions = {
+    playerId: {
+        type: mongoose.Types.ObjectId,
+        ref: "User"
+    },
+    position: {
+        type: Number,
+        required: true
+    },
+    score: {
+        type: Number,
+        required: true
+    }
 }
 const gameSchema = new Schema<IGame>({
     name: {
@@ -48,6 +69,17 @@ const gameSchema = new Schema<IGame>({
     questions: {
         type: [question],
         default: [],
+    },
+    code:{
+        type: String,
+        unique: true, // Asegura que el código del juego sea único
+        required: false,
+        trim: true,
+    },
+    finalResults:{
+        type:[positions],
+        required: false,
+        default: []
     }
 },
     {
