@@ -1,18 +1,13 @@
 export type UserRole = 'admin' | 'user' | 'guest';
 
 export interface UserData {
-    uid: string;
+    firebaseUid: string;
     email: string | null;
     displayName: string | null;
     photoURL?: string | null;
     role: UserRole;
+    accessToken?: string;
     // emailVerified: boolean;
-}
-
-export interface AuthState {
-    user: UserData | null;
-    isLoading: boolean;
-    error: string | null;
 }
 
 export interface LoginCredentials {
@@ -21,15 +16,16 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials extends LoginCredentials {
-    displayName: string;
+    name: string;
 }
 
-export interface AuthContextType {
+export interface AuthState {
     user: UserData | null;
     isLoading: boolean;
     error: string | null;
     isAuthenticated: boolean;
     login: (credentials: LoginCredentials) => Promise<void>;
+    loginWithGoogle: () => Promise<void>;
     register: (credentials: RegisterCredentials) => Promise<void>;
     logout: () => Promise<void>;
     // Helpers
