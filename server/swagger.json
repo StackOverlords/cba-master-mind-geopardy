@@ -775,6 +775,50 @@
         }
       }
     },
+    "/question/import-excel": {
+      "post": {
+        "security": [{ "Bearer": [] }],
+        "summary": "Import questions from Excel",
+        "produces": ["application/json"],
+        "tags": ["question"],
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "categoryId": {
+                    "type": "string",
+                    "example": "Prueba"
+                  },
+                  "user": {
+                    "type": "object"
+                  },
+                  "question": {
+                    "type": "string",
+                    "example": "playing"
+                  },
+                  "answers": {
+                    "type": "array",
+                    "example": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/question/{id}/update": {
       "put": {
         "security": [{ "Bearer": [] }],
