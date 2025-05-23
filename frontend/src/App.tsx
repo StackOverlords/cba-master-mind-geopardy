@@ -7,6 +7,7 @@ import SignUpForm from "./components/auth/registerForm";
 import LandingPage from "./pages/landingPage";
 import { useEffect } from "react";
 import { unsubscribeAuth } from "./stores/authStore";
+import Game from "./pages/game";
 
 const App = () => {
   useEffect(() => {
@@ -23,6 +24,7 @@ const App = () => {
       </Route>
       <Route element={<MainLayout />}>
         <Route index path="/" element={<LandingPage />} />
+        <Route path="/game" element={<Game />} />
       </Route>
     </Routes>
   );
