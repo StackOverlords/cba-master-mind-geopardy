@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-const useSound = (url: string) => {
+const useSound = (url: string, playFromLastSeconds?: number) => {
 	const audio = useRef<HTMLAudioElement | null>(null);
 
 	useEffect(() => {
@@ -10,7 +10,12 @@ const useSound = (url: string) => {
 	return {
 		play: () => {
 			if (audio.current) {
-				audio.current.currentTime = 0;
+				if (playFromLastSeconds && audio.current.duration) {
+					const startTime = Math.max(audio.current.duration - playFromLastSeconds, 0);
+					audio.current.currentTime = startTime;
+				} else {
+					audio.current.currentTime = 0;
+				}
 				audio.current
 					.play()
 					.catch((err) => console.log("Audio play error:", err));
