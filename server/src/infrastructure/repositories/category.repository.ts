@@ -14,7 +14,7 @@ export class CategoryRepository {
 
     async findAll({ name, user, description, page = 1, limit = 10, sort = "desc" }: Partial<CategoryFilter>): Promise<any> {
         const pageNumber = Math.max(1, parseInt(page as any) || 1);
-        const limitNumber = Math.max(1, parseInt(limit as any) || 10);
+        const limitNumber = parseInt(limit as any) || 10;
 
         const isUnlimited = limitNumber === -1;
 
@@ -24,21 +24,41 @@ export class CategoryRepository {
         if (user) filter.user = user;
         if (description) filter.description = { $regex: description, $options: 'i' };
 
-        const dataPipeline: any[] = [
+        const basePipeline: any[] = [
+            {
+                $lookup: {
+                    from: "questions",
+                    localField: "_id",
+                    foreignField: "categoryId",
+                    pipeline: [
+                        { $match: { isDeleted: false } }
+                    ],
+                    as: "questions"
+                }
+            },
+            {
+                $addFields: {
+                    questionCount: { $size: "$questions" }
+                }
+            },
             { $sort: { createdAt: sort === 'desc' ? -1 : 1 } },
-        ]
+            {
+                $project: {
+                    questions: 0
+                }
+            }
+        ];
 
+        const dataPipeline = [...basePipeline];
         if (!isUnlimited) {
             dataPipeline.push(
                 { $skip: (pageNumber - 1) * limitNumber },
                 { $limit: limitNumber }
-            )
+            );
         }
 
         const query = [
-            {
-                $match: filter
-            },
+            { $match: filter },
             {
                 $facet: {
                     data: dataPipeline,
@@ -58,17 +78,16 @@ export class CategoryRepository {
         const [result] = await CategoryModel.aggregate(query);
 
         const totalCount = result.totalCount || 0;
-        const totalPages = Math.ceil(totalCount / limitNumber);
+        const totalPages = isUnlimited ? 1 : Math.ceil(totalCount / limitNumber);
 
         return {
             page: pageNumber,
-            limit: limitNumber,
+            limit: isUnlimited ? totalCount : limitNumber,
             sort,
             totalPages,
             totalCount,
             data: result.data
-        }
-
+        };
     }
 
     async update(id: string, categoryData: Partial<ICategory>): Promise<ICategory | null> {

@@ -568,6 +568,8 @@ export class SocketConnection {
 
         // Opcional: desconectar a todos los sockets de la sala para asegurar la limpieza
         this.io?.sockets.in(gameCode).socketsLeave(gameCode);
+        
+        console.log(`🗑️ Partida ${gameCode} eliminada de la base de datos.`);
     }
 
     private async handleDisconnect(socket: Socket): Promise<void> {

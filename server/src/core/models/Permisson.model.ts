@@ -10,7 +10,7 @@ const permissionyModel = new Schema<IPermission>({
     code: {
         type: String,
         required: true
-    }, 
+    },
     description: {
         type: String,
         required: false
@@ -20,6 +20,9 @@ const permissionyModel = new Schema<IPermission>({
         required: false,
         default: false
     }
+}, {
+    timestamps: true,
+    versionKey: false,
 })
 
 export const PermissionModel = mongoose.model<IPermission>("Permission", permissionyModel)

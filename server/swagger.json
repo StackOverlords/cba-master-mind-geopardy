@@ -685,7 +685,52 @@
         "summary": "Get questions",
         "produces": ["application/json"],
         "tags": ["question"],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "ID of the category to filter questions",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "description": "ID of the user to filter questions",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "question",
+            "in": "query",
+            "description": "Text of the question to filter questions",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of questions per page",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria for the questions",
+            "required": false,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "API version retrieved successfully",
@@ -784,7 +829,7 @@
         "parameters": [
           {
             "name": "file",
-            "in": "formData",
+          "in": "formData",
             "required": true,
             "type": "file"
           }
