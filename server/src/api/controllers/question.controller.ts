@@ -21,8 +21,8 @@ export class QuestionController {
     })
 
     findAll = asyncHandler(async (req: Request, res: Response) => {
-        const queston = await this.questionService.findAll();
-        res.status(201).json(queston);
+        const questions = await this.questionService.findAll(req.query);
+        res.status(201).json(questions);
     })
 
     findById = asyncHandler(async (req: Request, res: Response) => {
