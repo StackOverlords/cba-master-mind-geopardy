@@ -3,6 +3,7 @@ import { CustomError } from "../../api/middlewares/error.middleware";
 import { IQuestion } from "../models/Question.Model";
 import { UserRepository } from "../../infrastructure/repositories/user.repository";
 import { CategoryRepository } from "../../infrastructure/repositories/category.repository";
+import { QuestionsFilters } from "../interfaces/questions.filters.interface";
 
 export class QuestionService {
     private questionRepository: QuestionRepository;
@@ -22,8 +23,8 @@ export class QuestionService {
         return await this.questionRepository.create(questionData);
     }
 
-    async findAll(): Promise<IQuestion[] | null> {
-        return await this.questionRepository.findAll();
+    async findAll({categoryId,user,question,page,limit,sort}:Partial<QuestionsFilters>): Promise<IQuestion[] | null> {
+        return await this.questionRepository.findAll({categoryId,user,question,page,limit,sort});
     }
 
     async findById(id: string): Promise<IQuestion | null> {

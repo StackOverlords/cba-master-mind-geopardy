@@ -6,6 +6,7 @@ import { QuestionModel, IQuestion } from "../core/models/Question.Model"; // Imp
 
 import http from "http";
 import { generate } from 'short-uuid'; // Librería para generar IDs cortos y únicos
+import mongoose from "mongoose";
 
 interface PlayerInGame {
     socketId: string;
@@ -29,12 +30,16 @@ interface GameRoomState {
     turnTimer: NodeJS.Timeout | null; // Para el contador de tiempo del turno
     // Añadir historial de preguntas si es necesario para el frontend
     // askedQuestions: IQuestion[];
+    defaultTurnTime: number;
+
 }
 
 const games: { [gameCode: string]: GameRoomState } = {};
 
-const MAX_QUESTIONS_PER_GAME = 10; // Número de preguntas para una partida (ajusta según tus rondas)
-const TURN_TIMER_SECONDS = 15; // Segundos para responder una pregunta
+const DEFAULT_ROUNDS = 5; // Define un número de rondas por defecto "PENDIENTE DE DEFINIR AL EMPIEZO DE LA PARTIDA"
+const EXTRA_QUESTIONS_BUFFER = 2; // Preguntas adicionales para mayor flexibilidad "PENDIENTE DE DEFINIR AL EMPIEZO DE LA PARTIDA"
+
+const TURN_TIMER_SECONDS = 60; // Segundos para responder una pregunta "PENDIENTE DE DEFINIR AL EMPIEZO DE LA PARTIDA"
 
 export class SocketConnection {
     private static instance: SocketConnection;
@@ -103,23 +108,20 @@ export class SocketConnection {
                         socket.emit("error", { message: "Usuario no encontrado" });
                         return;
                     }
-                    const gameCode = generate().substring(0, 8).toUpperCase();
-
-                    // Traer preguntas de la BD (ejemplo: aleatorias)
-                    const availableQuestions = await QuestionModel.aggregate([
-                        { $sample: { size: MAX_QUESTIONS_PER_GAME } } // Obtener preguntas aleatorias
-                    ]);
-                    if (availableQuestions.length < MAX_QUESTIONS_PER_GAME) {
-                        socket.emit("error", { message: "No hay suficientes preguntas disponibles para iniciar la partida." });
+                    const gameCode = generate().substring(0, 8).toUpperCase(); 
+                    
+                    if(!userData.gameData.categorys || userData.gameData.categorys.length === 0) {
+                        socket.emit("error", { message: "No hay categorías seleccionadas." });
                         return;
                     }
-
                     const newGame = await GameModel.create({
                         ...userData.gameData,
                         code: gameCode,
                         user: userData.userId,
                         players: [{ playerId: user._id, username: user.name, score: 0 }], // Inicializar score
-                        questions: availableQuestions.map((q: IQuestion) => q._id), // Guardar solo IDs de preguntas en la DB
+                        questions: [], // No hay preguntas al crear, se cargarán al iniciar
+                        categorys: userData.gameData.categorys,
+                        defaultTurnTime: userData.gameData.defaultTurnTime || TURN_TIMER_SECONDS,
                         currentRound: 0, // Se iniciará en 1 al empezar
                         currentPlayerDbId: null,
                     });
@@ -134,11 +136,12 @@ export class SocketConnection {
                         ownerId: userData.userId,
                         players: [{ socketId: socket.id, userId: userData.userId, username: user.name, score: 0, hasAnsweredThisTurn: false }],
                         gameData: newGame,
-                        questionsAvailable: availableQuestions as IQuestion[], // Usar el array de preguntas completas aquí
+                        questionsAvailable: [], // Vacío inicialmente
                         currentQuestion: null,
                         currentPlayerIndex: 0, // El primer jugador es el owner inicialmente
                         currentRound: 0,
                         turnTimer: null,
+                        defaultTurnTime: userData.gameData.defaultTurnTime || TURN_TIMER_SECONDS,
                     };
                     games[gameCode] = newRoom;
 
@@ -221,6 +224,7 @@ export class SocketConnection {
             }
             );
 
+            // En SocketConnection class, dentro de setupSocketEvents()
             socket.on("startGame", async (gameCode: string) => {
                 const gameRoom = games[gameCode];
                 if (!gameRoom) {
@@ -232,14 +236,74 @@ export class SocketConnection {
                     socket.emit("error", { message: "Solo el creador puede iniciar la partida" });
                     return;
                 }
-                if (gameRoom.players.length < 2) { // Ejemplo: Requiere al menos 2 jugadores
+                if (gameRoom.players.length < 2) {
                     socket.emit("error", { message: "Se necesitan al menos 2 jugadores para iniciar la partida." });
                     return;
                 }
 
+                // Obtener las categorías seleccionadas para esta partida
+                const selectedCategories = gameRoom.gameData.categorys;
+                if (!selectedCategories || selectedCategories.length === 0) {
+                    socket.emit("error", { message: "No se seleccionaron categorías para esta partida." });
+                    return;
+                }
+
+                // Calcular la cantidad total de preguntas necesarias
+                const numberOfPlayers = gameRoom.players.length;
+                console.log(numberOfPlayers, "jugadores");
+                const totalQuestionsNeeded = (numberOfPlayers * DEFAULT_ROUNDS) + EXTRA_QUESTIONS_BUFFER;
+                console.log(totalQuestionsNeeded, "preguntas necesarias");
+
+                let allAvailableQuestions: IQuestion[] = [];
+                const questionsPerCategoryBase = Math.floor(totalQuestionsNeeded / selectedCategories.length);
+                let remainderQuestions = totalQuestionsNeeded % selectedCategories.length;
+
+                // Paso 1: Intentar obtener una cantidad equitativa de cada categoría
+                for (const category of selectedCategories) {
+                    console.log(category, "categoría");
+                    // Calcular cuántas preguntas intentar obtener para esta categoría
+                    const countToFetch = questionsPerCategoryBase + (remainderQuestions > 0 ? 1 : 0);
+                    if (remainderQuestions > 0) remainderQuestions--;
+
+                    const questionsFromCategory = await QuestionModel.aggregate([
+                        { $match: { categoryId: category } },
+                        { $sample: { size: countToFetch } }
+                    ]);
+                    allAvailableQuestions = allAvailableQuestions.concat(questionsFromCategory as IQuestion[]);
+                }
+
+                // Paso 2: Si aún no tenemos suficientes, intenta llenar el vacío con más preguntas de cualquier categoría.
+                // Esto es crucial si algunas categorías no tenían suficientes preguntas en el Paso 1.
+                if (allAvailableQuestions.length < totalQuestionsNeeded) {
+                    const questionsToFetchMore = totalQuestionsNeeded - allAvailableQuestions.length;
+                    
+                    // Obtener preguntas adicionales de forma aleatoria de todas las categorías seleccionadas
+                    // Excluye las preguntas que ya tienes para evitar duplicados.
+                    const existingQuestionIds = allAvailableQuestions.map(q => q._id);
+                    
+                    const additionalQuestions = await QuestionModel.aggregate([
+                        { $match: { categoryId: { $in: selectedCategories }, _id: { $nin: existingQuestionIds } } },
+                        { $sample: { size: questionsToFetchMore } }
+                    ]);
+                    allAvailableQuestions = allAvailableQuestions.concat(additionalQuestions as IQuestion[]);
+                }
+
+                // Mezclar todas las preguntas obtenidas
+                allAvailableQuestions = allAvailableQuestions.sort(() => 0.5 - Math.random());
+                console.log(allAvailableQuestions.length, "preguntas disponibles después de compensación");
+
+                // Verificar si tenemos suficientes preguntas en total después de la compensación
+                if (allAvailableQuestions.length < totalQuestionsNeeded) {
+                    socket.emit("error", { message: "No hay suficientes preguntas disponibles en las categorías seleccionadas para iniciar la partida con esta configuración. Intenta con más categorías o menos rondas." });
+                    return;
+                }
+
+                // Recortar si tenemos más preguntas de las necesarias
+                gameRoom.questionsAvailable = allAvailableQuestions.slice(0, totalQuestionsNeeded);
+                
                 gameRoom.gameData.status = "playing";
-                gameRoom.currentRound = 1; // Iniciar la ronda 1
-                gameRoom.currentPlayerIndex = Math.floor(Math.random() * gameRoom.players.length); // Elegir un jugador inicial aleatorio
+                gameRoom.currentRound = 1;
+                gameRoom.currentPlayerIndex = Math.floor(Math.random() * gameRoom.players.length);
 
                 // Guardar el estado inicial en DB
                 await GameModel.findOneAndUpdate(
@@ -247,13 +311,14 @@ export class SocketConnection {
                     {
                         status: "playing",
                         currentRound: gameRoom.currentRound,
-                        currentPlayerDbId: gameRoom.players[gameRoom.currentPlayerIndex].userId // Guardar el ID de la DB
+                        currentPlayerDbId: gameRoom.players[gameRoom.currentPlayerIndex].userId,
+                        questions: gameRoom.questionsAvailable.map((q: IQuestion) => q._id),
                     }
                 );
 
                 this.io?.to(gameCode).emit("gameStarted");
-                console.log(`🚀 Partida ${gameCode} iniciada.`);
-                this.sendNextQuestion(gameCode); // Enviar la primera pregunta
+                console.log(`🚀 Partida ${gameCode} iniciada con categorías: ${selectedCategories.join(', ')}.`);
+                this.sendNextQuestion(gameCode);
             });
 
             // Responder a una pregunta
@@ -314,6 +379,7 @@ export class SocketConnection {
 
             // Otros eventos del juego (manejo de turnos, respuestas, etc.) irán aquí
 
+
         });
     }
     private async sendNextQuestion(gameCode: string): Promise<void> {
@@ -345,7 +411,7 @@ export class SocketConnection {
         await GameModel.findOneAndUpdate(
             { code: gameCode },
             {
-                $push: { questions: questionToSend._id }, // Añadir el ID de la pregunta al historial de la partida
+                // $push: { questions: questionToSend._id }, // This is already done at game start, no need to push here unless you want to store all questions asked in order.
                 currentPlayerDbId: currentPlayer.userId
             }
         );
@@ -362,7 +428,7 @@ export class SocketConnection {
             currentPlayerId: currentPlayer.userId,
             currentPlayerUsername: currentPlayer.username,
             question: questionForClient,
-            timer: TURN_TIMER_SECONDS
+            timer: gameRoom.defaultTurnTime 
         });
         console.log(`❓ Pregunta enviada para ${currentPlayer.username} en la partida ${gameCode}`);
 
@@ -379,7 +445,7 @@ export class SocketConnection {
             clearTimeout(gameRoom.turnTimer);
         }
 
-        let timeLeft = TURN_TIMER_SECONDS;
+        let timeLeft = gameRoom.defaultTurnTime; // Tiempo por defecto para el turno
         const currentPlayerSocketId = gameRoom.players[gameRoom.currentPlayerIndex].socketId;
 
         const timerInterval = setInterval(() => {
@@ -401,7 +467,7 @@ export class SocketConnection {
                 this.moveToNextTurn(gameCode);
                 return;
             }
-            this.io?.to(currentPlayerSocketId).emit("updateTimer", timeLeft); // Solo al jugador en turno
+            this.io?.to(gameCode).emit("updateTimer", timeLeft); // A todos los jugadores en la sala
             timeLeft--;
         }, 1000);
 
@@ -425,12 +491,21 @@ export class SocketConnection {
             await GameModel.findOneAndUpdate({ code: gameCode }, { currentRound: gameRoom.currentRound });
         }
 
-        // Verificar si se alcanzó el límite de rondas o preguntas
-        if (gameRoom.currentRound > (MAX_QUESTIONS_PER_GAME / gameRoom.players.length)) { // Ajusta esta lógica según tus reglas de juego
-            // Por ejemplo, si cada jugador responde una pregunta por ronda, entonces MAX_QUESTIONS_PER_GAME / N_PLAYERS_PER_ROUND
+        // --- Criterios de finalización del juego ---
+        // 1. Si se ha superado el número de rondas definidas.
+        if (gameRoom.currentRound > DEFAULT_ROUNDS) {
+            console.log(`🎉 La partida ${gameCode} ha alcanzado el límite de ${DEFAULT_ROUNDS} rondas.`);
             this.endGame(gameCode);
             return;
         }
+
+        // 2. Si no quedan preguntas disponibles en el pool (a pesar de las rondas).
+        if (gameRoom.questionsAvailable.length === 0) {
+            console.log(`🏁 No quedan más preguntas disponibles para la partida ${gameCode}. Finalizando.`);
+            this.endGame(gameCode);
+            return;
+        }
+        // --- Fin de criterios de finalización ---
 
         // Dar un pequeño respiro antes de la siguiente pregunta/turno
         setTimeout(() => {
@@ -438,6 +513,7 @@ export class SocketConnection {
         }, 3000); // Pausa de 3 segundos
     }
 
+    // Inside endGame(gameCode: string) function
     private async endGame(gameCode: string): Promise<void> {
         const gameRoom = games[gameCode];
         if (!gameRoom) return;
@@ -452,9 +528,11 @@ export class SocketConnection {
 
         // Calcular la clasificación final
         const sortedPlayers = [...gameRoom.players].sort((a, b) => b.score - a.score);
+        
+        // Store the full finalResults object structure directly
         gameRoom.gameData.finalResults = {
             positions: sortedPlayers.map((player, index) => ({
-                playerId: player.userId,
+                playerId: new mongoose.Types.ObjectId(player.userId), // Convertir a ObjectId
                 position: index + 1,
                 score: player.score
             }))
@@ -465,22 +543,33 @@ export class SocketConnection {
             { code: gameCode },
             {
                 status: "finished",
-                finalResults: gameRoom.gameData.finalResults,
-                $set: { "players.$[elem].score": gameRoom.players.map(p => p.score) } // Actualiza todos los scores en la DB
+                // Directly assign the structured finalResults object
+                finalResults: gameRoom.gameData.finalResults, 
+                // Update scores for all players in the DB
+                players: gameRoom.players.map(p => ({ playerId: p.userId, username: p.username, score: p.score }))
             },
-            { arrayFilters: [{ "elem.playerId": { $exists: true } }] } // Para actualizar todos los elementos del array de jugadores
+            // No need for arrayFilters here if you're replacing the whole players array.
+            // If you were only updating a specific field within existing array elements,
+            // then arrayFilters would be relevant.
         );
 
 
         this.io?.to(gameCode).emit("gameOver", {
-            ranking: gameRoom.gameData.finalResults.positions,
+            ranking: gameRoom.gameData.finalResults.positions, // This will now correctly reflect the data
             playersScores: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score }))
         });
 
+        // The console log will now correctly show the positions array
         console.log(`🏆 Partida ${gameCode} finalizada. Resultados:`, gameRoom.gameData.finalResults.positions);
 
         // Puedes decidir eliminar la sala de la memoria después de un tiempo o al final del juego
-        // delete games[gameCode];
+        delete games[gameCode];
+        console.log(`🗑️ Partida ${gameCode} eliminada de la memoria.`);
+
+        // Opcional: desconectar a todos los sockets de la sala para asegurar la limpieza
+        this.io?.sockets.in(gameCode).socketsLeave(gameCode);
+        
+        console.log(`🗑️ Partida ${gameCode} eliminada de la base de datos.`);
     }
 
     private async handleDisconnect(socket: Socket): Promise<void> {
