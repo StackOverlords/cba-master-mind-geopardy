@@ -35,6 +35,9 @@ const questionSchema = new Schema<IQuestion>({
         type: [answer],
         required: false
     }
+},{
+    timestamps: true,
+    versionKey: false
 });
 
 export const QuestionModel = mongoose.model<IQuestion>("Question", questionSchema)

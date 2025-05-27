@@ -13,7 +13,8 @@ export class GameRepository {
 
     async findAll({ name, user, status, gameMode, players, isDeleted, questions, page = 1, limit = 10, sort = "desc" }: Partial<GameFilter>): Promise<any> {
         const pageNumber = Math.max(1, parseInt(page as any) || 1);
-        const limitNumber = Math.max(1, parseInt(limit as any) || 10);
+        const limitNumber = parseInt(limit as any) || 10;
+
 
         const isUnlimited = limitNumber === -1;
 
@@ -24,25 +25,24 @@ export class GameRepository {
         if (status) filter.status = status;
         if (gameMode) filter.gameMode = gameMode;
 
-        const dataPipeline: any[] = [
+        const basePipeline: any[] = [
             { $sort: { createdAt: sort === 'desc' ? -1 : 1 } },
         ]
 
+        const dataPipeline = [...basePipeline];
         if (!isUnlimited) {
             dataPipeline.push(
                 { $skip: (pageNumber - 1) * limitNumber },
                 { $limit: limitNumber }
-            )
+            );
         }
 
         const query = [
             {
-                $match: filter
-            },
-            {
                 $facet: {
                     data: dataPipeline,
                     totalCount: [
+                        { $match: filter },
                         { $count: 'count' }
                     ]
                 }
@@ -52,23 +52,21 @@ export class GameRepository {
                     data: 1,
                     totalCount: { $arrayElemAt: ['$totalCount.count', 0] }
                 }
-            },
-
-        ]
+            }
+        ];
 
         const [result] = await GameModel.aggregate(query);
 
         const totalCount = result.totalCount || 0;
-        const totalPages = Math.ceil(totalCount / limitNumber);
+        const totalPages = isUnlimited ? 1 : Math.ceil(totalCount / limitNumber);
 
         return {
             page: pageNumber,
-            limit: limitNumber,
+            limit: isUnlimited ? totalCount : limitNumber,
             sort,
             totalPages,
             totalCount,
             data: result.data
-
         };
     }
 
