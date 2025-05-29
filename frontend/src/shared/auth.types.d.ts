@@ -1,6 +1,7 @@
-export type UserRole = 'admin' | 'user' | 'guest';
+export type UserRole = 'admin' | 'player' | 'guest';
 
 export interface UserData {
+    _id: string;
     firebaseUid: string;
     email: string | null;
     displayName: string | null;
