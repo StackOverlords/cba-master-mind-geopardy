@@ -28,7 +28,9 @@ export const createUserData = async (firebaseUser: FirebaseUser): Promise<UserDa
         displayName: firebaseUser.displayName,
         role: newUserApi.role,
         photoURL: firebaseUser.photoURL,
-        accessToken: accessToken
+        accessToken: accessToken,
+        _id: newUserApi._id,
+        completedRegister: newUserApi.completedRegister
     };
     return newUserData;
 };
@@ -43,7 +45,9 @@ export const getUserData = async (firebaseUser: FirebaseUser): Promise<UserData>
         displayName: firebaseUser.displayName,
         role: userDataApi.role,
         photoURL: firebaseUser.photoURL,
-        accessToken: accessToken
+        accessToken: accessToken,
+        _id: userDataApi._id,
+        completedRegister: userDataApi.completedRegister
     };
     return newUserData;
 }

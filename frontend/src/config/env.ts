@@ -6,7 +6,8 @@ const {
     VITE_MESSAGING_SENDER_ID,
     VITE_APP_ID,
     VITE_MEASUREMENT_ID,
-    VITE_API_URL
+    VITE_API_URL,
+    VITE_SOCKET_URI
 } = import.meta.env;
 
 export const firebaseVariables = {
@@ -20,4 +21,5 @@ export const firebaseVariables = {
 }
 export const apiVariables = {
     apiUrl: VITE_API_URL,
+    socketUri: VITE_SOCKET_URI
 }
