@@ -1,3 +1,4 @@
+export type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 export interface CommonProps {
     key?: string | number;
     className?: string;
@@ -28,4 +29,9 @@ export interface Question {
     id: string
     text: string
     answers: Answer[]
+}
+
+export interface DialogOptions {
+    isOpenDialog: boolean;
+    mode: 'create' | 'update' | null;
 }

@@ -11,6 +11,7 @@ export const createUserApi = async (user: CreateUserDTO, accessToken: string): P
         });
 
         const newUserData: UserData = {
+            _id: response.data._id,
             firebaseUid: response.data.firebaseUid,
             email: response.data.email,
             displayName: response.data.name,
@@ -27,6 +28,7 @@ export const validSessionApi = async (accessToken: string): Promise<UserData> =>
         const response = await axios.post("auth/validSession", { accessToken });
 
         const userData: UserData = {
+            _id: response.data._id,
             firebaseUid: response.data.firebaseUid,
             email: response.data.email,
             displayName: response.data.name,
