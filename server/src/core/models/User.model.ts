@@ -45,7 +45,7 @@ const userSchema = new Schema<IUser>({
   },
   permissions: [{
     type: Schema.Types.ObjectId,
-    ref: "Permission", 
+    ref: "Permission",
     default: []
   }],
   isDeleted: {

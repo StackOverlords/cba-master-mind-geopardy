@@ -2,30 +2,33 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface ICategory extends Document {
     name: string;
-    user:mongoose.Types.ObjectId;
-    description:string;
-    isDeleted:boolean
+    user: mongoose.Types.ObjectId;
+    description: string;
+    isDeleted: boolean
 }
 
 const categoryModel = new Schema<ICategory>({
-    name:{
-        type:String,
-        required:true
+    name: {
+        type: String,
+        required: true
     },
-    user:{
-        type:Schema.Types.ObjectId,
-        required:true,
-        ref:"User"
+    user: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "User"
     },
-    description:{
-        type:String,
-        required:false
+    description: {
+        type: String,
+        required: false
     },
-    isDeleted:{
-        type:Boolean,
-        required:false,
-        default:false
+    isDeleted: {
+        type: Boolean,
+        required: false,
+        default: false
     }
+}, {
+    timestamps: true,
+    versionKey: false,
 })
 
 export const CategoryModel = mongoose.model<ICategory>("Category", categoryModel)
