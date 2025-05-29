@@ -89,7 +89,8 @@ export class SocketConnection {
 
         this.io.on("connection", (socket: Socket) => {
             console.log(`👤 Cliente conectado: ${socket.id}`);
-
+             const userId = socket.handshake.auth?.userId;
+             console.log(`👤 Usuario conectado: ${userId} con socket ID: ${socket.id}`);
             socket.on("disconnect", () => {
                 console.log(`👤 Cliente desconectado: ${socket.id}`);
                 this.handleDisconnect(socket);
@@ -102,6 +103,7 @@ export class SocketConnection {
             // ***** Eventos del juego *****
             // Crear una nueva partida
             socket.on("createGame", async (userData: { userId: string; gameData: Omit<IGame, '_id' | 'code' | 'players' | 'questions'> }) => {
+                console.log(socket.handshake.auth.userId, "intenta crear una partida");
                 try {
                     const user = await UserModel.findById(userData.userId);
                     if (!user) {
@@ -181,7 +183,8 @@ export class SocketConnection {
                     this.io?.to(gameCode).emit("playerReconnected", { userId: userData.userId, username: user.name });
                     console.log(`👤 Usuario ${user.name} (${userData.userId}) reconectado a la partida: ${gameCode}`);
                     // Asegurarse de enviar el estado actual de la partida al reconectado
-                    socket.emit("gameState", { players: gameRoom.players, gameData: gameRoom.gameData, currentQuestion: gameRoom.currentQuestion });
+                    console.log(gameRoom, "estado de la partida al reconectar");
+                    socket.emit("gameState", { ownerId: gameRoom, players: gameRoom.players, gameData: gameRoom.gameData, currentQuestion: gameRoom.currentQuestion });
                     return;
                 }
 
@@ -225,18 +228,28 @@ export class SocketConnection {
             );
 
             // En SocketConnection class, dentro de setupSocketEvents()
-            socket.on("startGame", async (gameCode: string) => {
+            socket.on("startGame", async (gameData:{gameCode:string,userId:string}) => {
+                const { gameCode, userId } = gameData;
+                if(!gameCode || !userId) {
+                    console.log("Datos de partida incompletos:", gameData);
+                    socket.emit("error", { message: "Datos de partida incompletos" });
+                    return;
+                }
+                console.log("Iniciando partida con código:", gameCode);
                 const gameRoom = games[gameCode];
                 if (!gameRoom) {
+                    console.log("Partida no encontrada")
                     socket.emit("error", { message: "Partida no encontrada" });
                     return;
                 }
-
-                if (gameRoom.ownerId !== socket.handshake.auth.userId) {
+                console.log(userId, "intenta iniciar la partida");
+                if (gameRoom.ownerId !== userId) {
+                    console.log("Solo el creador puede iniciar la partida");
                     socket.emit("error", { message: "Solo el creador puede iniciar la partida" });
                     return;
                 }
                 if (gameRoom.players.length < 2) {
+                    console.log("Se necesitan al menos 2 jugadores para iniciar la partida");
                     socket.emit("error", { message: "Se necesitan al menos 2 jugadores para iniciar la partida." });
                     return;
                 }
@@ -244,6 +257,7 @@ export class SocketConnection {
                 // Obtener las categorías seleccionadas para esta partida
                 const selectedCategories = gameRoom.gameData.categorys;
                 if (!selectedCategories || selectedCategories.length === 0) {
+                    console.log("No se seleccionaron categorías para esta partida");
                     socket.emit("error", { message: "No se seleccionaron categorías para esta partida." });
                     return;
                 }
@@ -294,6 +308,7 @@ export class SocketConnection {
 
                 // Verificar si tenemos suficientes preguntas en total después de la compensación
                 if (allAvailableQuestions.length < totalQuestionsNeeded) {
+                    console.log("No hay suficientes preguntas disponibles en las categorías seleccionadas para iniciar la partida con esta configuración.");
                     socket.emit("error", { message: "No hay suficientes preguntas disponibles en las categorías seleccionadas para iniciar la partida con esta configuración. Intenta con más categorías o menos rondas." });
                     return;
                 }
@@ -317,6 +332,7 @@ export class SocketConnection {
                 );
 
                 this.io?.to(gameCode).emit("gameStarted");
+                console.log("Enviando broadcast de inicio de partida a la sala:", gameCode);
                 console.log(`🚀 Partida ${gameCode} iniciada con categorías: ${selectedCategories.join(', ')}.`);
                 this.sendNextQuestion(gameCode);
             });
@@ -601,6 +617,7 @@ export class SocketConnection {
                     delete games[gameCode];
                     console.log(`🗑️ Partida ${gameCode} eliminada por falta de jugadores.`);
                     await GameModel.findOneAndDelete({ code: gameCode }); // Eliminar de la DB también
+                    this.io?.to(gameCode).emit("gameOverPlayersCero", { reason: "no-players" });
                 } else if (disconnectedPlayer.userId === gameRoom.ownerId) {
                     // Si el propietario se desconecta, puedes:
                     // 1. Asignar un nuevo propietario (el siguiente en la lista)

@@ -8,6 +8,7 @@ import LandingPage from "./pages/landingPage";
 import { useEffect } from "react";
 import { unsubscribeAuth } from "./stores/authStore";
 import Game from "./pages/game";
+import IndexMultiplayer from "./components/multiplayer/src/pages/Index";
 
 const App = () => {
   useEffect(() => {
@@ -25,6 +26,8 @@ const App = () => {
       <Route element={<MainLayout />}>
         <Route index path="/" element={<LandingPage />} />
         <Route path="/game" element={<Game />} />
+        <Route path="/multiplayer/:code" element={<IndexMultiplayer />} />
+
       </Route>
     </Routes>
   );

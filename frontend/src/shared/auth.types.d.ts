@@ -7,6 +7,8 @@ export interface UserData {
     photoURL?: string | null;
     role: UserRole;
     accessToken?: string;
+    _id?: string; // ID del usuario en la base de datos
+    completedRegister:boolean; // Indica si el usuario ha completado el registro
     // emailVerified: boolean;
 }
 
