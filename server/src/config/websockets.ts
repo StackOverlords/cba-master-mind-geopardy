@@ -452,7 +452,7 @@ export class SocketConnection {
         this.startTurnTimer(gameCode);
     }
 
-    private startTurnTimer(gameCode: string): void {
+    private startTurnTimer(gameCode: string): void { /// ERRORCORREGIR
         const gameRoom = games[gameCode];
         if (!gameRoom) return;
 

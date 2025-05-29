@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes } from "react";
+import { cn } from "../../lib/utils";
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
     name?: string;
 }
@@ -9,7 +10,9 @@ const GlowButton: React.FC<Props> = ({ children, onClick, className, type, ...pr
             {...props}
             type={type}
             onClick={onClick}
-            className={`relative bg-[#170a2e] text-white border border-purple-500/50 rounded-md px-6 py-2 text-sm group cursor-pointer ${className}`}
+            className={cn(
+                "flex relative bg-[#170a2e] text-white border border-purple-500/50 rounded-md items-center justify-center px-6 py-2 text-sm group cursor-pointer",
+                className)}
         >
             {children}
             <div className="absolute inset-0 opacity-30 group-hover:opacity-70 rounded-md transition-all duration-300 ease-in-out"

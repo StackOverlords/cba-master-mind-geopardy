@@ -11,11 +11,11 @@ export const createUserApi = async (user: CreateUserDTO, accessToken: string): P
         });
 
         const newUserData: UserData = {
+            _id: response.data._id,
             firebaseUid: response.data.firebaseUid,
             email: response.data.email,
             displayName: response.data.name,
             role: response.data.role,
-            _id: response.data._id,
             completedRegister: response.data.completedRegister,
         };
         return newUserData;
@@ -29,11 +29,11 @@ export const validSessionApi = async (accessToken: string): Promise<UserData> =>
         console.log(accessToken)
         const response = await axios.post("auth/validSession", { accessToken });
         const userData: UserData = {
+            _id: response.data._id,
             firebaseUid: response.data.firebaseUid,
             email: response.data.email,
             displayName: response.data.name,
             role: response.data.role,
-            _id: response.data._id,
             completedRegister: response.data.completedRegister,
         };
         console.log(userData);
