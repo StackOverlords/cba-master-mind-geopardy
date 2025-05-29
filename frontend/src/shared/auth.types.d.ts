@@ -1,13 +1,13 @@
-export type UserRole = 'admin' | 'user' | 'guest';
+export type UserRole = 'admin' | 'player' | 'guest';
 
 export interface UserData {
+    _id: string;
     firebaseUid: string;
     email: string | null;
     displayName: string | null;
     photoURL?: string | null;
     role: UserRole;
     accessToken?: string;
-    _id?: string; // ID del usuario en la base de datos
     completedRegister:boolean; // Indica si el usuario ha completado el registro
     // emailVerified: boolean;
 }
