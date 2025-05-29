@@ -22,6 +22,7 @@ export const createUserData = async (firebaseUser: FirebaseUser): Promise<UserDa
     const accessToken = await firebaseUser.getIdToken();
     const newUserApi = await createUserApi(userDTO, accessToken);
     const newUserData: UserData = {
+        _id: newUserApi._id,
         firebaseUid: firebaseUser.uid,
         email: firebaseUser.email,
         displayName: firebaseUser.displayName,
@@ -36,6 +37,7 @@ export const getUserData = async (firebaseUser: FirebaseUser): Promise<UserData>
     const accessToken = await firebaseUser.getIdToken();
     const userDataApi = await validSessionApi(accessToken);
     const newUserData: UserData = {
+        _id: userDataApi._id,
         firebaseUid: firebaseUser.uid,
         email: firebaseUser.email,
         displayName: firebaseUser.displayName,
