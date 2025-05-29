@@ -14,7 +14,9 @@ export const createUserApi = async (user: CreateUserDTO, accessToken: string): P
             firebaseUid: response.data.firebaseUid,
             email: response.data.email,
             displayName: response.data.name,
-            role: response.data.role
+            role: response.data.role,
+            _id: response.data._id,
+            completedRegister: response.data.completedRegister,
         };
         return newUserData;
     } catch (error) {
@@ -24,14 +26,17 @@ export const createUserApi = async (user: CreateUserDTO, accessToken: string): P
 
 export const validSessionApi = async (accessToken: string): Promise<UserData> => {
     try {
+        console.log(accessToken)
         const response = await axios.post("auth/validSession", { accessToken });
-
         const userData: UserData = {
             firebaseUid: response.data.firebaseUid,
             email: response.data.email,
             displayName: response.data.name,
-            role: response.data.role
+            role: response.data.role,
+            _id: response.data._id,
+            completedRegister: response.data.completedRegister,
         };
+        console.log(userData);
         return userData;
     } catch (error) {
         throw new Error("Error validating session");
