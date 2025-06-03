@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Player } from '../types/game';
+import { motion } from 'framer-motion'; 
 import { Crown, User } from 'lucide-react';
+import type { Player } from '../types/game';
 
 interface PlayerCardProps {
   player: Player;
@@ -44,7 +44,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-1">
             <h3 className="font-semibold text-gray-900 dark:text-white truncate">
-              {player.name}
+              {player?.username || `Jugador ${player.id}`}
             </h3>
             {player.score > 0 && (
               <Crown className="w-4 h-4 text-yellow-500 flex-shrink-0" />
