@@ -13,7 +13,10 @@ export interface IGame extends Document {
         score: number; // Añadimos el puntaje persistente
         hasAnsweredThisTurn: boolean; // Indica si el jugador ha respondido en su turno
     }>; // Arreglo de jugadores con sus IDs y nombres, y sus puntajes
+
     questions: mongoose.Types.ObjectId[]; // IDs de las preguntas usadas en la partida
+    questionsLocalAnswered?: mongoose.Types.ObjectId[]; // IDs de las preguntas respondidas localmente
+
     categorys: mongoose.Types.ObjectId[]; // IDs de las categorías usadas en la partida
     isDeleted: boolean;
     createdAt: Date;
@@ -30,11 +33,38 @@ export interface IGame extends Document {
             score: number;
         }[];
     };
+
+    playersLocal?: [{
+        username: string;
+        score: number;
+    }];
+    
+    // rondas
+    rounds?: number; // Número de rondas en el juego
 }
 const question = {
     type: mongoose.Types.ObjectId,
     ref: "Question"
 }
+const questionAnswered = {
+    questionId: {
+        type: mongoose.Types.ObjectId,
+        ref: "Question"
+    },
+    // playerName: {
+    //     type: String,
+    //     required: true
+    // },
+    answer: {
+        type: String,
+        required: true
+    },
+    isCorrect: {
+        type: Boolean,
+        required: true
+    }
+}
+
 const category = {
     type: mongoose.Types.ObjectId,
     ref: "Category"
@@ -91,6 +121,10 @@ const gameSchema = new Schema<IGame>({
         type: [question],
         default: [],
     },
+    questionsLocalAnswered: {
+        type: [questionAnswered],
+        default: [],
+    },
     categorys: {
         type: [category],
         default: [],
@@ -124,6 +158,18 @@ const gameSchema = new Schema<IGame>({
         type: Number,
         default: 30, // Tiempo por defecto en segundos
     },
+
+    playersLocal: [{
+        username: { type: String, required: true },
+        score: { type: Number, default: 0 },
+    }],
+
+    rounds: {
+        type: Number,
+        required: false,
+        default: 1, // Número de rondas por defecto
+        min: 1, // Al menos una ronda 
+    }
 },
     {
         timestamps: true,
