@@ -1,25 +1,28 @@
 
-import React, { useEffect } from 'react';
+// import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useGameStore } from '../store/gameStore';
-import { useSound } from '../hooks/useSound';
+// import { useGameStore } from '../store/gameStore';
+// import { useSound } from '../hooks/useSound';
 
-export const Timer: React.FC = () => {
-  const { timeLeft, updateTimer, gameStatus } = useGameStore();
-  const { playTick } = useSound();
+interface TimerProps {
+  timeLeft: number;
+}
+export const Timer: React.FC<TimerProps> = ({ timeLeft }) => {
+  // const { timeLeft, updateTimer, gameStatus } = useGameStore();
+  // const { playTick } = useSound();
 
-  useEffect(() => {
-    if (gameStatus === 'playing') {
-      const interval = setInterval(() => {
-        updateTimer();
-        if (timeLeft > 0 && timeLeft <= 5) {
-          playTick();
-        }
-      }, 1000);
+  // useEffect(() => {
+  //   if (gameStatus === 'playing') {
+  //     const interval = setInterval(() => {
+  //       updateTimer();
+  //       if (timeLeft > 0 && timeLeft <= 5) {
+  //         playTick();
+  //       }
+  //     }, 1000);
 
-      return () => clearInterval(interval);
-    }
-  }, [gameStatus, updateTimer, timeLeft, playTick]);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [gameStatus, updateTimer, timeLeft, playTick]);
 
   const percentage = (timeLeft / 15) * 100;
   const circumference = 2 * Math.PI * 45;
