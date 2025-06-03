@@ -487,7 +487,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
       exit={{ opacity: 0, x: -50 }}
       className="space-y-6"
     >
-      <p className="text-gray-600 text-center">
+      <p className="text-slate-400">
         Choose the type of game you want to start:
       </p>
 
@@ -710,17 +710,17 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
             />
           </svg>
         </button>
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-slate-400">
           {TextComponent.championshipConfig}
         </h3>
       </div>
 
       <div className="text-center py-8">
         <div className="text-6xl mb-4">🏆</div>
-        <h4 className="text-xl font-bold text-gray-900 mb-2">
+        <h4 className="text-xl font-bold text-white mb-2">
           Ready for the Championship!
         </h4>
-        <p className="text-gray-600">{TextComponent.championshipDescription}</p>
+        <p className="text-slate-400">{TextComponent.championshipDescription}</p>
       </div>
     </motion.div>
   );
@@ -731,7 +731,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         <div className="mt-8 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 text-white bg-dashboard-border/80 hover:bg-dashboard-border rounded-lg font-medium transition-colors"
           >
             {TextComponent.cancelButton}
           </button>
@@ -748,7 +748,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         <div className="mt-8 flex gap-3">
           <button
             onClick={handleBackToModeSelection}
-            className="flex-1 px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 text-white border-dashboard-border/50 border-2 hover:bg-dashboard-border/50 rounded-lg font-medium transition-colors"
           >
             {TextComponent.backButton}
           </button>
@@ -757,8 +757,8 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
             disabled={!canCreate}
             className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${
               canCreate
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                ? "bg-dashboard-border/80 hover:bg-dashboard-border text-white"
+                : "bg-dashboard-border/50 text-white cursor-not-allowed"
             }`}
           >
             {TextComponent.createGame}
@@ -772,13 +772,13 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         <div className="mt-8 flex gap-3">
           <button
             onClick={handleBackToModeSelection}
-            className="flex-1 px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+            className="flex-1 px-4 py-2.5  text-white border-dashboard-border/50 border-2 hover:bg-dashboard-border/50 rounded-lg font-medium transition-colors"
           >
             {TextComponent.backButton}
           </button>
           <button
             onClick={handleCreateChampionshipGame}
-            className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            className="flex-1 px-4 py-2.5 bg-dashboard-border/80 hover:bg-dashboard-border text-white rounded-lg font-medium transition-colors"
           >
             {TextComponent.championship}
           </button>
@@ -801,12 +801,12 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-lg p-6 bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-lg p-6 bg-gradient-to-br from-leaderboard-bg to-black rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl w-full font-bold text-white">
                 {currentStep === "mode-selection" && "Create New Game"}
                 {currentStep === "multiplayer-config" && "Configuration"}
                 {currentStep === "championship-config" && "Championship"}

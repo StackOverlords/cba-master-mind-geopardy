@@ -16,6 +16,7 @@ import {
 import { useRef, useState } from "react";
 import { cn } from "../../lib/utils";
 import { useBreakpoint } from "../../hooks/useBreakpoint";
+import { useNavigate } from "react-router";
 // import LeftCollapseIcon from "./icons/leftCollapse";
 
 export const FloatingDock = ({
@@ -102,7 +103,7 @@ const FloatingDockDesktop = ({
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto flex h-14 items-end gap-4 rounded-2xl px-4 pb-3 md:hidden bg-neutral-900",
+        "mx-auto flex h-14 items-end gap-4 rounded-2xl px-4 pb-3 md:hidden bg-dashboard-bg border border-dashboard-border",
         className,
       )}
     >
@@ -166,8 +167,12 @@ function IconContainer({
 
   const [hovered, setHovered] = useState(false);
 
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(href);
+  }
   return (
-    <a href={href}>
+    <a onClick={handleClick} className="cursor-pointer">
       <motion.div
         ref={ref}
         style={
@@ -177,7 +182,7 @@ function IconContainer({
         }
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative flex aspect-square items-center justify-center rounded-full bg-neutral-800"
+        className="relative flex aspect-square items-center justify-center rounded-full bg-dashboard-border"
       >
         <AnimatePresence>
           {hovered && (
@@ -185,7 +190,7 @@ function IconContainer({
               initial={{ opacity: 0, y: 10, x: "-50%" }}
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: 2, x: "-50%" }}
-              className="absolute -top-8 left-1/2 w-fit rounded-md border px-2 py-0.5 text-xs whitespace-pre border-neutral-900 bg-neutral-800 text-white"
+              className="absolute -top-8 left-1/2 w-fit rounded-md border px-2 py-0.5 text-xs whitespace-pre border-dashboard-border bg-dashboard-bg text-white"
             >
               {title}
             </motion.div>

@@ -21,7 +21,7 @@ export default function DashboardPage() {
         <>
             <GradientBackground />
             <FloatingNavbar />
-            <div className="min-h-screen bg-black/50 flex backdrop-blur-sm">
+            <div id="dashboard-container" className="min-h-screen bg-black/50 flex backdrop-blur-sm">
                 <AppSidebar
                     activeSection={activeSection}
                     setActiveSection={setActiveSection}

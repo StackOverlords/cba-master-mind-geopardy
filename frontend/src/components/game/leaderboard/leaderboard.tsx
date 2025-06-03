@@ -1,22 +1,16 @@
-import React, { useState } from "react";
-import type { Player, TimeFilter as TimeFilterType } from "../../../shared/leaderboardTypes";
 import LeaderboardHeader from "./leaderboardHeader";
-import TimeFilter from "./timeFilter";
 import PlayerRow from "./playerRow";
+import type { Player } from "../../../shared/types/game";
+import { useAuthStore } from "../../../stores/authStore";
 
 interface LeaderboardProps {
-  monthlyData: Player[];
-  allTimeData: Player[];
+  players: Player[];
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ monthlyData, allTimeData }) => {
-  const [activeFilter, setActiveFilter] = useState<TimeFilterType>("month");
+const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
+  const currentUserId = useAuthStore((state) => state.user?._id);
 
-  const handleFilterChange = (filter: TimeFilterType) => {
-    setActiveFilter(filter);
-  };
-
-  const displayData = activeFilter === "month" ? monthlyData : allTimeData;
+  // const displayData = activeFilter === "month" ? monthlyData : allTimeData;
 
   return (
     <div className="max-w-sm sm:max-w-full lg:max-w-sm">
@@ -29,20 +23,22 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ monthlyData, allTimeData }) =
           {/* <TimeFilter activeFilter={activeFilter} onFilterChange={handleFilterChange} /> */}
         </div>
 
-        <table className="w-full border-separate border-spacing-y-1 border-spacing-x-0">
-          <thead>
-            <tr className="bg-transparent">
-              <th className="text-left pl-4 py-3 text-sm text-leaderboard-muted font-medium">Position</th>
-              <th className="text-left pl-2 py-3 text-sm text-leaderboard-muted font-medium">Player</th>
-              <th className="text-right px-4 py-3 text-sm text-leaderboard-muted font-medium">Points</th>
-            </tr>
-          </thead>
-          <tbody className="mt-2">
-            {displayData.map((player) => (
-              <PlayerRow key={player.id} player={player} />
+        <section className="w-full border-separate border-spacing-y-1 border-spacing-x-0">
+          <header className="flex items-center gap-2">
+            <div className="text-left pl-4 py-3 text-sm text-leaderboard-muted font-medium w-3/12">Position</div>
+            <div className="text-left pl-2 py-3 text-sm text-leaderboard-muted font-medium w-6/12">Player</div>
+            <div className="text-right px-4 py-3 text-sm text-leaderboard-muted font-medium w-3/12">Points</div>
+          </header>
+          <div className="mt-2 w-full">
+            {players.map((player, idx) => (
+              <PlayerRow
+                key={player._id}
+                player={player}
+                isCurrentUser={player.playerId === currentUserId}
+                position={idx + 1} />
             ))}
-          </tbody>
-        </table>
+          </div>
+        </section>
       </div>
     </div>
   );
