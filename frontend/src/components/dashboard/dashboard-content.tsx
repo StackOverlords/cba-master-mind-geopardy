@@ -14,6 +14,7 @@ import { useEffect, useState } from "react"
 import { hasLoggedBefore } from "../../utils/localStorage"
 import { useAuthStore } from "../../stores/authStore"
 import UserIcon from "../ui/icons/userIcon"
+import { Outlet } from "react-router"
 
 interface DashboardContentProps {
     activeSection: string
@@ -28,30 +29,30 @@ export function DashboardContent({ activeSection, userRole, sidebarOpen, setSide
     useEffect(() => {
         setHasLogged(hasLoggedBefore());
     }, [isAuthenticated]);
-    const renderSection = () => {
-        switch (activeSection) {
-            case "overview":
-                return <OverviewSection userRole={userRole} />
-            case "users":
-                return userRole === "admin" ? <UserManagementSection /> : <OverviewSection userRole={userRole} />
-            case "categories":
-                return userRole === "admin" ? <CategoriesSection /> : <OverviewSection userRole={userRole} />
-            case "questions":
-                return userRole === "admin" ? <QuestionsSection /> : <OverviewSection userRole={userRole} />
-            //   case "analytics":
-            //     return userRole === "admin" ? <AnalyticsSection /> : <OverviewSection userRole={userRole} />
-            case "play":
-                return <PlaySection />
-            //   case "history":
-            //     return <HistorySection />
-            //   case "leaderboard":
-            //     return <LeaderboardSection />
-            case "settings":
-                return <SettingsSection />
-            default:
-                return <OverviewSection userRole={userRole} />
-        }
-    }
+    // const renderSection = () => {
+    //     switch (activeSection) {
+    //         case "overview":
+    //             return <OverviewSection userRole={userRole} />
+    //         case "users":
+    //             return userRole === "admin" ? <UserManagementSection /> : <OverviewSection userRole={userRole} />
+    //         case "categories":
+    //             return userRole === "admin" ? <CategoriesSection /> : <OverviewSection userRole={userRole} />
+    //         case "questions":
+    //             return userRole === "admin" ? <QuestionsSection /> : <OverviewSection userRole={userRole} />
+    //         //   case "analytics":
+    //         //     return userRole === "admin" ? <AnalyticsSection /> : <OverviewSection userRole={userRole} />
+    //         case "play":
+    //             return <PlaySection />
+    //         //   case "history":
+    //         //     return <HistorySection />
+    //         //   case "leaderboard":
+    //         //     return <LeaderboardSection />
+    //         case "settings":
+    //             return <SettingsSection />
+    //         default:
+    //             return <OverviewSection userRole={userRole} />
+    //     }
+    // }
 
     return (
         <div className="flex flex-col h-screen">
@@ -77,33 +78,13 @@ export function DashboardContent({ activeSection, userRole, sidebarOpen, setSide
                             <div className="size-10 flex items-center justify-center rounded-full animate-pulse border-border/60 bg-background/50 hover:bg-background/70 border backdrop-blur-sm">
                                 <UserIcon className="size-5 text-border/60" />
                             </div>
-                        ) : (
-                            <>
-                                <a
-                                    href="/auth/sign-in"
-                                    className={`relative flex items-center justify-center gap-4
-                            text-gray-300 hover:text-white border-border/60 bg-background/50 hover:bg-background/70 border backdrop-blur-sm
-                            rounded-md px-6 py-2 group  
-                            transition-colors duration-500 ease-in-out`}
-                                >
-                                    Sign In
-                                </a>
-
-                                <a
-                                    href="/auth/sign-up"
-                                    className={`relative bg-[#170a2e] text-white border border-purple-500/50 rounded-md px-6 py-2 group cursor-pointer`}
-                                >
-                                    Sign Up
-                                    <div className="absolute inset-0 opacity-30 group-hover:opacity-70 rounded-md transition-all duration-300 ease-in-out"
-                                        style={{ boxShadow: 'inset 0 0 15px #622F8E' }}></div>
-                                </a>
-                            </>
-                        )
+                        ) : null
                     }
                 </div>
             </header>
             <div className="flex-1 px-3 pt-3 sm:px-6 sm:pt-3 pb-20 md:pb-6 overflow-y-auto bg-gradient-to-b backdrop-blur-sm from-leaderboard-bg/60 to-black/30">
-                {renderSection()}
+                {/* {renderSection()} */}
+                <Outlet />
             </div>
         </div>
     )

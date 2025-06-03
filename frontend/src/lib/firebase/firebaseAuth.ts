@@ -1,15 +1,17 @@
 import {
     createUserWithEmailAndPassword,
+    deleteUser,
     signInWithEmailAndPassword,
     signInWithPopup,
     signOut,
+    updateEmail,
     // onAuthStateChanged,
     updateProfile,
     type User as FirebaseUser
 } from "firebase/auth";
 import type { LoginCredentials, RegisterCredentials, UserData } from "../../shared/auth.types";
 import { auth, googleProvider } from "./firebase";
-import { createUserApi, validSessionApi } from "../../api/authApi";
+import { createUserApi, deleteUserApi, updateUserApi, validSessionApi } from "../../api/authApi";
 import type { CreateUserDTO } from "../../shared/types";
 
 export const createUserData = async (firebaseUser: FirebaseUser): Promise<UserData> => {
@@ -29,7 +31,6 @@ export const createUserData = async (firebaseUser: FirebaseUser): Promise<UserDa
         role: newUserApi.role,
         photoURL: firebaseUser.photoURL,
         accessToken: accessToken,
-        _id: newUserApi._id,
         completedRegister: newUserApi.completedRegister
     };
     return newUserData;
@@ -46,7 +47,6 @@ export const getUserData = async (firebaseUser: FirebaseUser): Promise<UserData>
         role: userDataApi.role,
         photoURL: firebaseUser.photoURL,
         accessToken: accessToken,
-        _id: userDataApi._id,
         completedRegister: userDataApi.completedRegister
     };
     return newUserData;
@@ -74,6 +74,17 @@ export const logout = async () => {
     await signOut(auth);
 };
 
+export const updateUser = async (updates: CreateUserDTO, user: FirebaseUser) => {
+    if (updates.name) await updateProfile(user, { displayName: updates.name });
+    if (updates.email) await updateEmail(user, updates.email);
+    await updateUserApi(user.uid, updates);
+    return await getUserData(user);
+};
+
+export const removeUser = async (user: FirebaseUser) => {
+    await deleteUserApi(user.uid)
+    await deleteUser(user); // Firebase
+};
 // export const onAuthChange = (callback: (user: FirebaseUser | null) => void) => {
 //     return onAuthStateChanged(auth, callback);
 // };

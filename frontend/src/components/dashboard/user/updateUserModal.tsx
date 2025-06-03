@@ -1,15 +1,15 @@
-import XIcon from "../../ui/icons/xIcon";
 import InputField from "../../ui/inputField";
 import type { User } from "../../../shared/types/user";
 import SelectOptions from "../../ui/selectOptions";
 import ModalContainer from "../../ui/modalContainer";
+import type { FormEvent } from "react";
 
 type Props = {
     user: User
     isModalOpen: boolean
     handleCloseModal: () => void
     handleChangeUserData?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
-    handleSubmit: () => void
+    handleSubmit: (e: FormEvent) => void
 }
 
 const UpdateUserModal: React.FC<Props> = ({
@@ -23,29 +23,17 @@ const UpdateUserModal: React.FC<Props> = ({
     return (
         isModalOpen && (
             <ModalContainer handleCloseModal={handleCloseModal}>
-                {/* Glass overlay */}
-                <div className="absolute inset-0 bg-[#6f65ff]/5" />
-
                 {/* Content */}
                 <section className="relative z-10">
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
+                    <header className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="text-xl font-medium text-white">Update User</h3>
                             <p className="text-sm text-slate-400">Modify the user's information</p>
                         </div>
+                    </header>
 
-                        <div className="flex items-center space-x-4">
-                            <button
-                                className="p-1 rounded-md hover:bg-dashboard-border/50 transition-colors ease-in-out delay-100"
-                                onClick={() => handleCloseModal()}
-                            >
-                                <XIcon className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="w-full">
                             <label htmlFor="name" className="block text-sm font-medium text-slate-300">Name</label>
                             <InputField
@@ -98,21 +86,24 @@ const UpdateUserModal: React.FC<Props> = ({
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <div className="flex justify-end space-x-3 mt-6 text-sm">
+                            <button
+                                type="button"
+                                aria-label="Cancel"
+                                onClick={() => handleCloseModal()}
+                                className="px-4 py-2 border border-transparent text-slate-300 rounded-md hover:bg-dashboard-border/80 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                aria-label="Update User"
+                                className="px-4 py-2 bg-dashboard-border/50 hover:bg-dashboard-border/80 text-white rounded-md transition-colors">
+                                Update User
+                            </button>
+                        </div>
+                    </form>
 
-                    <div className="flex justify-end space-x-3 mt-6 text-sm">
-                        <button
-                            onClick={() => handleCloseModal()}
-                            className="px-4 py-2 border border-transparent text-slate-300 rounded-md hover:bg-dashboard-border/80 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={() => handleSubmit()}
-                            className="px-4 py-2 bg-dashboard-border/50 hover:bg-dashboard-border/80 text-white rounded-md transition-colors">
-                            Update User
-                        </button>
-                    </div>
                 </section>
             </ModalContainer>
         )
