@@ -14,10 +14,16 @@ export class CategoryService {
         if (!categoryData.name) {
             throw new CustomError("Category name is required", 400);
         }
-        const exist = await this.categoryService.findByText(categoryData.name);
-        if (exist && exist.length > 0) {
+
+        // Buscar todas las categorías con el mismo nombre (incluyendo eliminadas)
+        const existingCategories = await this.categoryService.findByText(categoryData.name); 
+        
+        const activeCategory = existingCategories?.find(cat => cat.isDeleted === false);
+        if (activeCategory) {
             throw new CustomError("Category already exists", 400);
         }
+
+        // Si llegamos aquí, o no existe la categoría o está eliminada (isDeleted: true)
         return await this.categoryService.create(categoryData);
     }
 

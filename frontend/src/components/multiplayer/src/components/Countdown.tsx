@@ -1,32 +1,12 @@
-
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useSound } from '../hooks/useSound';
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
 
 interface CountdownProps {
-  onComplete: () => void;
+  timer: number;
 }
 
-export const Countdown: React.FC<CountdownProps> = ({ onComplete }) => {
-  const { playCountdown } = useSound();
-  const [count, setCount] = React.useState(3);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCount((prev) => {
-        if (prev > 1) {
-          playCountdown();
-          return prev - 1;
-        } else {
-          clearInterval(interval);
-          setTimeout(onComplete, 1000);
-          return 0;
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [onComplete, playCountdown]);
+export const Countdown: React.FC<CountdownProps> = ({ timer }) => {
+  useEffect(() => {}, [timer]);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
@@ -36,16 +16,16 @@ export const Countdown: React.FC<CountdownProps> = ({ onComplete }) => {
         animate={{ scale: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        {count > 0 ? (
+        {timer > 0 ? (
           <motion.div
-            key={count}
+            key={timer}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="text-6xl font-bold text-blue-600 dark:text-blue-400 mb-2"
           >
-            {count}
+            {timer}
           </motion.div>
         ) : (
           <motion.div

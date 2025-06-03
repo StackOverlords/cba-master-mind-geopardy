@@ -1,16 +1,21 @@
+// import { useGameStore } from "./store/gameStore";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { GameScreen } from "./components/GameScreen";
+import "../../../index.css";
+import { useAuthStore } from "../../../stores/authStore";
+import { GameNotFound } from "./components/GameNotFound";
 
-import { useGameStore } from './store/gameStore';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { GameSetup } from './components/GameSetup';
-import { GameScreen } from './components/GameScreen';
-import '../../../index.css'
 function MultiplayerApp() {
-  const { gameStatus } = useGameStore();
+  const { user } = useAuthStore();
+  const code = sessionStorage.getItem("gameCode");
 
+  if (!user || !code) {
+    return <GameNotFound />;
+  }
   return (
     <ThemeProvider>
       <div className="App">
-        {gameStatus === 'waiting' ? <GameSetup /> : <GameScreen />}
+        <GameScreen user={user} code={code} />
       </div>
     </ThemeProvider>
   );

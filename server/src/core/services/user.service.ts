@@ -1,13 +1,17 @@
 import { UserRepository } from '../../infrastructure/repositories/user.repository';
 import { IUser } from '../models/User.model';
+import { IPermission } from '../models/Permisson.model';
 import { CustomError } from '../../api/middlewares/error.middleware';
 import { UserFilter } from '../interfaces/user.filter.interface';
+import { PermissionRepository } from '../../infrastructure/repositories/permission.repository';
 
 export class UserService {
   private userRepository: UserRepository;
+  private permissionRepository: PermissionRepository;
 
   constructor() {
     this.userRepository = new UserRepository();
+    this.permissionRepository = new PermissionRepository();
   }
 
   async createUser(userData: Partial<IUser>): Promise<IUser> {
@@ -15,6 +19,13 @@ export class UserService {
     if (existingUser) {
       return existingUser;
     }
+    const permissions = await this.permissionRepository.findAll({ limit: -1 });
+    if (permissions.data.length > 0) {
+      userData.permissions = permissions.data.map((permission: IPermission) => permission._id);
+    } else {
+      userData.permissions = [];
+    }
+    console.log(permissions);
     return await this.userRepository.create(userData);
   }
 
