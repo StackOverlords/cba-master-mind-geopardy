@@ -418,6 +418,13 @@
         "tags": ["game"],
         "parameters": [
           {
+            "name":"id",
+            "in": "query",
+            "description": "ID of the game to be retrieved",
+            "required": false,
+            "type": "string"
+          },
+          {
             "name": "name",
             "in": "query",
             "required": false,
@@ -532,6 +539,114 @@
                 },
                 "players": {
                   "type": "array"
+                },
+                "generateQuestions":{
+                  "type": "boolean",
+                  "example": true,
+                  "description": "Generate questions automatically"
+                }, 
+                "playersLocal": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "username": {
+                        "type": "string",
+                        "example": "Player 1"
+                      },
+                      "score": {
+                        "type": "number",
+                        "example": 0
+                      }
+                    }
+                  }
+                },
+                "rounds": {
+                  "type": "number",
+                  "example": 3
+                },
+                "categorys": {
+                  "type": "array",
+                  "items":{
+                    "typ":"string",
+                    "example": "123AD45678DX90AAE"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API version retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Prueba"
+                  },
+                  "user": {
+                    "type": "object"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "playing"
+                  },
+                  "gameMode": {
+                    "type": "string",
+                    "example": "championship"
+                  },
+                  "players": {
+                    "type": "array"
+                  },
+                  "isDeleted": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/game/answer": {
+      "post": {
+        "summary": "Create games",
+        "produces": ["application/json"],
+        "tags": ["game"],
+        "parameters": [
+          {
+            "name": "game",
+            "in": "body",
+            "description": "Create game",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "gameId": {
+                  "type": "string",
+                  "example": "123AD45678DX90AAE"
+                },
+                "questionId": {
+                  "type": "string",
+                  "example": "123AD45678DX90AAE"
+                },
+                "answerData": {
+                  "type": "object",
+                  "properties": {
+                    "answer": {
+                      "type": "string",
+                      "example": "This is the answer"
+                    },
+                    "isCorrect": {
+                      "type": "boolean",
+                      "example": "true"
+                    }
+                  }
                 }
               }
             }
