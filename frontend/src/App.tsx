@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import { Toaster } from 'react-hot-toast'
 import MainLayout from "./layouts/mainLayout";
 import LoginPage from "./pages/loginPage";
@@ -11,6 +11,13 @@ import { unsubscribeAuth } from "./stores/authStore";
 import Game from "./pages/game";
 import DashboardPage from "./pages/dashboard";
 import IndexMultiplayer from "./components/multiplayer/src/pages/Index";
+import ProtectedRoute from "./guards/privateRoutes";
+import { OverviewSection } from "./components/dashboard/sections/overview-section";
+import { UserManagementSection } from "./components/dashboard/sections/userManagement-section";
+import { CategoriesSection } from "./components/dashboard/sections/categories-section";
+import { QuestionsSection } from "./components/dashboard/sections/questions-section";
+import { SettingsSection } from "./components/dashboard/sections/settings-section";
+import DashboardSkeleton from "./components/dashboard/dashboardSkeleton";
 
 const App = () => {
   useEffect(() => {
@@ -31,7 +38,20 @@ const App = () => {
           <Route path="/game" element={<Game />} />
           <Route path="/multiplayer/:code" element={<IndexMultiplayer />} />
         </Route>
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard/*" element={
+          <ProtectedRoute roles={['admin']} skeleton={<DashboardSkeleton />}>
+            <DashboardPage />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<OverviewSection userRole="admin" />} />
+          <Route path="users" element={<UserManagementSection />} />
+          <Route path="categories" element={<CategoriesSection />} />
+          <Route path="questions" element={<QuestionsSection />} />
+          {/* <Route path="play" element={<DashboardPage />} /> */}
+          <Route path="settings" element={<SettingsSection />} />
+        </Route>
+        {/* <Route path="/dashboarddd" element={<DashboardPage />} /> */}
       </Routes>
       <Toaster
         position="top-right"

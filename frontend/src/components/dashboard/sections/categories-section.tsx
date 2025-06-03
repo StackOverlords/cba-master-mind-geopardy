@@ -21,6 +21,7 @@ import type { DialogOptions } from "../../../shared/types"
 import GlowButton from "../../ui/glowButton"
 import Pagination from "../../pagination"
 import SelectOptions from "../../ui/selectOptions"
+import ConfirmationModal from "../../confirmationModal"
 
 interface CategoryState extends CreateCategoryDto {
   _id?: string;
@@ -30,6 +31,8 @@ export function CategoriesSection() {
     isOpenDialog: false,
     mode: null,
   })
+  const [isOpenConfirmationModal, setIsOpenConfirmationModal] = useState<boolean>(false)
+
   const creatorId = useAuthStore((state) => state.user?._id)
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -213,7 +216,7 @@ export function CategoriesSection() {
         <div className="grow">
           <h1 className="text-3xl font-bold text-white mb-2">Category Management</h1>
           <p className="text-slate-400">Organize and manage quiz question categories</p>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 mt-4">
             <div className="relative w-max">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
                 <SearchIcon className="size-4 text-slate-400" />
@@ -296,10 +299,26 @@ export function CategoriesSection() {
                           <EditIcon className="size-4" />
                         </button>
                         <button
-                          onClick={() => handleDeleteCategory(category._id)}
+                          onClick={() => setIsOpenConfirmationModal(true)}
                           className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-red-900/20 transition-colors">
                           <TrashIcon className="size-4" />
                         </button>
+                        {
+                          isOpenConfirmationModal && (
+                            <ConfirmationModal
+                              confirmButtonText="Delete"
+                              onCancel={() => setIsOpenConfirmationModal(false)}
+                              onConfirm={() => {
+                                handleDeleteCategory(category._id)
+                                setIsOpenConfirmationModal(false)
+                              }}
+                              title="Delete Category"
+                              message="Are you sure you want to delete this category?"
+                              type="danger"
+                              classNameModal="bg-black/10 backdrop-blur-xs"
+                            />
+                          )
+                        }
                       </div>
                     </header>
                   </div>
