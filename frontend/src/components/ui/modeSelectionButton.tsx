@@ -15,8 +15,8 @@ const ModeSelectionButton: React.FC<ModeSelectionButtonProps> = ({
       onClick={onClick}
       className={`w-full p-4 rounded-lg border-2 text-left transition-all duration-200 ${
         isSelected
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+          ? 'border-dashboard-border/70 bg-dashboard-bg/70'
+          : 'border-dashboard-border/50 hover:border-dashboard-border/80 hover:bg-dashboard-bg/70 bg-dashboard-bg/50'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -24,7 +24,7 @@ const ModeSelectionButton: React.FC<ModeSelectionButtonProps> = ({
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <h3 className={`font-semibold text-lg ${
-              isSelected ? 'text-blue-900' : 'text-gray-900'
+              isSelected ? 'text-blue-900' : 'text-white'
             }`}>
               {label}
             </h3>
@@ -37,7 +37,7 @@ const ModeSelectionButton: React.FC<ModeSelectionButtonProps> = ({
             )}
           </div>
           <p className={`text-sm mt-1 ${
-            isSelected ? 'text-blue-700' : 'text-gray-600'
+            isSelected ? 'text-blue-700' : 'text-slate-400'
           }`}>
             {description}
           </p>

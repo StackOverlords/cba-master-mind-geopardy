@@ -20,7 +20,7 @@ export interface LoginResponse {
 }
 
 export interface Answer {
-    id: string
+    _id: string
     text: string
     isCorrect: boolean
 }

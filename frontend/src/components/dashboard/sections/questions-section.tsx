@@ -24,6 +24,7 @@ import QuestionModal from "../question/questionModal"
 import UploadIcon from "../../ui/icons/uploadIcon"
 import GlowButton from "../../ui/glowButton"
 import UploadFilesModal from "../../uploadFilesModal"
+import ConfirmationModal from "../../confirmationModal"
 interface QuestionState extends CreateQuestionDto {
   _id?: string;
 }
@@ -34,6 +35,7 @@ export function QuestionsSection() {
     mode: null,
   })
   const [openUploadModal, setOpenUploadModal] = useState<boolean>(false)
+  const [isOpenConfirmationModal, setIsOpenConfirmationModal] = useState<boolean>(false)
 
   const creatorId = useAuthStore((state) => state.user?._id)
   const [searchTerm, setSearchTerm] = useState("")
@@ -264,7 +266,7 @@ export function QuestionsSection() {
     setCurrentPage(1);
   };
   return (
-    <section className="space-y-6">
+    <section className="space-y-3">
       <header className="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Question Management</h1>
@@ -287,7 +289,7 @@ export function QuestionsSection() {
         </div>
       </header>
 
-      <div className="flex items-center flex-wrap gap-2">
+      <div className="flex items-center flex-wrap gap-2 mb-4">
         <div className="relative w-full max-w-sm">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
             <SearchIcon className="size-4 text-slate-400" />
@@ -295,7 +297,7 @@ export function QuestionsSection() {
           <InputField
             type="text"
             name="search"
-            placeholder="Search categories..."
+            placeholder="Search questions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -382,10 +384,26 @@ export function QuestionsSection() {
                           <EditIcon className="size-4" />
                         </button>
                         <button
-                          onClick={() => handleDeleteQuestion(question._id)}
+                          onClick={() => setIsOpenConfirmationModal(true)}
                           className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-red-900/20 transition-colors">
                           <TrashIcon className="size-4" />
                         </button>
+                        {
+                          isOpenConfirmationModal && (
+                            <ConfirmationModal
+                              confirmButtonText="Delete"
+                              onCancel={() => setIsOpenConfirmationModal(false)}
+                              onConfirm={() => {
+                                handleDeleteQuestion(question._id)
+                                setIsOpenConfirmationModal(false)
+                              }}
+                              title="Delete Question"
+                              message="Are you sure you want to delete this question?"
+                              type="danger"
+                              classNameModal="bg-black/10 backdrop-blur-xs"
+                            />
+                          )
+                        }
                       </div>
                     </header>
                     <h3 className="font-medium mb-2">{question.question}</h3>

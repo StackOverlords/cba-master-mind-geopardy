@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import SearchIcon from "../../ui/icons/searchIcon"
-import DotsIcon from "../../ui/icons/dotsIcon"
 import UpdateUserModal from "../user/updateUserModal"
 import InputField from "../../ui/inputField"
 import { useBreakpoint } from "../../../hooks/useBreakpoint"
-import OptionsMenu from "../user/optionsMenu"
 import type { User } from "../../../shared/types/user"
 import { usePaginatedUsers } from "../../../hooks/queries/user/userQueries"
 import { useUserByFirebaseId } from "../../../hooks/queries/user/useUserById"
@@ -18,12 +16,15 @@ import NotFoundData from "../../notFoundData"
 import Pagination from "../../pagination"
 import SelectOptions from "../../ui/selectOptions"
 import type { UserRole } from "../../../shared/auth.types"
+import ConfirmationModal from "../../confirmationModal"
+import EditIcon from "../../ui/icons/editIcon"
+import TrashIcon from "../../ui/icons/trashIcon"
 
 export function UserManagementSection() {
+    const [isOpenConfirmationModal, setIsOpenConfirmationModal] = useState<boolean>(false)
     const { isMobile } = useBreakpoint();
     const [searchTerm, setSearchTerm] = useState("")
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-    const [dropdownOpen, setDropdownOpen] = useState<string | null>(null)
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [rowsPerPage, setRowsPerPage] = useState<number>(10);
     const [role, setRole] = useState<UserRole>('guest');
@@ -53,8 +54,8 @@ export function UserManagementSection() {
         setSelectedUser({ ...selectedUser, [e.target.name]: e.target.value });
     };
 
-    const handleClickOptionsMenu = (firebaseUid: string, id: string) => {
-        toggleDropdown(id)
+    const handleClickUpdate = (firebaseUid: string) => {
+        setIsCreateDialogOpen(true)
         setFirebaseUid(firebaseUid)
     }
     useEffect(() => {
@@ -69,8 +70,8 @@ export function UserManagementSection() {
             user.email.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
-    const handleSubmit = () => {
-        // e.preventDefault()
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault()
         if (!selectedUser._id) return;
         updateUser(
             {
@@ -112,14 +113,6 @@ export function UserManagementSection() {
             firebaseUid: ""
         });
         setFirebaseUid('');
-        setDropdownOpen(null);
-    }
-    const toggleDropdown = (id: string) => {
-        if (dropdownOpen === id) {
-            setDropdownOpen(null)
-        } else {
-            setDropdownOpen(id)
-        }
     }
 
     const handlePageChange = (page: number) => {
@@ -143,7 +136,7 @@ export function UserManagementSection() {
                 <section className="p-4 border-b border-dashboard-border/50">
                     <h3 className="text-lg font-medium text-white">Users</h3>
                     <p className="text-sm text-slate-400 mb-4">Manage all registered users and their permissions</p>
-                    <div className="flex items-center space-x-2 grow flex-wrap">
+                    <div className="flex items-center space-x-2 grow flex-wrap gap-y-1.5">
                         <div className="relative max-w-xs w-full">
                             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
                                 <SearchIcon className="w-4 h-4 text-slate-400" />
@@ -223,12 +216,13 @@ export function UserManagementSection() {
                             filteredUsers && filteredUsers.map((user) => (
                                 <div
                                     key={user._id}
-                                    className="grid sm:grid-cols-2 items-center p-4 rounded-lg bg-dashboard-border/50"
+                                    className="grid sm:grid-cols-2 items-center p-4 rounded-lg bg-dashboard-bg/50 border border-dashboard-border/50 hover:bg-dashboard-bg/70 transition-colors"
                                 >
                                     <div className="flex items-center space-x-3">
                                         <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs uppercase">
                                             {user.name
                                                 .split(" ")
+                                                .slice(0, 2)
                                                 .map((n) => n[0])
                                                 .join("")}
                                         </div>
@@ -238,7 +232,7 @@ export function UserManagementSection() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-end gap-6">
+                                    <div className="flex items-center justify-end gap-4 mt-2">
                                         <span
                                             className={`px-2 py-1 rounded-full text-xs ${user.role === "admin"
                                                 ? "bg-red-500/20 text-red-300"
@@ -250,18 +244,31 @@ export function UserManagementSection() {
 
                                         <div className="flex items-center gap-2 relative">
                                             <button
-                                                onClick={() => handleClickOptionsMenu(user.firebaseUid, user._id)}
-                                                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white rounded-md hover:bg-[#2a2550]/50 transition-colors"
-                                            >
-                                                <DotsIcon className="w-4 h-4" />
+                                                onClick={() => handleClickUpdate(user.firebaseUid)}
+                                                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white rounded-md hover:bg-dashboard-border/50 transition-colors">
+                                                <EditIcon className="size-4" />
                                             </button>
-                                            {dropdownOpen === user._id && (
-                                                <OptionsMenu
-                                                    handleEditFuction={() => setIsCreateDialogOpen(true)}
-                                                    className="right-0"
-                                                    toggleDropdown={() => setDropdownOpen(null)}
-                                                />
-                                            )}
+                                            <button
+                                                onClick={() => setIsOpenConfirmationModal(true)}
+                                                className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-red-900/20 transition-colors">
+                                                <TrashIcon className="size-4" />
+                                            </button>
+                                            {
+                                                isOpenConfirmationModal && (
+                                                    <ConfirmationModal
+                                                        confirmButtonText="Delete"
+                                                        onCancel={() => setIsOpenConfirmationModal(false)}
+                                                        onConfirm={() => {
+                                                            // handleDeleteQuestion(question._id)
+                                                            setIsOpenConfirmationModal(false)
+                                                        }}
+                                                        title="Delete User"
+                                                        message="Are you sure you want to delete this user?"
+                                                        type="danger"
+                                                        classNameModal="bg-black/10 backdrop-blur-xs"
+                                                    />
+                                                )
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -284,6 +291,7 @@ export function UserManagementSection() {
                                                     <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs uppercase">
                                                         {user.name
                                                             .split(" ")
+                                                            .slice(0, 2)
                                                             .map((n) => n[0])
                                                             .join("")}
                                                     </div>
@@ -303,20 +311,33 @@ export function UserManagementSection() {
                                                     {user.role}
                                                 </span>
                                             </td>
-                                            <td className="py-3 px-4 relative">
+                                            <td className="py-3 px-4 relative flex items-center gap-2">
                                                 <button
-                                                    onClick={() => handleClickOptionsMenu(user.firebaseUid, user._id)}
-                                                    className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white rounded-md hover:bg-[#2a2550]/50 transition-colors"
-                                                >
-                                                    <DotsIcon className="w-4 h-4" />
+                                                    onClick={() => handleClickUpdate(user.firebaseUid)}
+                                                    className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white rounded-md hover:bg-dashboard-border/50 transition-colors">
+                                                    <EditIcon className="size-4" />
                                                 </button>
-                                                {dropdownOpen === user._id && (
-                                                    <OptionsMenu
-                                                        handleEditFuction={() => setIsCreateDialogOpen(true)}
-                                                        className="left-0"
-                                                        toggleDropdown={() => setDropdownOpen(null)}
-                                                    />
-                                                )}
+                                                <button
+                                                    onClick={() => setIsOpenConfirmationModal(true)}
+                                                    className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-red-900/20 transition-colors">
+                                                    <TrashIcon className="size-4" />
+                                                </button>
+                                                {
+                                                    isOpenConfirmationModal && (
+                                                        <ConfirmationModal
+                                                            confirmButtonText="Delete"
+                                                            onCancel={() => setIsOpenConfirmationModal(false)}
+                                                            onConfirm={() => {
+                                                                // handleDeleteQuestion(question._id)
+                                                                setIsOpenConfirmationModal(false)
+                                                            }}
+                                                            title="Delete User"
+                                                            message="Are you sure you want to delete this user?"
+                                                            type="danger"
+                                                            classNameModal="bg-black/10 backdrop-blur-xs"
+                                                        />
+                                                    )
+                                                }
                                             </td>
                                         </tr>
                                     ))}

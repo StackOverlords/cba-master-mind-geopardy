@@ -2,8 +2,9 @@ import { create } from "zustand";
 import type { AuthState, LoginCredentials, RegisterCredentials, UserRole } from "../shared/auth.types";
 import { auth } from "../lib/firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { getUserData, login, logout, register, signInWithGoogle } from "../lib/firebase/firebaseAuth";
+import { getUserData, login, logout, register, removeUser, signInWithGoogle, updateUser } from "../lib/firebase/firebaseAuth";
 import { removeLoginFlag, setLoginFlag } from "../utils/localStorage";
+import type { CreateUserDTO } from "../shared/types";
 
 export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
@@ -45,6 +46,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             set({ error: "Error al registrar usuario", isLoading: false });
             throw error;
         }
+    },
+    update: async (updates: CreateUserDTO) => {
+        const current = auth.currentUser;
+        if (!current) return;
+        const userData = await updateUser(updates, current);
+        set({ user: userData });
+    },
+
+    delete: async () => {
+        const current = auth.currentUser;
+        if (!current) return;
+        await removeUser(current);
+        set({ user: null, isAuthenticated: false });
     },
 
     logout: async () => {

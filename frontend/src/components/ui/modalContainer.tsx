@@ -2,15 +2,18 @@ import { AnimatePresence, motion } from "motion/react";
 import XIcon from "./icons/xIcon";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { cn } from "../../lib/utils";
 
 type Props = {
     children?: React.ReactNode
     handleCloseModal: () => void
+    className?: string
 }
 
 const ModalContainer: React.FC<Props> = ({
     children,
     handleCloseModal,
+    className
 }) => {
 
     useEffect(() => {
@@ -29,7 +32,7 @@ const ModalContainer: React.FC<Props> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-md p-4"
+                className={cn("fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-4", className)}
                 onClick={() => handleCloseModal()}
             >
                 <motion.div
@@ -37,9 +40,9 @@ const ModalContainer: React.FC<Props> = ({
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                    className="relative w-full max-w-max md:max-w-xl overflow-y-hidden rounded-xl
+                    className="relative w-full sm:max-w-xl overflow-y-hidden rounded-xl
                         bg-gradient-to-br from-leaderboard-bg/60 to-black/30 backdrop-blur-sm 
-                        border border-border/70 shadow-[0_0_15px_rgba(72,66,165,0.3)] z-3 max-h-full py-2"
+                        border border-border/70 z-3 max-h-full py-2"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="absolute inset-0 bg-[#6f65ff]/5" />
@@ -55,7 +58,7 @@ const ModalContainer: React.FC<Props> = ({
                 </motion.div>
             </motion.div>
         </AnimatePresence>,
-        document.body
+        document.getElementById("dashboard-container") || document.body
     );
 }
 

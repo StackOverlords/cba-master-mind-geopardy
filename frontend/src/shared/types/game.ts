@@ -2,7 +2,8 @@ export interface Player {
     playerId: string,
     username: string,
     score: number,
-    _id: string
+    _id: string,
+    avatar?: string
 }
 export interface PlayerPosition {
     playerId: string,
