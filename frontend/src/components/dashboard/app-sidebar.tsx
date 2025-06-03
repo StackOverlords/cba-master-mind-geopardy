@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import TrophyIcon from "../ui/icons/trophyIcon"
 import UserIcon from "../ui/icons/userIcon"
 import { useAuthStore } from "../../stores/authStore"
@@ -11,6 +11,7 @@ import LogoutIcon from "../ui/icons/logoutIcon"
 import type { IconType } from "../../shared/types"
 import UsersIcon from "../ui/icons/usersIcon"
 import FileTextIcon from "../ui/icons/fileTextIcon"
+import { useNavigate } from "react-router"
 
 interface AppSidebarProps {
     activeSection: string
@@ -25,7 +26,8 @@ interface MenuItems {
     title: string,
     icon: IconType,
     role: UserRole,
-    id: string
+    id: string,
+    href: string
 }
 
 const menuItems: MenuItems[] = [
@@ -33,30 +35,35 @@ const menuItems: MenuItems[] = [
         title: "Overview",
         icon: DashboardIcon,
         role: 'admin',
+        href: "/dashboard/overview",
         id: "overview",
     },
     {
         title: "User Management",
         icon: UsersIcon,
         role: 'admin',
+        href: "/dashboard/users",
         id: "users",
     },
     {
         title: "Categories",
         icon: CategoryIcon,
         role: 'admin',
+        href: "/dashboard/categories",
         id: "categories",
     },
     {
         title: "Questions",
         icon: FileTextIcon,
         role: 'admin',
+        href: "/dashboard/questions",
         id: "questions",
     },
     {
         title: "Game Analytics",
         icon: TrophyIcon,
         role: 'admin',
+        href: "/dashboard/overview",
         id: "analytics",
     },
     // player options
@@ -64,6 +71,7 @@ const menuItems: MenuItems[] = [
         title: "Dashboard",
         icon: DashboardIcon,
         role: 'player',
+        href: "/dashboard/overview",
         id: "overview",
     },
     {
@@ -71,6 +79,7 @@ const menuItems: MenuItems[] = [
         //   icon: Play,
         icon: UserIcon,
         role: 'player',
+        href: "/dashboard/overview",
         id: "play",
     },
     {
@@ -78,12 +87,14 @@ const menuItems: MenuItems[] = [
         // icon: History,
         icon: UserIcon,
         role: 'player',
+        href: "/dashboard/overview",
         id: "history",
     },
     {
         title: "Leaderboard",
         icon: TrophyIcon,
         role: 'player',
+        href: "/dashboard/overview",
         id: "leaderboard",
     },
 ]
@@ -98,7 +109,18 @@ const AppSidebar = ({
 }: AppSidebarProps) => {
     const [userMenuOpen, setUserMenuOpen] = useState(false)
     const { hasRole, user } = useAuthStore()
-
+    const navigate = useNavigate()
+    // const [activeSection, setActiveSection] = useState("overview")
+    useEffect(() => {
+        // Set the active section based on the current URL
+        const currentPath = window.location.pathname
+        const matchedItem = menuItems.find(item => currentPath.includes(item.href))
+        if (matchedItem) {
+            setActiveSection(matchedItem.id)
+        } else {
+            setActiveSection("overview") // Default to overview if no match found
+        }
+    }, [])
     return (
         <div
             className={`${isOpen ? "w-64" : "w-20"} hidden md:flex transition-all duration-300 ease-in-out h-screen bg-gradient-to-br from-leaderboard-bg/60 to-black/30 border-r border-border/50 flex-col overflow-hidden`}
@@ -129,7 +151,10 @@ const AppSidebar = ({
                             hasRole(item.role) && (
                                 <li key={item.id} className="mb-2">
                                     <button
-                                        onClick={() => setActiveSection(item.id)}
+                                        onClick={() => {
+                                            setActiveSection(item.id)
+                                            navigate(item.href)
+                                        }}
                                         className={`w-full text-sm flex items-center gap-2 px-3 py-2 rounded-md text-left transition-colors
                                     ${activeSection === item.id
                                                 ? "bg-leaderboard-bg text-white"
@@ -159,7 +184,10 @@ const AppSidebar = ({
                     <ul>
                         <li>
                             <button
-                                onClick={() => setActiveSection("settings")}
+                                onClick={() => {
+                                    setActiveSection("settings")
+                                    navigate("/dashboard/settings")
+                                }}
                                 className={`w-full text-sm flex items-center gap-2 px-3 py-2 rounded-md text-left transition-colors
                                 ${activeSection === "settings"
                                         ? "bg-leaderboard-bg text-white"

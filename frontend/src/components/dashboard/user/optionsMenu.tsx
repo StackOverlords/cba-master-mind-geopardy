@@ -10,7 +10,7 @@ interface Props {
     className?: string
     toggleDropdown: () => void,
     handleEditFuction: () => void
-    handleDeleteFunction?: () => void
+    handleDeleteFunction: () => void
 }
 const OptionsMenu = ({ toggleDropdown, className, handleDeleteFunction, handleEditFuction }: Props) => {
     const divRef = useRef<HTMLDivElement>(null);
@@ -84,7 +84,11 @@ const OptionsMenu = ({ toggleDropdown, className, handleDeleteFunction, handleEd
 
                 {renderDropdownMenuItem({
                     icon: <TrashIcon className="size-4" />,
-                    text: "Delete"
+                    text: "Delete",
+                    onClick: () => {
+                        handleDeleteFunction()
+                        toggleDropdown()
+                    }
                 })}
 
             </ul>
