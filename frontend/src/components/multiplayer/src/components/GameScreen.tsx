@@ -1,26 +1,75 @@
+import React, { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useGameStore } from "../store/gameStore";
+import { PlayerCard } from "./PlayerCard";
+import { Timer } from "./Timer";
+import { QuestionCard } from "./QuestionCard";
+import { Countdown } from "./Countdown";
+import { ThemeToggle } from "./ThemeToggle";
+import { Clock, RotateCcw, Zap } from "lucide-react";
+import { socketService } from "../../../../services/socketService";
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useGameStore } from '../store/gameStore';
-import { PlayerCard } from './PlayerCard';
-import { Timer } from './Timer';
-import { QuestionCard } from './QuestionCard';
-import { Countdown } from './Countdown';
-import { ThemeToggle } from './ThemeToggle';
-import { Clock, RotateCcw, Zap } from 'lucide-react';
-
-export const GameScreen: React.FC = () => {
+interface GameScreenProps {
+  user: any;
+  code: any;
+}
+export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
   const {
     players,
     currentPlayerIndex,
     gameStatus,
     round,
     startCountdown,
-    resetGame
+    resetGame,
   } = useGameStore();
 
-  const currentPlayer = players[currentPlayerIndex];
+  const [playersJoined, setPlayersJoined] = React.useState<any[]>([]);
+  const [currentPlayerId, setCurrentPlayerId] = React.useState<string | null>(
+    null
+  );
+  const [currentPlayerUsername, setCurrentPlayerUsername] = React.useState<string | null>("");
+  const [timer, setTimer] = React.useState<number>(0);
+  const [question, setQuestion] = React.useState<string | null>(null);
 
+  const [selectedAnswer, setSelectedAnswer] = React.useState<number | null>(
+    null
+  );
+
+  const [currentRound, setCurrentRound] = React.useState<number>(1);
+  // console.log(players.forEach((player) => {
+  //   console.log(player, "player in gameScreen");
+  // }));
+  const currentPlayer = players[currentPlayerIndex];
+  useEffect(() => {
+    if (user?._id && code) {
+      socketService.connect(user._id);
+
+      socketService.on("gamePlayers", (playersJoined: any) => {
+        console.log("Players joined event received:", playersJoined);
+        setPlayersJoined(playersJoined);
+      });
+
+      socketService.on("newTurn", (data: any) => {
+        const { currentPlayerId, currentPlayerUsername, question, timer } = data;
+        setCurrentPlayerId(currentPlayerId);
+        setQuestion(question);
+        setTimer(timer);
+        setCurrentPlayerUsername(currentPlayerUsername);
+        console.log("New turn data received:", data);
+
+      });
+
+      socketService.on("updateTimer", (timer: any) => {
+        setTimer(timer);
+      });
+
+      socketService.on("roundFinished", (currentRound:any) => {
+        console.log("Round finished:", currentRound);
+        // Aquí podrías actualizar el estado del juego para reflejar el fin de la ronda
+        setCurrentRound(currentRound);
+      });
+    }
+  }, []);
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
@@ -39,7 +88,7 @@ export const GameScreen: React.FC = () => {
               Ronda {round}
             </span>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             <ThemeToggle />
             <button
@@ -67,7 +116,7 @@ export const GameScreen: React.FC = () => {
 
         {/* Game Status */}
         <div className="text-center mb-8">
-          {gameStatus === 'playing' && currentPlayer && (
+          {gameStatus === "playing" && currentPlayer && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -76,7 +125,7 @@ export const GameScreen: React.FC = () => {
               <Timer />
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ¡Tu turno, {currentPlayer.name}!
+                  ¡Tu turno, {currentPlayer.username}!
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                   Responde antes de que se acabe el tiempo
@@ -85,7 +134,7 @@ export const GameScreen: React.FC = () => {
             </motion.div>
           )}
 
-          {gameStatus === 'answering' && (
+          {gameStatus === "answering" && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -98,14 +147,14 @@ export const GameScreen: React.FC = () => {
         </div>
 
         {/* Question */}
-        {gameStatus === 'playing' || gameStatus === 'answering' ? (
+        {gameStatus === "playing" || gameStatus === "answering" ? (
           <QuestionCard />
         ) : null}
       </div>
 
       {/* Countdown Overlay */}
       <AnimatePresence>
-        {gameStatus === 'countdown' && (
+        {gameStatus === "countdown" && (
           <Countdown onComplete={startCountdown} />
         )}
       </AnimatePresence>

@@ -54,12 +54,13 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
       });
       socketService.on("gameJoined", (data) => {
         console.log("Juego unido exitosamente:", data);
+        console.log(code,setGameCode)
         if (code && setGameCode) {
           setGameCode(code); // Llama a setGameCode con el código del juego
-          socketService.emit("getGameState", code);
           if (setDeactivatedButtonStart) {
             setDeactivatedButtonStart(true); // Asegúrate de que setDeactivatedButtonStart esté definido
           }
+          socketService.emit("getGameState", code);
         }
       });
     }

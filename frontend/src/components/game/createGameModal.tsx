@@ -8,6 +8,8 @@ import RefreshIcon from "../ui/icons/refreshIcon";
 import { ButtonAnimated } from "../ui/buttonAnimated";
 import { socketService } from "../../services/socketService";
 import JoinGameInputButton from "../ui/joinGameInputButton";
+import { useNavigate } from "react-router";
+import { useGameStore } from "../multiplayer/src/store/gameStore";
 
 const httpClient = new HttpClient();
 
@@ -88,12 +90,18 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
   onClose,
   onCreateGame,
 }) => {
+  const { initializeGame } = useGameStore();
+  
+  
   const [currentStep, setCurrentStep] = useState<ModalStep>("mode-selection");
   const [multiAnimations, setMultiAnimations] = useState({
     refreshAnimation: false,
   });
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Navigate
+  const navigate = useNavigate();
 
+  // Categories fetched from the API
+  const [categories, setCategories] = useState<Category[]>([]); 
   //Game code
   const [gameCode, setGameCode] = useState<string | null>(null);
   // Players joined in the room
@@ -130,14 +138,14 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         handleGetCategories();
       }
 
-      const handleGameCreated = (gameData: { gameCode: string }) => {
-        setGameCode(gameData.gameCode);
+      const handleGameCreated = (gameData: any) => {
+        setGameCode(gameData.gameCode || gameData.code);
         setCurrentStep("waiting-for-players");
       };
 
       socketService.on("gameCreated", (gameCode: { gameCode: string }) => {
-        console.log("Game created event received:", gameCode);
-        socketService.emit("getGameState", gameCode);
+        console.log("Game created event received:", gameCode.gameCode);
+        socketService.emit("getGameState", gameCode.gameCode);
         handleGameCreated(gameCode);
       });
       socketService.on("gameOverPlayersCero", (reason: string) => {
@@ -152,17 +160,24 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         setPlayersJoined(playersJoined.players);
       });
 
-      socketService.on("gameState", (gameState: any) => {
+      socketService.on("gameState", (gameState: any) => { 
         console.log("Game state received:", gameState);
         setGameState(gameState);
       });
-
-      socketService.on("gameStarted",(gameData:any)=>{
-        console.log("Game started event received:", gameData);
+      socketService.on("gameCancelledOwnerLeft", (reason: {message:string,gamecode:string}) => {
+        console.log("Game cancelled due to owner leaving:", reason.message);
+        setCurrentStep("mode-selection");
+        setGameCode(null);
+        setPlayersJoined([]);
+      });
+      socketService.on("gameStarted",(gameCodeHere:any)=>{
+        console.log("Game started event received:", gameCodeHere);
         setCurrentStep("mode-selection");
         //Redirect to the game page
-        window.location.href = `/multiplayer/${gameCode}`;
+        initializeGame(gameCodeHere?.players); // Initialize game with players
+        navigate(`/multiplayer`); // Redirect to the game page
         setDeactivatedButtonStart(true); // Disable start button
+        sessionStorage.setItem("gameCode", gameCodeHere.gameCode); // Save game code in session storage
       });
       return () => {
         socketService.off("gameCreated", handleGameCreated);
