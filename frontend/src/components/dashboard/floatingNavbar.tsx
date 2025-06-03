@@ -14,7 +14,7 @@ export function FloatingNavbar() {
             icon: (
                 <UserIcon className="h-full w-full text-neutral-300" />
             ),
-            href: "#",
+            href: "/",
         },
 
         {
@@ -22,28 +22,28 @@ export function FloatingNavbar() {
             icon: (
                 <DashboardIcon className="h-full w-full text-neutral-300" />
             ),
-            href: "#",
+            href: "/dashboard/overview",
         },
         {
             title: "Users",
             icon: (
                 <UsersIcon className="h-full w-full text-neutral-300" />
             ),
-            href: "#",
+            href: "/dashboard/users",
         },
         {
             title: "Categories",
             icon: (
                 <CategoryIcon className="h-full w-full text-neutral-300" />
             ),
-            href: "#",
+            href: "/dashboard/categories",
         },
         {
             title: "Questions",
             icon: (
                 <FileTextIcon className="h-full w-full text-neutral-300" />
             ),
-            href: "#",
+            href: "/dashboard/questions",
         },
 
         {
@@ -58,7 +58,7 @@ export function FloatingNavbar() {
             icon: (
                 <SettingsIcon className="h-full w-full text-neutral-300" />
             ),
-            href: "#",
+            href: "/dashboard/settings",
         },
     ];
     return (

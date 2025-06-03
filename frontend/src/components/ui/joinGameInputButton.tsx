@@ -67,13 +67,13 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
   }, [code, userId]);
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="w-full p-6 rounded-xl bg-white border-2 border-gray-200 hover:border-blue-400 transition-all duration-200 shadow-sm">
+      <div className="w-full p-6 rounded-xl bg-dashboard-bg/50 border-2 border-dashboard-border/50 hover:border-dashboard-border/70 transition-all duration-200 shadow-sm">
         <div className="flex flex-col space-y-4">
           <div className="flex items-center space-x-4">
             <span className="text-3xl">{icon}</span>
             <div>
-              <h3 className="text-gray-800 font-semibold text-lg">{label}</h3>
-              <p className="text-gray-500 text-sm mt-1">{description}</p>
+              <h3 className="text-white font-semibold text-lg">{label}</h3>
+              <p className="text-slate-400 text-sm mt-1">{description}</p>
             </div>
           </div>
 
@@ -83,9 +83,9 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
                 type="text"
                 value={code}
                 onChange={handleCodeChange}
-                className={`w-full px-5 py-4 text-lg border-2 rounded-lg focus:ring-2 transition-all text-gray-800 placeholder-gray-400 bg-white shadow-sm ${
+                className={`w-full px-5 py-4 text-lg border-2 rounded-lg focus:ring-2 transition-all text-gray-400 placeholder-gray-400 bg-gray-800/50 shadow-sm ${
                   isValid
-                    ? "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+                    ? "border-gray-700 focus:border-blue-500 focus:ring-blue-200"
                     : "border-red-500 focus:border-red-500 focus:ring-red-200"
                 }`}
                 name="gameCode"
@@ -98,7 +98,7 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
             <button
               type="submit"
               disabled={!code.trim() || !isValid}
-              className="px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-md"
+              className="px-6 py-4 bg-dashboard-border/80 hover:bg-dashboard-border text-white font-medium rounded-lg text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
             >
               {buttonText}
             </button>
