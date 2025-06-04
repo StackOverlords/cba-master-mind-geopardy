@@ -27,8 +27,8 @@ export class CategoryService {
         return await this.categoryService.create(categoryData);
     }
 
-    async findAll({ name, user, description, page, limit, sort }: Partial<CategoryFilter>): Promise<ICategory[] | null> {
-        return await this.categoryService.findAll({ name, user, description, page, limit, sort });
+    async findAll({ id, name, user, description, page, limit, sort }: Partial<CategoryFilter>): Promise<ICategory[] | null> {
+        return await this.categoryService.findAll({ id, name, user, description, page, limit, sort });
     }
 
     async findById(id: string): Promise<ICategory | null> {
