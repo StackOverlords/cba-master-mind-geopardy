@@ -1080,6 +1080,13 @@
         "tags": ["category"],
         "parameters": [
           {
+            "name": "id",
+            "in": "query",
+            "description": "One ID or more IDs of the categorys to be retrieved",
+            "required": false,
+            "type": "string"
+          },
+          {
             "name": "name",
             "in": "query",
             "description": "Name of the category",
