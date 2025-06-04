@@ -106,9 +106,7 @@ export class CategoryRepository {
         return await CategoryModel.aggregate([
             {
                 $match: {
-                    name: {
-                        $regex: name
-                    }
+                    name: name
                 }
             }
         ])

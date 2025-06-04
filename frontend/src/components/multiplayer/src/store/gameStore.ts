@@ -1,6 +1,6 @@
 
-import { create } from 'zustand';
-import { Player, Question, GameState } from '../types/game';
+import { create } from 'zustand'; 
+import type { GameState, Player, Question } from '../types/game';
 
 // Sample questions data
 const sampleQuestions: Question[] = [
@@ -54,25 +54,38 @@ export const useGameStore = create<GameStore>((set, get) => ({
   selectedAnswer: null,
   showFeedback: false,
 
-  initializeGame: (playerNames: string[]) => {
-    const players: Player[] = playerNames.map((name, index) => ({
+  initializeGame: (players: any) => { 
+    console.log(players, "players in gameStore");
+    const playersSet: Player[] = players.map((user:any, index:any) => ({
       id: `player-${index}`,
-      name,
-      avatar: `👤`,
-      score: 0,
-      isActive: index === 0
+      username: user.username,
+      socketId: user.socketId,
+      userId: user.userId,
+      score: user.score || 0,
+      hasAnsweredThisTurn:user.hasAnsweredThisTurn || false,
+      // isActive: index === 0
     }));
-
     set({
-      players,
-      currentPlayerIndex: 0,
-      gameStatus: 'countdown',
-      round: 1,
-      currentQuestion: sampleQuestions[0],
-      timeLeft: 15,
-      selectedAnswer: null,
-      showFeedback: false
+      players: playersSet,
+      // currentPlayerIndex: 0,
+      // gameStatus: 'countdown',
+      // round: 1,
+      // currentQuestion: sampleQuestions[0],
+      // timeLeft: 15,
+      // selectedAnswer: null,
+      // showFeedback: false
     });
+
+    // set({
+    //   players,
+    //   currentPlayerIndex: 0,
+    //   gameStatus: 'countdown',
+    //   round: 1,
+    //   currentQuestion: sampleQuestions[0],
+    //   timeLeft: 15,
+    //   selectedAnswer: null,
+    //   showFeedback: false
+    // });
   },
 
   startCountdown: () => {

@@ -331,7 +331,10 @@ export class SocketConnection {
                     }
                 );
 
-                this.io?.to(gameCode).emit("gameStarted");
+                this.io?.to(gameCode).emit("gameStarted", {
+                    gameCode: gameCode,
+                    players: gameRoom.players
+                });
                 console.log("Enviando broadcast de inicio de partida a la sala:", gameCode);
                 console.log(`🚀 Partida ${gameCode} iniciada con categorías: ${selectedCategories.join(', ')}.`);
                 this.sendNextQuestion(gameCode);

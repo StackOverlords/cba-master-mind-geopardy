@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import { QuestionsFilters } from "../../core/interfaces/questions.filters.interface";
 import { IQuestion, QuestionModel } from "../../core/models/Question.Model";
-
+import { GameModel } from "../../core/models/Game.model";
+import { CustomError } from "../../api/middlewares/error.middleware";
 export class QuestionRepository {
     async create(questioData: Partial<IQuestion>): Promise<IQuestion | null> {
         const question = new QuestionModel(questioData);
@@ -89,5 +90,5 @@ export class QuestionRepository {
 
     async createMany(questions: IQuestion[]): Promise<IQuestion[] | null> {
         return await QuestionModel.insertMany(questions);
-    }
+    } 
 }

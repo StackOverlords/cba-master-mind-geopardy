@@ -14,6 +14,11 @@ export class GameController {
         res.status(201).json(game);
     })
 
+    answerQuestion = asyncHandler(async (req:Request,res:Response) => {
+        const game = await this.gameService.answerQuestion(req.body);
+        res.status(201).json(game);
+    })
+
     findAll = asyncHandler(async (req: Request, res: Response) => {
         const games = await this.gameService.findAll(req.query);
         res.status(201).json(games);
