@@ -35,7 +35,7 @@ export function QuestionsSection() {
     mode: null,
   })
   const [openUploadModal, setOpenUploadModal] = useState<boolean>(false)
-  const [isOpenConfirmationModal, setIsOpenConfirmationModal] = useState<boolean>(false)
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
   const creatorId = useAuthStore((state) => state.user?._id)
   const [searchTerm, setSearchTerm] = useState("")
@@ -384,26 +384,10 @@ export function QuestionsSection() {
                           <EditIcon className="size-4" />
                         </button>
                         <button
-                          onClick={() => setIsOpenConfirmationModal(true)}
+                          onClick={() => setConfirmingDeleteId(question._id)}
                           className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-red-900/20 transition-colors">
                           <TrashIcon className="size-4" />
                         </button>
-                        {
-                          isOpenConfirmationModal && (
-                            <ConfirmationModal
-                              confirmButtonText="Delete"
-                              onCancel={() => setIsOpenConfirmationModal(false)}
-                              onConfirm={() => {
-                                handleDeleteQuestion(question._id)
-                                setIsOpenConfirmationModal(false)
-                              }}
-                              title="Delete Question"
-                              message="Are you sure you want to delete this question?"
-                              type="danger"
-                              classNameModal="bg-black/10 backdrop-blur-xs"
-                            />
-                          )
-                        }
                       </div>
                     </header>
                     <h3 className="font-medium mb-2">{question.question}</h3>
@@ -473,6 +457,21 @@ export function QuestionsSection() {
         openUploadModal && (
           <UploadFilesModal
             handleCloseModal={() => setOpenUploadModal(false)}
+          />
+        )
+      }
+      {
+        confirmingDeleteId && (
+          <ConfirmationModal
+            confirmButtonText="Delete"
+            onCancel={() => setConfirmingDeleteId(null)}
+            onConfirm={() => {
+              handleDeleteQuestion(confirmingDeleteId)
+              setConfirmingDeleteId(null)
+            }}
+            title="Delete Question"
+            message="Are you sure you want to delete this question?"
+            type="danger"
           />
         )
       }
