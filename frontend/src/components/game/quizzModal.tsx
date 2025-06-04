@@ -154,62 +154,93 @@ const QuizModal: React.FC<Props> = ({
                     {/* Content */}
                     <div className="relative z-10">
                         {/* Header */}
-                        <div className="flex items-center gap-4">
-                            <img
+                        <div className="flex items-center gap-6">
+                            {/* <img
                                 src={currentPlayer.avatar || "/placeholder.svg"}
                                 alt={currentPlayer.username}
                                 className="size-16 rounded-full border-2 border-indigo-400"
-                            />
+                            /> */}
+                            <Timer timeLeft={timeLeft} gameStatus="playing" />
                             <div className="w-full pr-10">
-                                <div className="flex items-center justify-between gap-2 mb-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className={`px-3 py-1 rounded-full text-sm font-semibold bg-linear-to-r from-purple-400 to-blue-400 text-white capitalize`}>
-                                            {category || "Quiz"}
-                                        </span>
-                                        <Trophy className="w-4 h-4 text-yellow-400" />
+                                <div className="flex justify-between gap-2">
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`px-3 py-1 rounded-full text-sm font-semibold bg-linear-to-r from-purple-400 to-blue-400 text-white capitalize`}>
+                                                {category || "Quiz"}
+                                            </span>
+                                            <Trophy className="w-4 h-4 text-yellow-400" />
+
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Target className="size-4" />
+                                            <p className="font-semibold">Round {currentRound}</p>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-indigo-300">
-                                        <Target className="size-4" />
-                                        <p className="font-semibold">Round {currentRound}</p>
+                                    <div className="flex gap-2 text-indigo-300">
+                                        <img
+                                            src={currentPlayer.avatar || "/placeholder.svg"}
+                                            alt={currentPlayer.username}
+                                            className="size-10 rounded-full border-2 border-indigo-400"
+                                        />
+                                        <div>
+                                            <h3 className="text-xl font-bold text-white">{currentPlayer.username}</h3>
+                                            <p className="text-xs">Your turn</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-white">{currentPlayer.username}</h3>
+
                             </div>
                         </div>
 
-                        <Timer timeLeft={timeLeft} gameStatus="playing" />
                         {/* Question */}
-                        <div className="p-5 mb-6">
+                        <div className="p-5 my-6">
                             <h2 className="text-3xl text-wrap text-center font-bold">{question?.text}</h2>
                         </div>
 
                         {/* Answers */}
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            {question?.answers.map((answer, idx) => (
-                                <motion.button
-                                    key={idx}
-                                    whileHover={!isAnswered ? { scale: 1.02 } : {}}
-                                    whileTap={!isAnswered ? { scale: 0.98 } : {}}
-                                    className={`relative cursor-pointer p-4 text-left rounded-lg border transition-colors
-                                ${getAnswerStyle(answer._id, answer.isCorrect)}`}
-                                    onClick={() => handleAnswerClick(answer, answer.isCorrect)}
-                                    disabled={isAnswered}
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-indigo-500/5 to-white/7" />
-                                    <span className="text-[#e0ddff] flex gap-4 justify-between items-center">
-                                        {answer.text}
-                                        {isAnswered && (
-                                            answer.isCorrect ? (
-                                                <CheckIcon className="size-5" />
-                                            ) : selectedAnswer?._id === answer._id ? (
-                                                <ErrorIcon className="size-5" />
-                                            ) : !selectedAnswer ? (
-                                                <ErrorIcon className="size-5" />
-                                            ) : null
-                                        )}
-                                    </span>
-                                </motion.button>
-                            ))}
+                            {question?.answers.map((answer, idx) => {
+                                const isSelected = selectedAnswer?._id === answer._id
+                                const isCorrect = answer.isCorrect
+                                const showCorrect = isAnswered && isCorrect
+                                const showIncorrect = isAnswered && isSelected && !isCorrect || (isAnswered && !selectedAnswer && !isCorrect)
+                                return (
+                                    <motion.button
+                                        key={idx}
+                                        whileHover={!isAnswered ? { scale: 1.02 } : {}}
+                                        whileTap={!isAnswered ? { scale: 0.98 } : {}}
+                                        className={`flex gap-3 relative cursor-pointer p-4 text-left rounded-lg border transition-colors
+                                        ${getAnswerStyle(answer._id, answer.isCorrect)}`}
+                                        onClick={() => handleAnswerClick(answer, answer.isCorrect)}
+                                        disabled={isAnswered}
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-indigo-500/5 to-white/7" />
+                                        <div
+                                            className={`
+                                                w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
+                                                ${showCorrect ? "bg-emerald-500 text-white" : ""}
+                                                ${showIncorrect ? "bg-red-500/70 text-white" : ""}
+                                                ${!isAnswered ? "bg-indigo-600 text-indigo-200" : ""}
+                                                ${isAnswered && !isSelected && !isCorrect ? "bg-indigo-800 text-white" : ""}
+                                            `}
+                                        >
+                                            {String.fromCharCode(65 + idx)}
+                                        </div>
+                                        <span className="text-[#e0ddff] flex grow gap-4 justify-between items-center">
+                                            {answer.text}
+                                            {isAnswered && (
+                                                answer.isCorrect ? (
+                                                    <CheckIcon className="size-5 text-emerald-300" />
+                                                ) : selectedAnswer?._id === answer._id ? (
+                                                    <ErrorIcon className="size-5 text-red-700" />
+                                                ) : !selectedAnswer ? (
+                                                    <ErrorIcon className="size-5 text-red-700" />
+                                                ) : null
+                                            )}
+                                        </span>
+                                    </motion.button>
+                                )
+                            })}
                         </div>
 
                         {/* Footer - shows after answering */}
