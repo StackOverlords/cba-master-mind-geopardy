@@ -31,7 +31,7 @@ export function CategoriesSection() {
     isOpenDialog: false,
     mode: null,
   })
-  const [isOpenConfirmationModal, setIsOpenConfirmationModal] = useState<boolean>(false)
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
   const creatorId = useAuthStore((state) => state.user?._id)
   const [searchTerm, setSearchTerm] = useState('')
@@ -45,6 +45,7 @@ export function CategoriesSection() {
     name: searchTerm,
     // user: '',
   })
+
   const [category, setCategory] = useState<CategoryState>({
     name: '',
     description: '',
@@ -299,26 +300,10 @@ export function CategoriesSection() {
                           <EditIcon className="size-4" />
                         </button>
                         <button
-                          onClick={() => setIsOpenConfirmationModal(true)}
+                          onClick={() => setConfirmingDeleteId(category._id)}
                           className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-300 rounded-md hover:bg-red-900/20 transition-colors">
                           <TrashIcon className="size-4" />
                         </button>
-                        {
-                          isOpenConfirmationModal && (
-                            <ConfirmationModal
-                              confirmButtonText="Delete"
-                              onCancel={() => setIsOpenConfirmationModal(false)}
-                              onConfirm={() => {
-                                handleDeleteCategory(category._id)
-                                setIsOpenConfirmationModal(false)
-                              }}
-                              title="Delete Category"
-                              message="Are you sure you want to delete this category?"
-                              type="danger"
-                              classNameModal="bg-black/10 backdrop-blur-xs"
-                            />
-                          )
-                        }
                       </div>
                     </header>
                   </div>
@@ -374,6 +359,19 @@ export function CategoriesSection() {
           handleCloseModal={handleCloseDialog}
           handleChangeCategoryData={handleChangeCategoryData}
           handleSubmit={handleUpdateCategory}
+        />
+      )}
+      {confirmingDeleteId && (
+        <ConfirmationModal
+          confirmButtonText="Delete"
+          onCancel={() => setConfirmingDeleteId(null)}
+          onConfirm={() => {
+            handleDeleteCategory(confirmingDeleteId);
+            setConfirmingDeleteId(null);
+          }}
+          title="Delete Category"
+          message="Are you sure you want to delete this category?"
+          type="danger"
         />
       )}
     </div>
