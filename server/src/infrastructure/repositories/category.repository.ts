@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { CategoryFilter } from "../../core/interfaces/category.filter.interface";
 import { ICategory, CategoryModel } from "../../core/models/Category.model";
 
@@ -12,7 +13,7 @@ export class CategoryRepository {
         return await CategoryModel.findById(id);
     }
 
-    async findAll({ name, user, description, page = 1, limit = 10, sort = "desc" }: Partial<CategoryFilter>): Promise<any> {
+    async findAll({id, name, user, description, page = 1, limit = 10, sort = "desc" }: Partial<CategoryFilter>): Promise<any> {
         const pageNumber = Math.max(1, parseInt(page as any) || 1);
         const limitNumber = parseInt(limit as any) || 10;
 
@@ -20,6 +21,12 @@ export class CategoryRepository {
 
         const filter: Record<string, any> = { isDeleted: false };
 
+        if (id) {
+            // Convertir id = id1,id2,id3 a un array de ObjectId
+            const ids = id.split(',').map((id: string) => new mongoose.Types.ObjectId(id.trim()));
+            console.log(ids)
+            filter._id = { $in: ids };
+        }
         if (name) filter.name = { $regex: name, $options: 'i' };
         if (user) filter.user = user;
         if (description) filter.description = { $regex: description, $options: 'i' };
