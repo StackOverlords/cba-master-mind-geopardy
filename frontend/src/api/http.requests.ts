@@ -39,14 +39,12 @@ export const httpGet = async <T = any>(
     try {
         const config: AxiosRequestConfig = {
             headers: buildHeaders(options),
-            timeout: options.timeout || 10000, // 10 segundos por defecto
+            timeout: options.timeout || 10000,  
         };
 
-        // Base URL si se proporciona
         if (options.baseURL) {
             config.baseURL = options.baseURL;
         }
-        // console.log(url, config);
         const response: AxiosResponse<T> = await axios.get(url, config);
 
         return response.data;

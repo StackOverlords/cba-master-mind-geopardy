@@ -36,7 +36,7 @@ const App = () => {
         <Route element={<MainLayout />}>
           <Route index path="/" element={<LandingPage />} />
           <Route path="/game" element={<Game />} />
-          <Route path="/multiplayer/:code" element={<IndexMultiplayer />} />
+          <Route path="/multiplayer" element={<IndexMultiplayer />} />
         </Route>
         <Route path="/dashboard/*" element={
           <ProtectedRoute roles={['admin']} skeleton={<DashboardSkeleton />}>

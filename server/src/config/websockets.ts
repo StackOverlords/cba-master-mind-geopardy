@@ -28,6 +28,7 @@ interface GameRoomState {
     currentRound: number; // Ronda actual del juego
     // Puedes añadir un temporizador para el turno si lo manejas directamente aquí
     turnTimer: NodeJS.Timeout | null; // Para el contador de tiempo del turno
+    turnOutTimer: NodeJS.Timeout | null; // Para el temporizador de turno
     // Añadir historial de preguntas si es necesario para el frontend
     // askedQuestions: IQuestion[];
     defaultTurnTime: number;
@@ -143,6 +144,7 @@ export class SocketConnection {
                         currentPlayerIndex: 0, // El primer jugador es el owner inicialmente
                         currentRound: 0,
                         turnTimer: null,
+                        turnOutTimer:null,
                         defaultTurnTime: userData.gameData.defaultTurnTime || TURN_TIMER_SECONDS,
                     };
                     games[gameCode] = newRoom;
@@ -215,7 +217,7 @@ export class SocketConnection {
             socket.on("getGameState", (gameCode: string) => {
                 const gameRoom = games[gameCode];
                 if (gameRoom) {
-                    socket.emit("gameState", { players: gameRoom.players, gameData: gameRoom.gameData, currentQuestion: gameRoom.currentQuestion });
+                    socket.emit("gameState", { players: gameRoom.players, gameData: gameRoom.gameData, currentQuestion: gameRoom.currentQuestion, defaultTurnTime: gameRoom.defaultTurnTime });
                 } else {
                     socket.emit("error", { message: "Partida no encontrada" });
                 }
@@ -331,7 +333,10 @@ export class SocketConnection {
                     }
                 );
 
-                this.io?.to(gameCode).emit("gameStarted");
+                this.io?.to(gameCode).emit("gameStarted", {
+                    gameCode: gameCode,
+                    players: gameRoom.players
+                });
                 console.log("Enviando broadcast de inicio de partida a la sala:", gameCode);
                 console.log(`🚀 Partida ${gameCode} iniciada con categorías: ${selectedCategories.join(', ')}.`);
                 this.sendNextQuestion(gameCode);
@@ -339,9 +344,10 @@ export class SocketConnection {
 
             // Responder a una pregunta
             socket.on("answerQuestion", async (data: { gameCode: string; answerText: string }) => {
+                console.log(data, "respuesta a la pregunta");
                 const { gameCode, answerText } = data;
                 const gameRoom = games[gameCode];
-
+                console.log(gameRoom, "estado de la partida al responder");
                 if (!gameRoom || !gameRoom.currentQuestion) {
                     socket.emit("error", { message: "No hay una pregunta activa o la partida no existe." });
                     return;
@@ -523,10 +529,18 @@ export class SocketConnection {
         }
         // --- Fin de criterios de finalización ---
 
-        // Dar un pequeño respiro antes de la siguiente pregunta/turno
-        setTimeout(() => {
-            this.sendNextQuestion(gameCode);
-        }, 3000); // Pausa de 3 segundos
+        // Dar un pequeño respiro antes de la siguiente pregunta/turno 
+        let timeLeft = 3;
+        const timeOut = setInterval(()=> {
+            if(timeLeft <= 0) {
+                clearInterval(timeOut);
+                gameRoom.turnOutTimer = null;
+                this.sendNextQuestion(gameCode);
+
+            }
+            this.io?.to(gameCode).emit("updateTimerOut", timeLeft);
+            timeLeft--;
+        }, 1000); 
     }
 
     // Inside endGame(gameCode: string) function
