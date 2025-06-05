@@ -1,6 +1,6 @@
 
 export interface Player {
-  id: string;
+  userId: string;
   username: string;
   avatar: string;
   score: number;
@@ -8,11 +8,9 @@ export interface Player {
 }
 
 export interface Question {
-  id: string;
+  _id: string;
   question: string;
-  options: string[];
-  correctAnswer: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  answers: { text: string; isCorrect: boolean }[];
 }
 
 export interface GameState {
