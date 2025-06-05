@@ -1,6 +1,6 @@
 
 import { useCallback } from 'react';
-import { Howl } from 'howler';
+// import { Howl } from 'howler';
 
 // Simple sound effects using frequency synthesis
 const createBeepSound = (frequency: number, duration: number) => {

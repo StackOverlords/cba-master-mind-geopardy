@@ -386,8 +386,10 @@ export class SocketConnection {
                     isCorrect,
                     correctAnswer: correctAnswer,
                     pointsAwarded,
-                    newScore: currentPlayer.score
+                    newScore: currentPlayer.score,
+                    players: gameRoom.players
                 });
+                this.io?.to(gameCode).emit("gamePlayers", { players: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score })) });
 
                 // Actualizar puntuación del jugador en la base de datos
                 await GameModel.findOneAndUpdate(
