@@ -6,6 +6,7 @@ import HelpIcon from "./icons/helpIcon";
 import LogoutIcon from "./icons/logoutIcon";
 import UserIcon from "./icons/userIcon";
 import SpinnerIcon from "./icons/spinnerIcon";
+import HelpModal from "../help/helpModal";
 
 // Constants
 const AVATAR_COLORS = ["#d59bf6", "#ffc93c", "#42b883", "#cca8e9"] as const;
@@ -22,6 +23,7 @@ const AccountMenu = () => {
     const { user: userData, isAuthenticated, hasRole, logout, isLoading } = useAuthStore();
     const [isOpen, setIsOpen] = useState(false);
     const [openProfile, setOpenProfile] = useState(false);
+    const [showHelpModal, setShowHelpModal] = useState(false);
     const divRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
@@ -160,7 +162,11 @@ const AccountMenu = () => {
 
                         {renderDropdownMenuItem({
                             icon: <HelpIcon className="size-5" />,
-                            text: "Help"
+                            text: "Help",
+                            onClick: () => {
+                                setShowHelpModal(true);
+                                setIsOpen(false);
+                            }
                         })}
                         {renderDropdownMenuItem({
                             icon: isLoading ? <SpinnerIcon className="size-5 animate-spin" /> : <LogoutIcon className="size-5" />,
@@ -170,6 +176,12 @@ const AccountMenu = () => {
                     </ul>
                 </nav>
             )}
+            
+            {/* Help Modal */}
+            <HelpModal 
+                isOpen={showHelpModal} 
+                onClose={() => setShowHelpModal(false)} 
+            />
         </div>
     );
 };
