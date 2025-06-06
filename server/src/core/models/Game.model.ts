@@ -177,8 +177,9 @@ const gameSchema = new Schema<IGame>({
     },
 
     finalResultsLocal:{
-        type:[],
+        type:Array,
         default: [],
+        _id: false, // No necesitamos un ID para este arreglo
     }
 },
     {
