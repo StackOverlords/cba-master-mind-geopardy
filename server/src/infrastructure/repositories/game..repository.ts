@@ -102,12 +102,6 @@ export class GameRepository {
                     as: "user",
                 },
             },
-            {
-                $lookup: {
-                    from:"questions",
-                    
-                }
-            },
             { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
         ];
 
