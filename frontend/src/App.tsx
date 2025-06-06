@@ -8,7 +8,6 @@ import SignUpForm from "./components/auth/registerForm";
 import LandingPage from "./pages/landingPage";
 import { useEffect } from "react";
 import { unsubscribeAuth } from "./stores/authStore";
-import Game from "./pages/game";
 import DashboardPage from "./pages/dashboard";
 import IndexMultiplayer from "./components/multiplayer/src/pages/Index";
 import ProtectedRoute from "./guards/privateRoutes";
@@ -18,6 +17,8 @@ import { CategoriesSection } from "./components/dashboard/sections/categories-se
 import { QuestionsSection } from "./components/dashboard/sections/questions-section";
 import { SettingsSection } from "./components/dashboard/sections/settings-section";
 import DashboardSkeleton from "./components/dashboard/dashboardSkeleton";
+import CreateGamePage from "./pages/createGamePage";
+import GamePage from "./pages/game";
 
 const App = () => {
   useEffect(() => {
@@ -35,8 +36,9 @@ const App = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route index path="/" element={<LandingPage />} />
-          <Route path="/game" element={<Game />} />
+          <Route path="/championship-game/:gameId" element={<GamePage />} />
           <Route path="/multiplayer" element={<IndexMultiplayer />} />
+          <Route path="/create-game" element={<CreateGamePage />} />
         </Route>
         <Route path="/dashboard/*" element={
           <ProtectedRoute roles={['admin']} skeleton={<DashboardSkeleton />}>

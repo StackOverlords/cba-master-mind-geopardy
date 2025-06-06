@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes } from "react";
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
-    name: string;
+    name?: string;
 }
 const InputField: React.FC<Props> = ({ name, type, className, ...props }) => {
     return (

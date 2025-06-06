@@ -15,7 +15,22 @@
 }
 
 /* scrollbar styles */
+/* @keyframes custom-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; } 
+}
 
+.animate-custom-pulse {
+  animation: custom-pulse 0.3s ease-in-out 1; 
+} */
+@keyframes flash-red {
+  0%, 100% { background-color: transparent; } /* Fondo original */
+  50% { background-color: rgb(239, 68, 68); } /* Rojo Tailwind (red-500) */
+}
+
+.animate-flash-red {
+  animation: flash-red 0.3s ease-in-out 2; /* 0.3s de duración, se repite 2 veces */
+}
 * {
   --sb-track-color: #232E33;
   --sb-thumb-color: #2e0672;
