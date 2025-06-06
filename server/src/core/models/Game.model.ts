@@ -177,7 +177,7 @@ const gameSchema = new Schema<IGame>({
     },
 
     finalResultsLocal:{
-        type:[{}],
+        type:[],
         default: [],
     }
 },
