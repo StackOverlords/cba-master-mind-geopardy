@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GameBoard from "../components/game/gameBoard";
 import GameStatus from "../components/game/gameStatus";
 import Leaderboard from "../components/game/leaderboard/leaderboard";
 import type { Game, Player } from "../shared/types/game";
 import type { Question } from "../shared/types";
 import TurnIndicator from "../components/game/turnIndicator";
+import { useChampionShipGameById } from "../hooks/queries/championshipGame/useChampionShipGameById";
+import { useParams } from "react-router";
+import type { ChampionShipPlayer, ChampioShipGame } from "../shared/types/ChampionShipGame";
 const questions: {
     science: Question[]
     history: Question[]
@@ -395,7 +398,7 @@ const mockGame: Game = {
             score: 0,
             avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Olivia"
         }
-        
+
     ],
     finalResults: {
         _id: "final_001",
@@ -433,33 +436,60 @@ const mockGame: Game = {
         ]
     }
 };
-interface GamePlayer extends Player {
+interface GamePlayer extends ChampionShipPlayer {
     scoreTimestamp?: number
 }
-const Game = () => {
-    const [players, setPlayers] = useState<GamePlayer[]>(mockGame.players)
-    const sortedPlayers = [...players].sort((a, b) => {
+const GamePage = () => {
+    const { gameId } = useParams<{ gameId: string }>()
+    const { data: GameData, isLoading } = useChampionShipGameById({
+        id: gameId
+    })
+    const [championShipGame, setChampionShipGame] = useState<ChampioShipGame>()
+    useEffect(() => {
+        if (GameData) {
+            console.log(GameData)
+            setChampionShipGame(GameData);
+            if (GameData.playersLocal) {
+                const updatedPlayers = GameData.playersLocal.map((player) => ({
+                    ...player,
+                    avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${player.username}`
+                }));
+                setChampionShipGame((prev) => {
+                    if (!prev) return undefined;
+                    return {
+                        ...prev,
+                        playersLocal: updatedPlayers
+                    };
+                });
+            }
+        }
+    }, [GameData]);
+    const sortedPlayers = [...(championShipGame?.playersLocal ?? [])].sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
         return (a.scoreTimestamp ?? 0) - (b.scoreTimestamp ?? 0);
     });
-    const turnsPerRound = players.length
-    const maxRounds = players.length
+    const turnsPerRound = championShipGame?.playersLocal.length
+    const maxRounds = championShipGame?.rounds
     const [currentRound, setCurrentRound] = useState(1)
     const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0)
     const handleUpdatePlayers = () => {
-        setPlayers((prevPlayers) => {
-            const newPlayers = [...prevPlayers]
-            newPlayers[currentPlayerIndex].score += 100
-            newPlayers[currentPlayerIndex].scoreTimestamp = Date.now()
-            return newPlayers
-        })
+        setChampionShipGame((prevGame) => {
+            if (!prevGame) return undefined;
+            const updatedPlayers = [...prevGame.playersLocal];
+            updatedPlayers[currentPlayerIndex].score += 100;
+            updatedPlayers[currentPlayerIndex].scoreTimestamp = Date.now();
+            return {
+                ...prevGame,
+                playersLocal: updatedPlayers,
+            };
+        });
     }
     const moveToNextPlayer = () => {
-        setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length)
+        setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % (championShipGame?.playersLocal?.length ?? 1))
     }
     const moveToNextRound = () => {
         if (currentPlayerIndex + 1 === turnsPerRound) {
-            if (currentRound < maxRounds) {
+            if (currentRound < (maxRounds ?? 0)) {
                 setCurrentRound((prevRound) => prevRound + 1);
             } else {
                 console.log("Game Over");
@@ -472,44 +502,55 @@ const Game = () => {
         }
     }
 
-    const currentPlayer = players[currentPlayerIndex]
+    const currentPlayer = championShipGame?.playersLocal[currentPlayerIndex]
     return (
-        <main className=" min-h-screen flex justify-center py-10 flex-wrap gap-6">
-            <div className="mt-6 sm:mt-4">
-                <div className="px-3 sm:px-0 sm:w-auto">
-                    {/* Game Info Header */}
-                    <GameStatus
-                        countPlayers={players.length}
-                        turnTime={mockGame.defaultTurnTime}
-                        gameName={mockGame.name}
-                        currentRound={currentRound}
-                        currentPlayer={currentPlayer}
-                        gameCode={mockGame.code}
-                    />
-                    <TurnIndicator players={players} currentPlayerIndex={currentPlayerIndex} />
+        isLoading ? (
+            <div className="w-full min-h-screen flex items-center justify-center relative">
+                <div className='flex gap-2 items-end text-xl font-bold font-PressStart2P'>
+                    <span>Loading</span>
+                    <span className="text-blue-700 animate-bounce">.</span>
+                    <span className="text-blue-700 animate-bounce [animation-delay:-.3s]">.</span>
+                    <span className="text-blue-700 animate-bounce [animation-delay:-.5s]">.</span>
                 </div>
-                <GameBoard
-                    currentRound={currentRound}
-                    currentPlayer={currentPlayer}
-                    moveToNextPlayer={moveToNextPlayer}
-                    handleUpdatePlayers={handleUpdatePlayers}
-                    questions={questions}
-                    moveToNextRound={moveToNextRound}
-                />
             </div>
-            <section className="">
-                <div className="p-4 flex items-center justify-center">
-                    <div className="container mx-auto flex flex-col items-center">
-                        <Leaderboard
-                            players={sortedPlayers}
+        ) : championShipGame && (
+            <main className=" min-h-screen flex justify-center py-10 flex-wrap gap-6">
+                <div className="mt-6 sm:mt-4 max-w-xl lg:max-w-2xl xl:max-w-3xl w-full px-3 xl:px-0">
+                    <div className="sm:w-auto">
+                        {/* Game Info Header */}
+                        <GameStatus
+                            countPlayers={championShipGame.playersLocal.length}
+                            turnTime={championShipGame.defaultTurnTime}
+                            gameName={championShipGame.name}
+                            currentRound={championShipGame.currentRound}
+                            currentPlayer={currentPlayer ?? { _id: "", username: "", score: 0, avatar: "" }}
                         />
+                        <TurnIndicator players={championShipGame?.playersLocal} currentPlayerIndex={currentPlayerIndex} />
                     </div>
+                    <GameBoard
+                        currentRound={currentRound}
+                        currentPlayer={currentPlayer ?? { _id: "", username: "", score: 0, avatar: "" }}
+                        moveToNextPlayer={moveToNextPlayer}
+                        handleUpdatePlayers={handleUpdatePlayers}
+                        questions={championShipGame.questions}
+                        categories={championShipGame.categorys}
+                        moveToNextRound={moveToNextRound}
+                    />
                 </div>
+                <section className="">
+                    <div className="p-4 flex items-center justify-center">
+                        <div className="container mx-auto flex flex-col items-center">
+                            <Leaderboard
+                                players={sortedPlayers}
+                            />
+                        </div>
+                    </div>
 
-            </section>
+                </section>
 
-        </main>
+            </main>
+        )
     );
 }
 
-export default Game;
+export default GamePage;

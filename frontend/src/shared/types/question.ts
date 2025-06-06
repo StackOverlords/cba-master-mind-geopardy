@@ -1,7 +1,7 @@
 export interface Answer {
     _id: string
     text: string,
-    isCorrect: Boolean,
+    isCorrect: boolean,
 }
 export interface Question {
     _id: string;
