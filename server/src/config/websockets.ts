@@ -590,6 +590,18 @@ export class SocketConnection {
             ranking: gameRoom.gameData.finalResults.positions, // This will now correctly reflect the data
             playersScores: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score }))
         });
+        /*
+        {
+            ranking: [
+                { playerId: '123', position: 1, score: 100 },
+                { playerId: '456', position: 2, score: 80 },
+            ],
+            playersScores: [
+                { userId: '123', username: 'Player1', score: 100 },
+                { userId: '456', username: 'Player2', score: 80 },
+            ]
+        }
+        */
 
         // The console log will now correctly show the positions array
         console.log(`🏆 Partida ${gameCode} finalizada. Resultados:`, gameRoom.gameData.finalResults.positions);

@@ -68,7 +68,7 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user,currentPlaye
         className="w-full max-w-4xl mx-auto"
       >
         <motion.div
-          className="mb-8 text-center p-6 bg-white/80 dark:bg-gray-800/80 rounded-2xl border border-gray-200 dark:border-gray-700 backdrop-blur-sm"
+          className="mb-8 text-center p-6 bg-gradient-to-br from-transparent via-indigo-500/5 to-white/7 rounded-2xl border"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}

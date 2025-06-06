@@ -17,6 +17,12 @@ interface GameStore extends GameState {
   setShowFeedback: (show: boolean) => void;
   timeInRounds: number;
   correctAnswer: any;
+  finalResults: {
+    ranking: { playerId: string; score: number }[];
+    playersScores: { userId: string; username: string; score: number }[];
+  };
+
+  setFinalScore: (rankings: any) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -30,7 +36,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   showFeedback: false,
   timeInRounds: 0,
   correctAnswer: null,
-
+  finalResults: {
+    ranking: [],
+    playersScores: []
+  },
   initializeGame: (players: any) => {
     console.log(players, "players in gameStore");
     const playersSet: Player[] = players.map((user: any, index: any) => ({
@@ -61,18 +70,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       currentQuestion: data
     });
   },
-  selectCorrectAnswer: (answer:any) => {
+
+  selectCorrectAnswer: (answer: any) => { // This function is called to set the correct answer for the current question
     set({
       correctAnswer: answer
     });
   },
-  selectAnswer: (selectedAnswer: number) => {
+
+  selectAnswer: (selectedAnswer: number) => { // This function is called when a player selects an answer
     set({
       selectedAnswer,
     });
   },
 
-  nextPlayer: () => {
+  nextPlayer: () => { // This function is called to move to the next player in the game
     const { players, currentPlayerIndex, round } = get();
     const nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
 
@@ -101,11 +112,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
   },
 
-  setShowFeedback: (show: boolean) => {
+  setShowFeedback: (show: boolean) => { // This function is called to show or hide feedback after an answer is selected
     set({ showFeedback: show });
   },
 
-  updateTimer: () => {
+  updateTimer: () => { // This function is called to update the timer every second
     const { timeLeft } = get();
     if (timeLeft > 0) {
       set({ timeLeft: timeLeft - 1 });
@@ -114,7 +125,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
   },
 
-  resetGame: () => {
+  resetGame: () => { // This function is called to reset the game state
     set({
       players: [],
       currentQuestion: null,
@@ -125,5 +136,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
       selectedAnswer: null,
       showFeedback: false
     });
+  },
+  setFinalScore: (rankings: any) => { // This function is called to set the final results of the game
+    set({ gameStatus: 'finished' })
+    /*
+      gameStatus: 'finished'
+    */
+    set({ finalResults: rankings });
+    /*
+      {
+        rankings: [
+          { playerId: 'player-1', score: 100 },
+          { playerId: 'player-2', score: 80 },
+        ],
+        playersScores: [
+          { userId:'123',username:'player-1', score: 100},
+          { userId:'456',username:'player-2', score: 80}
+        ]
+      }
+    */
   }
 }));
