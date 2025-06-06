@@ -37,6 +37,7 @@ export interface IGame extends Document {
     playersLocal?: [{
         username: string;
         score: number;
+        currentTurn?: boolean; // Indica si es el turno actual del jugador
     }];
     
     // rondas
@@ -162,6 +163,10 @@ const gameSchema = new Schema<IGame>({
     playersLocal: [{
         username: { type: String, required: true },
         score: { type: Number, default: 0 },
+        currentTurn:{
+            type: Boolean,
+            default: false, // Indica si es el turno actual del jugador
+        }
     }],
 
     rounds: {

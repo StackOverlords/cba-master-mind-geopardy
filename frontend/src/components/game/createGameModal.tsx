@@ -140,6 +140,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
 
       const handleGameCreated = (gameData: any) => {
         setGameCode(gameData.gameCode || gameData.code);
+        console.log(gameData);
         setCurrentStep("waiting-for-players");
       };
 
@@ -194,7 +195,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     if (mode === "playerVsPlayer") {
       setCurrentStep("multiplayer-config");
     } else if (mode === "championship") {
-      setCurrentStep("championship-config");
+      setCurrentStep("championship-config"); // Redirect Ronald
     } else if (mode === "joinGame") {
       setCurrentStep("joinGame");
     }
