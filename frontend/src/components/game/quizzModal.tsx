@@ -9,9 +9,11 @@ import CorrectAnswerSound from "../../assets/sounds/mixkit-correct-answer-reward
 import IncorrectAnswerSound from "../../assets/sounds/mixkit-wrong-answer-fail-notification-946.wav"
 import CounterSound from "../../assets/sounds/25segundos.mp3"
 import type { Answer, Question } from "../../shared/types/question";
-import { Clock, Target, Trophy } from "lucide-react";
+import { Target, Trophy } from "lucide-react";
 import { Timer } from "./timer";
-import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame";
+import type { AnswerData, ChampionShipPlayer } from "../../shared/types/ChampionShipGame";
+import confetti from "canvas-confetti";
+
 
 type Props = {
     isModalOpen: boolean
@@ -19,10 +21,12 @@ type Props = {
     question?: Question | null,
     category?: string | null,
     currentPlayer: ChampionShipPlayer
+    time: number
     onAnswerSelected: (answerId: string, isCorrect: boolean) => void
     onTimeUp: () => void,
     handleCloseModal: () => void
-    handleUpdatePlayers: (isCorrect: boolean) => void
+    handleUpdatePlayers: (isCorrect: boolean, points: number) => void
+    handlePlayerAnswered: (questionId: string, answerData: AnswerData) => void
 }
 
 const QuizModal: React.FC<Props> = ({
@@ -34,12 +38,16 @@ const QuizModal: React.FC<Props> = ({
     onAnswerSelected,
     onTimeUp,
     handleCloseModal,
-    handleUpdatePlayers
+    handleUpdatePlayers,
+    handlePlayerAnswered,
+    time
 }) => {
 
-    const [timeLeft, setTimeLeft] = useState<number>(10)
+    const [timeLeft, setTimeLeft] = useState<number>(time)
     const [selectedAnswer, setSelectedAnswer] = useState<Answer | null>(null)
     const [isAnswered, setIsAnswered] = useState(false)
+    const [isStarted, setIsStarted] = useState(false)
+    const [points, setPoints] = useState<number>(0)
 
     const { play: playCorrect, stop: stopCorrect } = useSound(CorrectAnswerSound)
     const { play: playIncorrect, stop: stopIncorrect } = useSound(IncorrectAnswerSound)
@@ -47,36 +55,53 @@ const QuizModal: React.FC<Props> = ({
     // Reset timer when modal opens
     useEffect(() => {
         if (isModalOpen) {
-            setTimeLeft(10)
-            setSelectedAnswer(null)
-            setIsAnswered(false)
+            setTimeLeft(time);
+            setSelectedAnswer(null);
+            setIsAnswered(false);
+            setIsStarted(false); // <- Nuevo
         }
-    }, [isModalOpen])
+    }, [isModalOpen]);
+
+    const fireConfetti = () => {
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+        });
+    };
+
+    const [twoThirdsTime] = useState<number>(Math.floor(time * 0.66));
 
     const handleSuccessAnswered = () => {
-        handleUpdatePlayers(!!selectedAnswer?.isCorrect || false)
-        handleCloseModal()
-    }
+
+        handleUpdatePlayers(!!selectedAnswer?.isCorrect || false, points);
+        handleCloseModal();
+    };
+
     // Countdown timer
     useEffect(() => {
-        stopCounterSound()
-        if (isModalOpen && !isAnswered) playCounterSound(10)
-    }, [isModalOpen, isAnswered])
+        stopCounterSound();
+        if (isModalOpen && !isAnswered && isStarted) {
+            playCounterSound(time);
+        }
+    }, [isModalOpen, isAnswered, isStarted]);
 
     useEffect(() => {
-        if (!isModalOpen || isAnswered) return
+        if (!isModalOpen || isAnswered || !isStarted) return;
 
-        const timer = timeLeft > 0 && setInterval(() => setTimeLeft(timeLeft - 1), 1000)
+        const timer = timeLeft > 0 && setInterval(() => setTimeLeft(timeLeft - 1), 1000);
 
         if (timeLeft === 0) {
-            onTimeUp()
-            setIsAnswered(true)
-            stopCorrect()
-            playIncorrect()
+            onTimeUp();
+            setIsAnswered(true);
+            stopCorrect();
+            playIncorrect();
+            handlePlayerAnswered(question?._id || '', { answer: '', isCorrect: false });
         }
 
-        return () => clearInterval(timer as NodeJS.Timeout)
-    }, [timeLeft, isModalOpen, isAnswered, onTimeUp])
+        return () => clearInterval(timer as NodeJS.Timeout);
+    }, [timeLeft, isModalOpen, isAnswered, isStarted]);
+
 
     const handleAnswerClick = (answer: Answer, isCorrect: boolean) => {
         if (isAnswered) return
@@ -84,12 +109,36 @@ const QuizModal: React.FC<Props> = ({
         if (isCorrect) {
             stopCorrect()
             playCorrect()
+            fireConfetti()
+            const round = currentRound || 1;
+
+            const baseHigh = 100;
+            const baseMid = 90;
+            const baseLow = 80;
+            const percentageIncrease = 0.10; // 10% extra por ronda
+
+            const multiplier = Math.pow(1 + percentageIncrease, round - 1);
+
+            const high = Math.round(baseHigh * multiplier);
+            const mid = Math.round(baseMid * multiplier);
+            const low = Math.round(baseLow * multiplier);
+
+            let points = 0;
+
+            if (timeLeft > twoThirdsTime) {
+                points = high;
+            } else if (timeLeft > 5) {
+                points = mid;
+            } else {
+                points = low;
+            }
+            setPoints(points)
         }
         else {
             stopIncorrect()
             playIncorrect()
         }
-
+        handlePlayerAnswered(question?._id || '', { answer: answer.text, isCorrect: answer.isCorrect })
         setSelectedAnswer(answer)
         setIsAnswered(true)
         onAnswerSelected(answer._id, isCorrect)
@@ -128,7 +177,7 @@ const QuizModal: React.FC<Props> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className={`fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50 ${isAnswered && !selectedAnswer || selectedAnswer?.isCorrect ===false?'animate-flash-red':''}`}
+                className={`fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50 ${isAnswered && !selectedAnswer || selectedAnswer?.isCorrect === false ? 'animate-flash-red' : ''}`}
                 onClick={() => !isAnswered && closeModal()}
             >
                 <motion.div
@@ -136,7 +185,7 @@ const QuizModal: React.FC<Props> = ({
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                    className="relative w-full max-w-2xl p-6 overflow-hidden rounded-xl
+                    className="relative w-full max-w-3xl p-6 overflow-hidden rounded-xl
                         bg-gradient-to-br from-leaderboard-bg/60 to-black/30 backdrop-blur-sm 
                         border border-border/70 shadow-[0_0_15px_rgba(72,66,165,0.3)]"
                     onClick={(e) => e.stopPropagation()}
@@ -159,12 +208,12 @@ const QuizModal: React.FC<Props> = ({
                                 alt={currentPlayer.username}
                                 className="size-16 rounded-full border-2 border-indigo-400"
                             /> */}
-                            <Timer timeLeft={timeLeft} gameStatus="playing" />
+                            <Timer timeLeft={timeLeft} gameStatus="playing" time={time} />
                             <div className="w-full pr-10">
                                 <div className="flex justify-between gap-2">
                                     <div className="flex flex-col gap-2">
                                         <div className="flex items-center gap-2">
-                                            <span className={`px-3 py-1 rounded-full text-sm font-semibold bg-linear-to-r from-purple-400 to-blue-400 text-white capitalize`}>
+                                            <span className={`px-3 py-1 rounded-full text-sm font-semibold bg-linear-to-r from-purple-400/60 to-blue-400/60 transition-colors ease-in-out duration-300 hover:from-purple-400 hover:to-blue-400 text-white capitalize`}>
                                                 {category || "Quiz"}
                                             </span>
                                             <Trophy className="w-4 h-4 text-yellow-400" />
@@ -197,50 +246,77 @@ const QuizModal: React.FC<Props> = ({
                         </div>
 
                         {/* Answers */}
-                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            {question?.answers.map((answer, idx) => {
-                                const isSelected = selectedAnswer?._id === answer._id
-                                const isCorrect = answer.isCorrect
-                                const showCorrect = isAnswered && isCorrect
-                                const showIncorrect = isAnswered && isSelected && !isCorrect || (isAnswered && !selectedAnswer && !isCorrect)
-                                return (
-                                    <motion.button
-                                        key={idx}
-                                        whileHover={!isAnswered ? { scale: 1.02 } : {}}
-                                        whileTap={!isAnswered ? { scale: 0.98 } : {}}
-                                        className={`flex gap-3 relative cursor-pointer p-4 text-left rounded-lg border transition-colors
+                        {!isStarted && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="flex flex-col items-center justify-center gap-4"
+                            >
+                                <p className="text-indigo-200  font-medium text-center">Are you ready?</p>
+                                <button
+                                    className="px-6 py-3 text-lg font-semibold text-white bg-gradient-to-r from-indigo-500 to-pink-500 rounded-md max-w-sm w-full cursor-pointer transition-all"
+                                    onClick={() => setIsStarted(true)}
+                                >
+                                    Start
+                                </button>
+                            </motion.div>
+                        )}
+                        <AnimatePresence>
+                            {isStarted && (
+                                <motion.div
+                                    key="question"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="grid grid-cols-1 gap-3 md:grid-cols-2"
+                                >
+                                    {question?.answers.map((answer, idx) => {
+                                        const isSelected = selectedAnswer?._id === answer._id
+                                        const isCorrect = answer.isCorrect
+                                        const showCorrect = isAnswered && isCorrect
+                                        const showIncorrect = isAnswered && isSelected && !isCorrect || (isAnswered && !selectedAnswer && !isCorrect)
+                                        return (
+                                            <motion.button
+                                                key={idx}
+                                                whileHover={!isAnswered ? { scale: 1.02 } : {}}
+                                                whileTap={!isAnswered ? { scale: 0.98 } : {}}
+                                                className={`flex gap-3 relative cursor-pointer p-4 text-left rounded-lg border transition-colors
                                         ${getAnswerStyle(answer._id, answer.isCorrect)}`}
-                                        onClick={() => handleAnswerClick(answer, answer.isCorrect)}
-                                        disabled={isAnswered}
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-indigo-500/5 to-white/7" />
-                                        <div
-                                            className={`
+                                                onClick={() => handleAnswerClick(answer, answer.isCorrect)}
+                                                disabled={isAnswered}
+                                            >
+                                                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-indigo-500/5 to-white/7" />
+                                                <div
+                                                    className={`
                                                 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
                                                 ${showCorrect ? "bg-emerald-500 text-white" : ""}
                                                 ${showIncorrect ? "bg-red-500/70 text-white" : ""}
                                                 ${!isAnswered ? "bg-indigo-600 text-indigo-200" : ""}
                                                 ${isAnswered && !isSelected && !isCorrect ? "bg-indigo-800 text-white" : ""}
                                             `}
-                                        >
-                                            {String.fromCharCode(65 + idx)}
-                                        </div>
-                                        <span className="text-[#e0ddff] flex grow gap-4 justify-between items-center">
-                                            {answer.text}
-                                            {isAnswered && (
-                                                answer.isCorrect ? (
-                                                    <CheckIcon className="size-5 text-emerald-300" />
-                                                ) : selectedAnswer?._id === answer._id ? (
-                                                    <ErrorIcon className="size-5 text-red-400" />
-                                                ) : !selectedAnswer ? (
-                                                    <ErrorIcon className="size-5 text-red-400" />
-                                                ) : null
-                                            )}
-                                        </span>
-                                    </motion.button>
-                                )
-                            })}
-                        </div>
+                                                >
+                                                    {String.fromCharCode(65 + idx)}
+                                                </div>
+                                                <span className="text-[#e0ddff] flex grow gap-4 justify-between items-center">
+                                                    {answer.text}
+                                                    {isAnswered && (
+                                                        answer.isCorrect ? (
+                                                            <CheckIcon className="size-5 text-emerald-300" />
+                                                        ) : selectedAnswer?._id === answer._id ? (
+                                                            <ErrorIcon className="size-5 text-red-400" />
+                                                        ) : !selectedAnswer ? (
+                                                            <ErrorIcon className="size-5 text-red-400" />
+                                                        ) : null
+                                                    )}
+                                                </span>
+                                            </motion.button>
+                                        )
+                                    })}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
                         {/* Footer - shows after answering */}
                         {isAnswered && (
@@ -253,7 +329,7 @@ const QuizModal: React.FC<Props> = ({
                                     {selectedAnswer && selectedAnswer.isCorrect && (
                                         <div className="flex items-center text-yellow-400">
                                             <TrophyIcon className="w-5 h-5 mr-2" />
-                                            <span className="font-medium">+100 points</span>
+                                            <span className="font-medium">{points} points</span>
                                         </div>
                                     )}
                                 </div>
