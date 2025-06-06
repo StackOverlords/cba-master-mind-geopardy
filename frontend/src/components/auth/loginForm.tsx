@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import InputField from "../ui/inputField";
 import EyeIcon from "../ui/icons/eyeIcon";
 import EyeClosedIcon from "../ui/icons/eye-closedIcon";
@@ -12,7 +12,7 @@ import { useNavigate } from "react-router";
 import SpinnerIcon from "../ui/icons/spinnerIcon";
 
 const LoginForm = () => {
-    const { login, loginWithGoogle, isLoading } = useAuthStore()
+    const { login, loginWithGoogle, isLoading,user } = useAuthStore()
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loginData, setLoginData] = useState<LoginCredentials>({
@@ -53,6 +53,11 @@ const LoginForm = () => {
         }
     };
 
+    useEffect(()=>{
+        if (user && user.firebaseUid) {
+            navigate('/');
+        }
+    },[user])
     return (
         <section className="flex flex-col items-center justify-center p-2">
             <h2 className="text-2xl">Hi, welcome back!</h2>

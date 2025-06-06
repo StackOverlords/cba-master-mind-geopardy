@@ -3,12 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../store/gameStore";
 import { PlayerCard } from "./PlayerCard";
 import { Timer } from "./Timer";
-import { QuestionCard } from "./QuestionCard";
-import { Countdown } from "./Countdown";
+import { QuestionCard } from "./QuestionCard"; 
 import { ThemeToggle } from "./ThemeToggle";
 import { Clock, RotateCcw, Zap } from "lucide-react";
 import { socketService } from "../../../../services/socketService";
 import { useSound } from "../hooks/useSound";
+import { FinalResults } from "./FinalResults";
+import { Leaderboard } from "./ui/leaderBoard";
 
 interface GameScreenProps {
   user: any;
@@ -29,7 +30,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
     timeInRounds,
     selectCorrectAnswer,
     initializeGame,
-    setShowFeedback
+    setShowFeedback,
+    finalResults,
+    setFinalScore
   } = useGameStore();
   const [playersJoined, setPlayersJoined] = React.useState<any[]>([]);
   const [currentPlayerId, setCurrentPlayerId] = React.useState<string | null>(
@@ -109,6 +112,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
           playIncorrect();
         }
       });
+      socketService.on("gameOver",(data:any)=>{
+        console.log("Game over evento received:", data);
+        setFinalScore(data);
+      })
 
       socketService.on("roundFinished", (currentRound: any) => {
         console.log("Round finished:", currentRound);
@@ -121,13 +128,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
   return (
     <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-transparent backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="sticky bg-transparent backdrop-blur-xl border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              {/* <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div> */}
+            <div className="flex items-center space-x-2"> 
               <div className="flex items-center">
                 <h2 className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent font-PressStart2P text-lg font-extrabold">
                   MASTER MIND
@@ -196,13 +200,22 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
           </motion.div>
         )}
       </div>
-
-      {/* Countdown Overlay */}
-      <AnimatePresence>
-        {/* {gameStatus === "countdown" && (
-          <Countdown timer={timeLeft} />
-        )} */}
-      </AnimatePresence>
+      {
+        gameStatus === "finished" && (
+          <AnimatePresence>
+            <FinalResults>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3 }}
+              >
+                 <Leaderboard data={finalResults} />
+              </motion.div>
+            </FinalResults>
+          </AnimatePresence>
+        )
+      }
     </div>
   );
 };
