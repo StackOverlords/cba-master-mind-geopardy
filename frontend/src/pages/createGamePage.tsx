@@ -28,7 +28,8 @@ const CreateGamePage = () => {
         playersLocal: [],
         categorys: [],
         rounds: 1,
-        currentRound: 1
+        currentRound: 1,
+        defaultTurnTime:20
     })
     useEffect(() => {
         if (userId) {
@@ -160,12 +161,13 @@ const CreateGamePage = () => {
                                             Time per Turn (seconds)
                                         </label>
                                         <InputField
-                                            id="timeLimit"
+                                            id="defaultTurnTime"
+                                            name="defaultTurnTime"
                                             type="number"
                                             min="10"
                                             max="120"
-                                            value={timeLimit}
-                                            onChange={(e) => setTimeLimit(Number(e.target.value))}
+                                            value={gameSetup.defaultTurnTime}
+                                            onChange={handleChangeData}
                                         />
                                     </div>
 

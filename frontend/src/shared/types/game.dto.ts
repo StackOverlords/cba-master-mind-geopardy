@@ -15,5 +15,6 @@ export interface CreateGameChampionShipDto {
     playersLocal: PlayerChampionShip[],
     categorys: string[],
     rounds: number,
-    currentRound:number
+    currentRound:number,
+    defaultTurnTime:number
 }
