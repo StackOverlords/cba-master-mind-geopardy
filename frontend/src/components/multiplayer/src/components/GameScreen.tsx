@@ -32,7 +32,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
     initializeGame,
     setShowFeedback,
     finalResults,
-    setFinalScore,
+    setFinalScore, 
+    setAnswerSelected,
+    selectAnswer,
     setTimerGameOut // Actualizar el temporizador de finalizacion del juego:: antes de redireccionar
   } = useGameStore();
   // const [playersJoined, setPlayersJoined] = React.useState<any[]>([]);
@@ -77,13 +79,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
         const { currentPlayerId, currentPlayerUsername, timer } =
           data;
         setCurrentPlayerId(currentPlayerId);
+        // selectAnswer(null); // Reset selected answer for the new turn
         // setQuestion(question);
         setTimer(timer);
         setCurrentPlayerUsername(currentPlayerUsername);
         setShowFeedback(false); 
         nextQuestion(data.question);
       });
-
+      
       // Actualizar el estado del juego cuando se recibe una nueva pregunta
       socketService.on("updateTimerOut", (timerLeft: any) => {
         playCountdown();
@@ -104,7 +107,8 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
 
       // Mostrar la respuesta correcta y el feedback
       socketService.on("answerResult", (data: any) => {
-        const { isCorrect, correctAnswer, players } = data;
+        const { isCorrect, correctAnswer, players, answerSelected } = data;
+        setAnswerSelected(answerSelected);
         selectCorrectAnswer(correctAnswer);
         setShowFeedback(true);
         initializeGame(players);
@@ -132,10 +136,12 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
 
       // Contador antes de devolver a los jugadores a la pantalla de inicio
       socketService.on("updateTimerOutGame",(timeLeft:any)=>{
+        console.log("updated timer out game received:", timeLeft);
         setTimerGameOut(timeLeft);
       })
       // Redirigir a los jugadores a la pantalla de inicio después de un tiempo
-      socketService.on("timeOutGame", (___: any) => {
+      socketService.on("redirectToHome", (data: any) => {
+        console.log("Game timeout, redirecting to home",data);
         sessionStorage.removeItem("gameCode");
         socketService.disconnect();
         window.location.href = "/";

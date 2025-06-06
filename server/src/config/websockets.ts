@@ -33,10 +33,10 @@ interface GameRoomState {
     // Añadir historial de preguntas si es necesario para el frontend
     // askedQuestions: IQuestion[];
     defaultTurnTime: number;
-    rounds:number;
+    rounds: number;
 
-    outGameTimer:NodeJS.Timeout | null; // Temporizador para el tiempo de espera fuera del juego
-    outGameTime:number;
+    outGameTimer: NodeJS.Timeout | null; // Temporizador para el tiempo de espera fuera del juego
+    outGameTime: number;
 }
 
 const games: { [gameCode: string]: GameRoomState } = {};
@@ -72,10 +72,10 @@ export class SocketConnection {
                 cors: {
                     origin: process.env.NODE_ENV === 'development' ? "https://admin.socket.io" : "*",
                     methods: ["GET", "POST"],
-                    credentials:true
+                    credentials: true
                 },
                 transports: ["websocket", "polling"],
-                allowEIO3:true
+                allowEIO3: true
             });
             // Configuración del Admin UI
             instrument(this.io, {
@@ -83,7 +83,7 @@ export class SocketConnection {
                 mode: "development",
             });
             this.setupSocketEvents();
-            
+
             if (process.env.NODE_ENV === 'development') {
                 console.log("✅ Socket.io inicializado correctamente");
             }
@@ -118,6 +118,7 @@ export class SocketConnection {
             socket.on("createGame", async (userData: { userId: string; gameData: Omit<IGame, '_id' | 'code' | 'players' | 'questions'> }) => {
                 console.log(socket.handshake.auth.userId, "intenta crear una partida");
                 try {
+                    console.log(userData.gameData)
                     const user = await UserModel.findById(userData.userId);
                     if (!user) {
                         socket.emit("error", { message: "Usuario no encontrado" });
@@ -137,7 +138,7 @@ export class SocketConnection {
                         questions: [], // No hay preguntas al crear, se cargarán al iniciar
                         categorys: userData.gameData.categorys,
                         defaultTurnTime: userData.gameData.defaultTurnTime || TURN_TIMER_SECONDS,
-                        rounds: userData.gameData.rounds || DEFAULT_ROUNDS,
+                        rounds: userData.gameData.rounds || 2,
                         currentRound: 0, // Se iniciará en 1 al empezar
                         currentPlayerDbId: null,
                     });
@@ -159,7 +160,7 @@ export class SocketConnection {
                         turnTimer: null,
                         turnOutTimer: null,
                         defaultTurnTime: userData.gameData.defaultTurnTime || TURN_TIMER_SECONDS,
-                        rounds: userData.gameData.rounds || DEFAULT_ROUNDS,
+                        rounds: userData.gameData.rounds || 2,
                         outGameTimer: null, // Temporizador para el tiempo de espera fuera del juego
                         outGameTime: 0 // Tiempo de espera fuera del juego
                     };
@@ -284,7 +285,7 @@ export class SocketConnection {
                 // Calcular la cantidad total de preguntas necesarias
                 const numberOfPlayers = gameRoom.players.length;
                 console.log(numberOfPlayers, "jugadores");
-                const totalQuestionsNeeded = (numberOfPlayers * gameRoom.rounds ) + EXTRA_QUESTIONS_BUFFER;
+                const totalQuestionsNeeded = (numberOfPlayers * gameRoom.rounds) + EXTRA_QUESTIONS_BUFFER;
                 console.log(totalQuestionsNeeded, "preguntas necesarias");
 
                 let allAvailableQuestions: IQuestion[] = [];
@@ -361,10 +362,8 @@ export class SocketConnection {
 
             // Responder a una pregunta
             socket.on("answerQuestion", async (data: { gameCode: string; answerText: string }) => {
-                console.log(data, "respuesta a la pregunta");
                 const { gameCode, answerText } = data;
                 const gameRoom = games[gameCode];
-                console.log(gameRoom, "estado de la partida al responder");
                 if (!gameRoom || !gameRoom.currentQuestion) {
                     socket.emit("error", { message: "No hay una pregunta activa o la partida no existe." });
                     return;
@@ -404,7 +403,8 @@ export class SocketConnection {
                     correctAnswer: correctAnswer,
                     pointsAwarded,
                     newScore: currentPlayer.score,
-                    players: gameRoom.players
+                    players: gameRoom.players,
+                    answerSelected: answerText // Enviar la respuesta seleccionada por el jugador
                 });
                 this.io?.to(gameCode).emit("gamePlayers", { players: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score })) });
 
@@ -423,23 +423,24 @@ export class SocketConnection {
                 try {
                     const gamePlayer = games[gameCode];
                     if (gamePlayer) {
-                        await socket.leave(gameCode); 
+                        await socket.leave(gameCode);
                     }
-                    
+
                     // Emitir confirmación al cliente que está abandonando
-                    socket.emit("exitGamePlay", { 
-                        success: true, 
-                        message: "You have left the game" 
+                    socket.emit("exitGamePlay", {
+                        success: true,
+                        message: "You have left the game"
                     });
                 } catch (error) {
                     console.error("Error exiting game:", error);
-                    socket.emit("exitGamePlay", { 
-                        success: false, 
-                        message: "Error leaving the game" 
+                    socket.emit("exitGamePlay", {
+                        success: false,
+                        message: "Error leaving the game"
                     });
                 }
             });
             
+
 
         });
     }
@@ -491,6 +492,9 @@ export class SocketConnection {
             question: questionForClient,
             timer: gameRoom.defaultTurnTime
         });
+        if (gameRoom.currentRound <= gameRoom.rounds) {
+            this.io?.to(gameCode).emit("roundFinished", { currentRound: gameRoom.currentRound });
+        }
         console.log(`❓ Pregunta enviada para ${currentPlayer.username} en la partida ${gameCode}`);
 
         // Iniciar el temporizador del turno
@@ -546,7 +550,7 @@ export class SocketConnection {
             gameRoom.currentPlayerIndex = 0; // Reiniciar para el siguiente jugador en la próxima ronda
             gameRoom.currentRound++; // Avanzar a la siguiente ronda
             console.log(`🎉 Fin de la ronda ${gameRoom.currentRound - 1} en la partida ${gameCode}. Iniciando ronda ${gameRoom.currentRound}.`);
-            this.io?.to(gameCode).emit("roundFinished", { currentRound: gameRoom.currentRound - 1 });
+            // this.io?.to(gameCode).emit("roundFinished", { currentRound: gameRoom.currentRound });
 
             // Actualizar la ronda en la base de datos
             await GameModel.findOneAndUpdate({ code: gameCode }, { currentRound: gameRoom.currentRound });
@@ -554,8 +558,8 @@ export class SocketConnection {
 
         // --- Criterios de finalización del juego ---
         // 1. Si se ha superado el número de rondas definidas.
-        if (gameRoom.currentRound > DEFAULT_ROUNDS) {
-            console.log(`🎉 La partida ${gameCode} ha alcanzado el límite de ${DEFAULT_ROUNDS} rondas.`);
+        if (gameRoom.currentRound > gameRoom.rounds) {
+            console.log(`🎉 La partida ${gameCode} ha alcanzado el límite de ${gameRoom.rounds} rondas.`);
             this.endGame(gameCode);
             return;
         }
@@ -587,7 +591,7 @@ export class SocketConnection {
         const gameRoom = games[gameCode];
         if (!gameRoom) return;
 
-        // Limpiar cualquier temporizador pendiente
+        // 1. Limpiar cualquier temporizador de turno pendiente
         if (gameRoom.turnTimer) {
             clearTimeout(gameRoom.turnTimer);
             gameRoom.turnTimer = null;
@@ -595,57 +599,59 @@ export class SocketConnection {
 
         gameRoom.gameData.status = "finished";
 
-        // Calcular la clasificación final
+        // 2. Calcular y estructurar los resultados finales
         const sortedPlayers = [...gameRoom.players].sort((a, b) => b.score - a.score);
-
-        // Store the full finalResults object structure directly
         gameRoom.gameData.finalResults = {
             positions: sortedPlayers.map((player, index) => ({
-                playerId: new mongoose.Types.ObjectId(player.userId), // Convertir a ObjectId
+                playerId: new mongoose.Types.ObjectId(player.userId),
                 position: index + 1,
                 score: player.score
             }))
         };
 
-        // Actualizar el estado de la partida en la base de datos a "finished" y guardar resultados
-        await GameModel.findOneAndUpdate(
-            { code: gameCode },
-            {
-                status: "finished",
-                // Directly assign the structured finalResults object
-                finalResults: gameRoom.gameData.finalResults,
-                // Update scores for all players in the DB
-                players: gameRoom.players.map(p => ({ playerId: p.userId, username: p.username, score: p.score }))
-            },
-            // No need for arrayFilters here if you're replacing the whole players array.
-            // If you were only updating a specific field within existing array elements,
-            // then arrayFilters would be relevant.
-        );
+        // 3. Actualizar la base de datos con el estado final y los resultados
+        try {
+            await GameModel.findOneAndUpdate(
+                { code: gameCode },
+                {
+                    status: "finished",
+                    finalResults: gameRoom.gameData.finalResults,
+                    players: gameRoom.players.map(p => ({ playerId: p.userId, username: p.username, score: p.score }))
+                }
+            );
+        } catch (error) {
+            console.error(`❌ Error al guardar los resultados de la partida ${gameCode} en la BD:`, error);
+            // Podrías decidir si continuar o no en caso de error de guardado
+        }
 
 
+        // 4. Emitir los resultados finales a todos en la sala
         this.io?.to(gameCode).emit("gameOver", {
-            ranking: gameRoom.gameData.finalResults.positions, // This will now correctly reflect the data
+            ranking: gameRoom.gameData.finalResults.positions,
             playersScores: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score }))
-        }); 
-        
-        console.log(`🏆 Partida ${gameCode} finalizada. Resultados:`, gameRoom.gameData.finalResults.positions);
-        let timeLeft = gameRoom.outGameTime; // Tiempo por defecto para el turno
+        });
 
-        const timerInterval = setInterval(() => {
-            if (timeLeft) {
-                clearInterval(timerInterval);
-                gameRoom.outGameTimer = null; 
-                this.io?.to(gameCode).emit("timeOutGame", { message: "Partida finalizada, saliendo de la sala en 5 segundos." });
-                return;
-            }
-            this.io?.to(gameCode).emit("updateTimerOutGame", timeLeft); // A todos los jugadores en la sala
-            timeLeft--;
-        }, 5000);
-        delete games[gameCode];
-        this.io?.sockets.in(gameCode).socketsLeave(gameCode);
-        
+        console.log(`🏆 Partida ${gameCode} finalizada. Mostrando resultados.`);
 
-        console.log(`🗑️ Partida ${gameCode} eliminada de la base de datos.`);
+        // 5. Iniciar un temporizador para la redirección y limpieza final
+        const timeOutGameInSeconds = 60; // Esperar 5 segundos antes de redirigir
+        console.log(`⏳ Redireccionando a los jugadores de la sala ${gameCode} en ${timeOutGameInSeconds} segundos.`);
+
+        // Usamos setTimeout para una espera única. La lógica de limpieza va DENTRO del callback.
+        setTimeout(() => {
+            // Esta parte se ejecuta DESPUÉS de 5 segundos
+            console.log(`🚪 Enviando señal de redirección a la sala ${gameCode}.`);
+
+            // Señal para que los clientes redirijan
+            this.io?.to(gameCode).emit("redirectToHome", { message: `La partida ha terminado. Serás redirigido.` });
+
+            // Ahora sí, limpiamos todo
+            this.io?.sockets.in(gameCode).socketsLeave(gameCode);
+            delete games[gameCode];
+
+            console.log(`🗑️ Sala de juego ${gameCode} y datos en memoria eliminados.`);
+
+        }, timeOutGameInSeconds * 1000); // Convertir segundos a milisegundos
     }
 
 
