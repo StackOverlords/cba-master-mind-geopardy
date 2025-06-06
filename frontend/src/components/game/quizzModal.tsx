@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from "motion/react";
-import type { Question } from "../../shared/types";
 import { useEffect, useState } from "react";
 import XIcon from "../ui/icons/xIcon";
 import TrophyIcon from "../ui/icons/trophyIcon";
@@ -9,17 +8,17 @@ import useSound from "../../hooks/useSound";
 import CorrectAnswerSound from "../../assets/sounds/mixkit-correct-answer-reward-952.wav"
 import IncorrectAnswerSound from "../../assets/sounds/mixkit-wrong-answer-fail-notification-946.wav"
 import CounterSound from "../../assets/sounds/25segundos.mp3"
-import type { Answer } from "../../shared/types/question";
+import type { Answer, Question } from "../../shared/types/question";
 import { Clock, Target, Trophy } from "lucide-react";
-import type { Player } from "../../shared/types/game";
 import { Timer } from "./timer";
+import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame";
 
 type Props = {
     isModalOpen: boolean
     currentRound?: number
     question?: Question | null,
     category?: string | null,
-    currentPlayer: Player
+    currentPlayer: ChampionShipPlayer
     onAnswerSelected: (answerId: string, isCorrect: boolean) => void
     onTimeUp: () => void,
     handleCloseModal: () => void
@@ -129,7 +128,7 @@ const QuizModal: React.FC<Props> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md"
+                className={`fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50 ${isAnswered && !selectedAnswer || selectedAnswer?.isCorrect ===false?'animate-flash-red':''}`}
                 onClick={() => !isAnswered && closeModal()}
             >
                 <motion.div
@@ -194,7 +193,7 @@ const QuizModal: React.FC<Props> = ({
 
                         {/* Question */}
                         <div className="p-5 my-6">
-                            <h2 className="text-3xl text-wrap text-center font-bold">{question?.text}</h2>
+                            <h2 className="text-3xl text-wrap text-center font-bold">{question?.question}</h2>
                         </div>
 
                         {/* Answers */}
@@ -232,9 +231,9 @@ const QuizModal: React.FC<Props> = ({
                                                 answer.isCorrect ? (
                                                     <CheckIcon className="size-5 text-emerald-300" />
                                                 ) : selectedAnswer?._id === answer._id ? (
-                                                    <ErrorIcon className="size-5 text-red-700" />
+                                                    <ErrorIcon className="size-5 text-red-400" />
                                                 ) : !selectedAnswer ? (
-                                                    <ErrorIcon className="size-5 text-red-700" />
+                                                    <ErrorIcon className="size-5 text-red-400" />
                                                 ) : null
                                             )}
                                         </span>
