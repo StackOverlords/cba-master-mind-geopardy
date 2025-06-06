@@ -23,6 +23,8 @@ interface GameStore extends GameState {
   };
 
   setFinalScore: (rankings: any) => void;
+  timerGameOut: number;
+  setTimerGameOut: (timerGameOut: number) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -36,6 +38,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   showFeedback: false,
   timeInRounds: 0,
   correctAnswer: null,
+  timerGameOut: 0,
   finalResults: {
     ranking: [],
     playersScores: []
@@ -155,5 +158,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ]
       }
     */
-  }
+  },
+  setTimerGameOut: (timerGameOut: number) => set({ timerGameOut })
 }));

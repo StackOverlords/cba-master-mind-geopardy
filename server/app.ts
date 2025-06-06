@@ -21,7 +21,7 @@ const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, 'swagger
 const server = http.createServer(app);
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: process.env.NODE_ENV === 'development' ? "*" : "*",
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
