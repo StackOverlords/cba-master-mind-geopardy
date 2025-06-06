@@ -1,17 +1,16 @@
-
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useGameStore } from '../store/gameStore';
-import { useSound } from '../hooks/useSound';
-import { Check, X } from 'lucide-react';
-// import { Check, X } from 'lucide-react';
+import { useGameStore } from '../store/gameStore'; 
+// NUEVO: Importamos el ícono de Usuario
+import { Check, X, User } from 'lucide-react';
+
 interface Props {
   socketService: any;
   user: any;
-  currentPlayerId:string | null;
+  currentPlayerId: string | null;
 }
 
-export const QuestionCard: React.FC<Props> = ({ socketService, user,currentPlayerId }) => {
+export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlayerId }) => {
   const {
     currentQuestion,
     selectedAnswer,
@@ -19,44 +18,39 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user,currentPlaye
     selectAnswer,
     gameStatus,
     correctAnswer,
+    answerSelected, // Este es el texto de la respuesta seleccionada por otro jugador
   } = useGameStore();
 
   if (!currentQuestion) return null;
 
   const handleAnswerClick = (index: number) => {
-    // if (gameStatus !== 'playing' || selectedAnswer !== null) return;
-    selectAnswer(index);
-    // showFeedback(true);
-    // if (index === currentQuestion.answers.findIndex(a => a.isCorrect)) {
-    //   playCorrect();
-    // } else {
-    //   playIncorrect();
-    // }
-    socketService.emit("answerQuestion",{ gameCode:sessionStorage.getItem("gameCode"), answerText: currentQuestion.answers[index].text });
+    // Esta lógica no cambia, sigue funcionando para el jugador actual
+    selectAnswer(index); 
+    socketService.emit("answerQuestion", { gameCode: sessionStorage.getItem("gameCode"), answerText: currentQuestion.answers[index].text });
   };
 
   const getOptionStyle = (index: number) => {
+    // Esta función de estilos no necesita cambios, ya que el nuevo indicador es un elemento aparte.
     if (!showFeedback) {
       return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:scale-[1.02] shadow-sm hover:shadow-md';
     }
     
-    if (index === currentQuestion.answers.findIndex(a => a.isCorrect)) {
-      if (index === selectedAnswer) {
-        return 'bg-green-50 dark:bg-green-900/20 border-green-400 text-green-800 dark:text-green-200 shadow-md';
-      }
-    }
+    // if (index === currentQuestion.answers.findIndex(a => a.isCorrect)) {
+    //   if (index === selectedAnswer) {
+    //     return 'bg-green-50 dark:bg-green-900/20 border-green-400 text-green-800 dark:text-green-200 shadow-md';
+    //   }
+    // }
     
-    if (index === selectedAnswer && index !== currentQuestion.answers.findIndex(a => a.isCorrect)) {
-      if (gameStatus === 'playing') {
-        return 'bg-red-50 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200 shadow-md hover:scale-[1.02] hover:shadow-lg';
-      }
-      // If the game is not in playing status, we show a disabled style
-      return 'bg-red-50 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200 shadow-md';
-    }
+    // if (index === selectedAnswer && index !== currentQuestion.answers.findIndex(a => a.isCorrect)) {
+    //   if (gameStatus === 'playing') {
+    //     return 'bg-red-50 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200 shadow-md hover:scale-[1.02] hover:shadow-lg';
+    //   }
+    //   return 'bg-red-50 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200 shadow-md';
+    // }
     
-    return 'bg-gray-50 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 opacity-60';
+    // return 'bg-gray-50 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 opacity-60';
   };
-  // console.log("correctAnswer", correctAnswer);
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -92,8 +86,6 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user,currentPlaye
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + index * 0.1 }}
-              whileHover={gameStatus === 'playing' && selectedAnswer === null ? { scale: 1.02 } : {}}
-              whileTap={gameStatus === 'playing' && selectedAnswer === null ? { scale: 0.98 } : {}}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -110,26 +102,41 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user,currentPlaye
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     className="flex-shrink-0"
                   >
-                    { answer.text === correctAnswer ? (
+                    {answer.text === correctAnswer ? (
                       <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                         <Check className="w-5 h-5 text-white" />
                       </div>
-                    ) : answer.text!==correctAnswer ? (
+                    ) : (
                       <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
                         <X className="w-5 h-5 text-white" />
                       </div>
-                    ) : null}
+                    )}
                   </motion.div>
                 )}
               </div>
 
+              {/* Indicador de la selección del PROPIO jugador */}
               {selectedAnswer === index && (
                 <motion.div
-                  className="absolute inset-0 rounded-2xl border-4 border-blue-400"
+                  // className="absolute inset-0 rounded-2xl border-4 border-blue-400 pointer-events-none"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 />
+              )}
+
+              {/* NUEVO: Indicador de la selección de OTRO jugador */}
+              {answerSelected && answer.text === answerSelected  && (
+                <motion.div
+                  layoutId="selected-by-other" // Usar un layoutId puede crear una animación suave si el badge se mueve
+                  className="absolute top-2 right-2 flex items-center gap-2 bg-gray-200/60 dark:bg-gray-900/60 backdrop-blur-sm py-1 px-2 rounded-full text-xs pointer-events-none"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                >
+                  <User className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">Seleccionada</span>
+                </motion.div>
               )}
             </motion.button>
           ))}
