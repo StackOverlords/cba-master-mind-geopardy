@@ -23,7 +23,7 @@ const TextComponent = {
   namePlaceholder: "Ex: Friday Trivia",
   nameLabel: "Game name",
   turnTimeLabel: "Turn time (sec)",
-  maxPlayersLabel: "Max. players",
+  maxRounds: "Max. rounds",
   categoriesLabel: "Categories",
   categoriesSelected: "Categories ({count} selected)",
   backButton: "Back",
@@ -88,7 +88,7 @@ type ModalStep =
 const CreateGameModal: React.FC<CreateGameModalProps> = ({
   isOpen,
   onClose,
-  onCreateGame,
+  onCreateGame, 
 }) => {
   const { initializeGame } = useGameStore();
 
@@ -119,12 +119,11 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
       categories: [],
       defaultTurnTime: 60,
       maxPlayers: 8,
-      rounds: 5,
+      rounds: 4,
     });
 
   // Reset modal when closed
   useEffect(() => {
-    if (!isOpen) {
       socketService.connect(user?._id || ""); // Make sure user is connected
       setCurrentStep("mode-selection");
       setMultiplayerConfig({
@@ -132,7 +131,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         categories: [],
         defaultTurnTime: 60,
         maxPlayers: 99,
-        rounds: 5,
+        rounds: 4,
       });
       if (user) {
         handleGetCategories();
@@ -182,11 +181,16 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         navigate(`/multiplayer`); // Redirect to the game page
         setDeactivatedButtonStart(true); // Disable start button
         sessionStorage.setItem("gameCode", gameCodeHere.gameCode); // Save game code in session storage
-      });
+      }); 
       return () => {
-        socketService.off("gameCreated", handleGameCreated);
+        // socketService.off("gameCreated", handleGameCreated);
+        // socketService.off("gameOverPlayersCero");
+        // socketService.off("gamePlayers");
+        // socketService.off("gameState");
+        // socketService.off("gameCancelledOwnerLeft");
+        // socketService.off("gameStarted");
+        setGameCode(null);
       };
-    }
   }, [isOpen, user]);
 
   const handleModeSelection = (
@@ -642,27 +646,28 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           <option value={120} className="bg-gray-800 text-gray-300">2 minutes</option>
         </select>
         </div>
-        {/* <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1.5">
-          {TextComponent.maxPlayersLabel}
+        <div>
+        
+        <label className="block text-xs font-medium text-gray-300 mb-1.5">
+          {TextComponent.maxRounds}
         </label>
         <select
-          value={multiplayerConfig.maxPlayers}
+          value={multiplayerConfig.rounds}
           onChange={(e) =>
             setMultiplayerConfig((prev) => ({
               ...prev,
-              maxPlayers: Number(e.target.value),
+              rounds: Number(e.target.value),
             }))
           }
-          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-700"
+          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-300 appearance-none"
         >
-          <option value={2}>2 players</option>
-          <option value={4}>4 players</option>
-          <option value={6}>6 players</option>
-          <option value={8}>8 players</option>
-          <option value={10}>10 players</option>
+          <option value={2} className="bg-gray-800 text-gray-300">2 rounds</option>
+          <option value={4} className="bg-gray-800 text-gray-300">4 rounds</option>
+          <option value={6} className="bg-gray-800 text-gray-300">6 rounds</option>
+          <option value={8} className="bg-gray-800 text-gray-300">8 rounds</option>
+          <option value={10} className="bg-gray-800 text-gray-300">10 rounds</option>
         </select>
-      </div> */}
+      </div>
       </div>
 
       {/* Categories */}

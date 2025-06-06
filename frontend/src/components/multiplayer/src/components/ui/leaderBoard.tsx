@@ -1,5 +1,5 @@
 import React from "react";
-import { Crown, Trophy, Medal, Star, Zap, Target } from "lucide-react";
+import { Crown, Trophy, Medal, Star, Zap, Target, ArrowLeft } from "lucide-react";
 
 interface Player {
   userId: string;
@@ -276,8 +276,36 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ data }) => {
   const topThree = combinedData.slice(0, 3);
   const remaining = combinedData.slice(3);
 
+  // Función para volver al inicio y limpiar historial
+  const handleBackToHome = () => {
+    // Reemplazar la ruta actual por la de inicio en el historial
+    window.history.replaceState(null, '', '/');
+    // Redireccionar al inicio
+    sessionStorage.removeItem("gameCode");
+    window.location.href = '/';
+  };
+
   return (
     <div className="h-screen w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 relative overflow-hidden flex flex-col">
+      {/* Botón Volver al Inicio */}
+      <button 
+        onClick={handleBackToHome}
+        className="absolute top-4 left-4 z-20 bg-indigo-900/80 hover:bg-indigo-800/90 backdrop-blur-sm rounded-full px-4 py-2 flex items-center justify-center shadow-lg border border-indigo-400/20 transition-all duration-300 group"
+      >
+        <span className="text-white font-bold text-sm sm:text-base flex items-center">
+          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+          Back to Home
+        </span>
+      </button>
+
+      {/* Contador flotante */}
+      <div className="absolute top-4 right-4 z-20 bg-indigo-900/80 backdrop-blur-sm rounded-full px-4 py-2 flex items-center justify-center shadow-lg border border-indigo-400/20">
+        <span className="text-white font-bold text-sm sm:text-base">
+          Players: {combinedData.length}
+        </span>
+      </div>
+
+      {/* Resto del componente permanece igual */}
       {/* Enhanced cosmic background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Animated stars - reduced for mobile performance */}
