@@ -1,12 +1,11 @@
 import type React from "react"
 import { Clock, Target, Trophy, Users } from "lucide-react"
-import type { Player } from "../../shared/types/game"
+import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame"
 
 interface GameStatusProps {
     gameName: string
     currentRound: number
-    currentPlayer: Player
-    gameCode: string
+    currentPlayer: ChampionShipPlayer
     countPlayers: number
     turnTime: number
 }
@@ -15,7 +14,6 @@ const GameStatus: React.FC<GameStatusProps> = ({
     gameName,
     currentRound,
     currentPlayer,
-    gameCode,
     countPlayers,
     turnTime
 }) => {
@@ -28,8 +26,8 @@ const GameStatus: React.FC<GameStatusProps> = ({
                             <Trophy className="h-6 w-6 text-yellow-400" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-indigo-200">{gameName}</h2>
-                            <p className="text-indigo-300/70">Code: {gameCode}</p>
+                            <h2 className="text-3xl font-bold text-indigo-200">{gameName}</h2>
+                            {/* <p className="text-indigo-300/70">Code: {gameCode}</p> */}
                         </div>
                     </header>
                     <div className="flex space-x-4 text-sm mt-2">
@@ -50,13 +48,13 @@ const GameStatus: React.FC<GameStatusProps> = ({
 
                 <div className="flex items-center space-x-3 bg-indigo-900/60 px-4 py-2 rounded-lg w-full sm:w-max">
                     <img
-                        src={currentPlayer.avatar || "/placeholder.svg"}
-                        alt={currentPlayer.username}
+                        src={currentPlayer?.avatar || "/placeholder.svg"}
+                        alt={currentPlayer?.username}
                         className="h-10 w-10 rounded-full border-2 border-indigo-400"
                     />
                     <div>
-                        <p className="text-indigo-200 font-semibold">{currentPlayer.username}'s Turn</p>
-                        <p className="text-indigo-300 text-sm">Score: {currentPlayer.score}</p>
+                        <p className="text-indigo-200 font-semibold">{currentPlayer?.username}'s Turn</p>
+                        <p className="text-indigo-300 text-sm">Score: {currentPlayer?.score}</p>
                     </div>
                 </div>
             </div>

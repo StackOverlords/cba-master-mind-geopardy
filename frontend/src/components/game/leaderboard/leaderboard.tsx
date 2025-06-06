@@ -1,10 +1,10 @@
 import LeaderboardHeader from "./leaderboardHeader";
 import PlayerRow from "./playerRow";
-import type { Player } from "../../../shared/types/game";
 import { useAuthStore } from "../../../stores/authStore";
+import type { ChampionShipPlayer } from "../../../shared/types/ChampionShipGame";
 
 interface LeaderboardProps {
-  players: Player[];
+  players: ChampionShipPlayer[];
 }
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
@@ -34,7 +34,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
               <PlayerRow
                 key={player._id}
                 player={player}
-                isCurrentUser={player.playerId === currentUserId}
+                isCurrentUser={player._id === currentUserId}
                 position={idx + 1} />
             ))}
           </div>
