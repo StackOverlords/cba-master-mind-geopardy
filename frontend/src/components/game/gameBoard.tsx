@@ -5,7 +5,7 @@ import SquareIcon from "../ui/icons/squareIcon"
 import CircleIcon from "../ui/icons/circleIcon"
 import QuizzCard from "./quizzCard"
 import QuizModal from "./quizzModal"
-import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame"
+import type { AnswerData, ChampionShipPlayer, QuestionsAnswered } from "../../shared/types/ChampionShipGame"
 import type { Category } from "../../shared/types/category"
 import type { Question } from "../../shared/types/question"
 
@@ -15,55 +15,78 @@ interface Props {
     categories: ChampionShipCategory[]
     currentPlayer: ChampionShipPlayer
     currentRound: number
-    handleUpdatePlayers: () => void
+    questionsAnswered: QuestionsAnswered[],
+    time: number,
+    handleUpdatePlayers: (isCorrect: boolean, points: number) => void
     moveToNextPlayer: () => void
     moveToNextRound: () => void
+    hasUpdatedPlayers: () => void
+    handlePlayerAnswered: (questionId: string, answerData: AnswerData) => void
 }
 
 type QuizzCardType = {
+    question: Question;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     color: string;
-    used: boolean
-}
+    used: boolean;
+};
 
 const GameBoard: React.FC<Props> = ({
     questions,
     categories,
     currentPlayer,
     currentRound,
+    questionsAnswered,
     handleUpdatePlayers,
     moveToNextPlayer,
-    moveToNextRound
+    moveToNextRound,
+    hasUpdatedPlayers,
+    handlePlayerAnswered,
+    time
 }) => {
-    const createCards = (categoryId: string): QuizzCardType[] => {
+    const [categoryCards, setCategoryCards] = useState<{ [key: string]: QuizzCardType[] }>({});
+
+    useEffect(() => {
         const iconConfigs = [
             { icon: TriangleIcon, color: "text-rose-400" },
             { icon: SquareIcon, color: "text-yellow-400" },
             { icon: CircleIcon, color: "text-sky-400" },
             { icon: PlusIcon, color: "text-emerald-400" },
-        ]
+        ];
 
-        return questions.filter((q) => q.categoryId === categoryId).map(() => {
-            const randomIcon = iconConfigs[Math.floor(Math.random() * iconConfigs.length)]
-            return {
-                icon: randomIcon.icon,
-                color: randomIcon.color,
-                used: false,
-            }
-        })
-    }
+        const shuffled = (arr: Question[]) =>
+            [...arr].sort(() => Math.random() - 0.5);
+
+        const initCards = categories.reduce((acc, category) => {
+            const categoryQuestions = shuffled(questions.filter(q => q.categoryId === category._id));
+
+            acc[category._id] = categoryQuestions.map((q) => {
+                const randomIcon = iconConfigs[Math.floor(Math.random() * iconConfigs.length)];
+                return {
+                    question: q,
+                    icon: randomIcon.icon,
+                    color: randomIcon.color,
+                    used: false,
+                };
+            });
+            return acc;
+        }, {} as { [key: string]: QuizzCardType[] });
+
+        setCategoryCards(initCards);
+    }, [questions, categories]);
+
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
     const [usedQuestions, setUsedQuestions] = useState<Question[]>([])
-    const [timeLeft, setTimeLeft] = useState(30)
+    const [timeLeft, setTimeLeft] = useState(time)
     const [timerActive, setTimerActive] = useState(false)
-    const [categoryCards, setCategoryCards] = useState<{ [key: string]: QuizzCardType[] }>(
-        categories.reduce((acc, category) => {
-            acc[category._id] = createCards(category._id);
-            return acc;
-        }, {} as { [key: string]: QuizzCardType[] })
-    );
+    // const [categoryCards, setCategoryCards] = useState<{ [key: string]: QuizzCardType[] }>(
+    //     categories.reduce((acc, category) => {
+    //         acc[category._id] = createCards(category._id);
+    //         return acc;
+    //     }, {} as { [key: string]: QuizzCardType[] })
+    // );
     // const totalQuestions = Object.values(questions).reduce(
     //     (total, categoryQuestions) => total + categoryQuestions.length,
     //     0,
@@ -72,14 +95,13 @@ const GameBoard: React.FC<Props> = ({
         setIsModalOpen(false)
         // stopTimer()
     }
-    const handleSuccessAnswered = (isCorrect: boolean) => {
+    const handleSuccessAnswered = (isCorrect: boolean, points: number) => {
         // setIsModalOpen(false)
         // stopTimer()
-        if (isCorrect) {
-            handleUpdatePlayers()
-        }
+        handleUpdatePlayers(isCorrect, points)
         moveToNextPlayer()
         moveToNextRound()
+        hasUpdatedPlayers()
     }
     useEffect(() => {
         let intervalId: NodeJS.Timeout
@@ -94,49 +116,21 @@ const GameBoard: React.FC<Props> = ({
 
         return () => clearInterval(intervalId)
     }, [timerActive, timeLeft])
-    // const getCategoryNameById = async (id: number) => {
-    //     return CATEGORIES.find(cat => cat.id === id)?.name
-    // }
-
-    const getRandomQuestion = (categoryId: string): Question | null => {
-        const categoryQuestions = questions.filter((q) => q.categoryId === categoryId);
-        const availableQuestions = categoryQuestions.filter(
-            (q) => !usedQuestions.some((used) => used._id === q._id)
-        );
-        if (availableQuestions.length === 0) return null;
-        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-        return availableQuestions[randomIndex];
-    };
 
     const handleCardClick = (categoryId: string, cardIndex: number) => {
-        if (!categoryCards[categoryId][cardIndex].used) {
-            const question = getRandomQuestion(categoryId);
-            if (question) {
-                setSelectedQuestion(question);
-                setSelectedCategory(categoryId);
-                setIsModalOpen(true);
-                startTimer();
-                markCardAsUsed(categoryId, cardIndex);
-            }
+        const card = categoryCards[categoryId][cardIndex];
+        if (!card.used) {
+            setSelectedQuestion(card.question);
+            setSelectedCategory(categoryId);
+            setIsModalOpen(true);
+            startTimer();
         }
     };
+
 
     const startTimer = () => {
         setTimeLeft(30)
         setTimerActive(true)
-    }
-
-    const markCardAsUsed = (category: string, cardIndex: number) => {
-        setCategoryCards((prevCategoryCards) => {
-            const updatedCategoryCards = { ...prevCategoryCards }
-            updatedCategoryCards[category] = prevCategoryCards[category].map((card, index) => {
-                if (index === cardIndex) {
-                    return { ...card, used: true }
-                }
-                return card
-            })
-            return updatedCategoryCards
-        })
     }
 
     const handleAnswerSelected = (answerId: string, isCorrect: boolean) => {
@@ -168,30 +162,6 @@ const GameBoard: React.FC<Props> = ({
         setTimerActive(false)
     }
 
-    // const moveToNextRound = () => {
-    //     if (usedQuestions.length === totalQuestions) {
-    //         if (currentRound < maxRounds) {
-    //             setCurrentRound(currentRound + 1)
-    //             setUsedQuestions([])
-    //             resetCards()
-    //         } else {
-    //             // End Game
-    //         }
-    //     }
-    // }
-
-    const resetCards = () => {
-        setCategoryCards((prevCategoryCards) => {
-            const updatedCategoryCards: { [key: string]: QuizzCardType[] } = {}
-            for (const category in prevCategoryCards) {
-                updatedCategoryCards[category] = prevCategoryCards[category].map((card) => ({ ...card, used: false }))
-            }
-            return updatedCategoryCards
-        })
-    }
-    useEffect(() => {
-        console.log(categoryCards)
-    }, [categoryCards])
     return (
         <div className="flex items-center justify-center space-y-8 gap-6 w-full">
 
@@ -212,13 +182,16 @@ const GameBoard: React.FC<Props> = ({
                         {categoryCards[category._id]?.map((card, cardIndex) => (
                             <div
                                 key={`${category._id}-${cardIndex}`}
-                                onClick={() => !card.used && handleCardClick(category._id, cardIndex)}
-                                className={`cursor-pointer w-full ${card.used ? "opacity-50 cursor-not-allowed" : "hover:scale-101 transition-transform"
+                                onClick={() => !questionsAnswered.find((q) => q.questionId === card.question._id) && handleCardClick(category._id, cardIndex)}
+                                className={` w-full ${questionsAnswered.some(q => q.questionId === card.question._id)
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:scale-105 transition-transform cursor-pointer"
                                     }`}
                             >
-                                <QuizzCard Icon={card.icon} color={card.color} used={card.used} />
+                                <QuizzCard Icon={card.icon} color={card.color} />
                             </div>
                         ))}
+
                     </div>
                 ))}
             </div>
@@ -233,6 +206,8 @@ const GameBoard: React.FC<Props> = ({
             {
                 isModalOpen && (
                     <QuizModal
+                        time={time}
+                        handlePlayerAnswered={handlePlayerAnswered}
                         currentPlayer={currentPlayer}
                         question={selectedQuestion ? selectedQuestion : null}
                         category={categories.find((c) => c._id === selectedCategory)?.name}

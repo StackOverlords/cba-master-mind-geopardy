@@ -13,7 +13,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
   // const displayData = activeFilter === "month" ? monthlyData : allTimeData;
 
   return (
-    <div className="max-w-sm sm:max-w-full lg:max-w-sm">
+    <div className="w-full">
       <LeaderboardHeader />
 
 

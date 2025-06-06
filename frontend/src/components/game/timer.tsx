@@ -1,22 +1,23 @@
 
-import  { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSound } from '../multiplayer/src/hooks/useSound';
 interface Props {
     gameStatus: string,
     timeLeft: number
-
+    time: number
 }
 export const Timer: React.FC<Props> = ({
     gameStatus,
+    time,
     timeLeft
 }) => {
     const { playTick } = useSound();
 
-    const percentage = (timeLeft / 10) * 100;
+    const percentage = (timeLeft / time) * 100;
     const circumference = 2 * Math.PI * 45;
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
-    const [twoThirdsTime] = useState<number>(Math.floor(timeLeft * 0.66))
+    const [twoThirdsTime] = useState<number>(Math.floor(time * 0.66))
     const getTimerColor = () => {
         if (timeLeft > twoThirdsTime) return '#10B981'; // Green
         if (timeLeft > 5) return '#F59E0B';  // Yellow

@@ -31,6 +31,7 @@ export const gameEndpoints = {
     create: "game/create",
     update: (id: string) => `game/${id}/update`,
     delete: (id: string) => `game/${id}/delete`,
+    answer: `game/answer`,
 }
 export const permissionEndpoints = {
     getAll: "permission",

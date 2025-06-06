@@ -7,7 +7,8 @@ export interface ChampionShipPlayer {
     score: number,
     _id: string,
     avatar?: string
-    scoreTimestamp?: number
+    scoreTimestamp?: number,
+    currentTurn: boolean
 }
 export interface ChampionShipPlayerPosition {
     position: number,
@@ -29,6 +30,7 @@ export interface ChampioShipGame {
     questions: Question[],
     categorys: Omit<Category, 'questionCount'>[],
     finalResults: ChampioShipGameFinalResults,
+    finalResultsLocal: [],
     playersLocal: ChampionShipPlayer[],
     currentRound: number,
     rounds: number,
@@ -36,4 +38,19 @@ export interface ChampioShipGame {
     questionsLocalAnswered: []
     createdAt: string,
     updatedAt: string
+}
+
+export interface AnswerData {
+    answer: string;
+    isCorrect: boolean;
+}
+
+export interface SubmitAnswerPayload {
+    gameId: string;
+    questionId: string;
+    answerData: AnswerData;
+}
+export interface QuestionsAnswered extends AnswerData {
+    _id: string,
+    questionId: string
 }
