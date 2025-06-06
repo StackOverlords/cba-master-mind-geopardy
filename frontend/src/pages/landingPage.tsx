@@ -9,7 +9,7 @@ import FacebookIcon from "../components/ui/icons/facebookIcon";
 import WhatsAppIcon from "../components/ui/icons/WhatsAppIcon";
 import WorldIcon from "../components/ui/icons/worldIcon";
 import { AnimatedBadge } from "../components/ui/animatedBadge";
-import CreateGameModal from "../components/game/createGameModal"; 
+import CreateGameModal from "../components/game/createGameModal";
 import { useAuthStore } from "../stores/authStore";
 import { socketService } from "../services/socketService";
 
@@ -27,7 +27,6 @@ const LANDING_PAGE_CONTENT = {
   },
 } as const;
 
-
 interface MultiplayerGameConfig {
   name: string;
   categories: string[];
@@ -35,7 +34,6 @@ interface MultiplayerGameConfig {
   maxPlayers: number;
   rounds: number;
 }
-
 
 const LandingPage = () => {
   const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);
@@ -45,14 +43,16 @@ const LandingPage = () => {
   const { user } = useAuthStore();
   useEffect(() => {
     if (user && user._id) {
-        socketService.connect(user._id); 
+      if (socketService.isActive()) {
+        socketService.disconnect(); // Asegurarse de desconectar antes de conectar
+      }
+      socketService.connect(user._id);
     }
   }, [user]);
 
-
   // Modal crear juego
-  const handleOpenCreateGameModal = () => { 
-    if(!user || !user._id) {
+  const handleOpenCreateGameModal = () => {
+    if (!user || !user._id) {
       window.location.href = "/auth/sign-in"; // Redirigir al login si no hay usuario
       return;
     }
@@ -60,11 +60,11 @@ const LandingPage = () => {
   };
 
   // Cerrar modal crear juego
-  const handleCloseCreateGameModal = () => { 
-    if (socketService.isActive()) {
-        console.log("🔌 Desconectando del servidor WebSocket al cerrar el modal...")
-        socketService.disconnect(); 
-    } 
+  const handleCloseCreateGameModal = () => {
+    // if (socketService.isActive()) {
+    //     console.log("🔌 Desconectando del servidor WebSocket al cerrar el modal...")
+    //     socketService.disconnect();
+    // }
     setIsCreateGameModalOpen(false);
     setIsConnecting(false);
   };
@@ -83,39 +83,38 @@ const LandingPage = () => {
 
   const handleCreateMultiplayerGame = (config: MultiplayerGameConfig) => {
     setIsConnecting(true);
-
-    // Preparar los datos del juego según el formato esperado por tu backend
     const gameData = {
-        userId: user?._id, // Asegúrate de que el usuario esté conectado
-        gameData:{
-            name: config.name,
-            user: user?._id, // ID del usuario que crea el juego
-            gameMode: "playerVsPlayer" as const,
-            categorys: config.categories, // Nota: usando 'categorys' como en tu backend
-            defaultTurnTime: config.defaultTurnTime,
-            maxPlayers: config.maxPlayers,
-            rounds: config.rounds,
-            status: "waiting" as const,
-            currentRound: 0,
-            currentPlayerDbId: null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        }
+      userId: user?._id, // Asegúrate de que el usuario esté conectado
+      gameData: {
+        name: config.name,
+        user: user?._id, // ID del usuario que crea el juego
+        gameMode: "playerVsPlayer" as const,
+        categorys: config.categories, // Nota: usando 'categorys' como en tu backend
+        defaultTurnTime: config.defaultTurnTime,
+        maxPlayers: config.maxPlayers,
+        rounds: config.rounds,
+        status: "waiting" as const,
+        currentRound: 0,
+        currentPlayerDbId: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     };
-    
-    socketService.emit("createGame", gameData); 
-    console.log("🚀 Creando juego multijugador con configuración:", gameData); 
+
+    socketService.emit("createGame", gameData);
+
+    return () => {
+      // socketService.off("gameCreated"); // Limpiar el listener al desmontar
+      // socketService.off("gameCreationError"); // Limpiar el listener de error
+      setIsConnecting(false); // Resetear el estado de conexión
+    };
   };
 
   const handleCreateChampionshipGame = () => {
     console.log("Creando juego de campeonato...");
-
-    // Para el modo campeonato, puedes implementar la lógica local
-    // o también usar websockets si planeas sincronizar con el servidor
-
     alert("Modo campeonato creado! (Implementar lógica local aquí)");
     setIsCreateGameModalOpen(false);
-  }; 
+  };
 
   return (
     <main
@@ -156,7 +155,7 @@ const LandingPage = () => {
           >
             <DeviceGameIcon className="size-8" />
             {isConnecting ? "Creando..." : LANDING_PAGE_CONTENT.hero.playButton}
-          </PlayButton> 
+          </PlayButton>
 
           <CreateGameModal
             isOpen={isCreateGameModalOpen}
