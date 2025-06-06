@@ -1,15 +1,15 @@
 import PositionBadge from "./positionBadge";
-import type { Player } from "../../../shared/types/game";
 import { motion } from "motion/react";
+import type { ChampionShipPlayer } from "../../../shared/types/ChampionShipGame";
 
 interface PlayerRowProps {
-  player: Player;
+  player: ChampionShipPlayer;
   position: number;
   isCurrentUser: boolean;
 }
 
 const PlayerRow: React.FC<PlayerRowProps> = ({ player, isCurrentUser, position }) => {
-  const { _id, playerId, username, avatar, score } = player;
+  const { username, avatar, score } = player;
 
   const getRowStyle = () => {
     if (isCurrentUser) return "bg-gradient-to-r from-leaderboard-user-row via-leaderboard-highlight/10 to-leaderboard-highlight/10 relative rounded-md mb-1";

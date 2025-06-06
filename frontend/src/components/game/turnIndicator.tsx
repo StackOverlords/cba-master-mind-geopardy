@@ -1,8 +1,8 @@
 import { useEffect, useRef, useCallback } from "react"
 import { ArrowRight, Crown } from "lucide-react"
 import { motion } from "framer-motion"
-import type { Player } from "../../shared/types/game"
-interface GamePlayer extends Player {
+import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame"
+interface GamePlayer extends ChampionShipPlayer {
     scoreTimestamp?: number
 }
 interface TurnIndicatorProps {
@@ -15,26 +15,15 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
     const currentPlayerRef = useRef<HTMLDivElement>(null)
 
     const scrollToCurrentPlayer = useCallback(() => {
-        if (!currentPlayerRef.current || !containerRef.current) return
-
-        const container = containerRef.current
-        const playerElement = currentPlayerRef.current
-
-        const containerWidth = container.clientWidth
-        const containerScrollWidth = container.scrollWidth
-        const playerOffsetLeft = playerElement.offsetLeft
-        const playerWidth = playerElement.offsetWidth
-
-        const targetScrollLeft = playerOffsetLeft - containerWidth / 2 + playerWidth / 2
-
-        const maxScrollLeft = containerScrollWidth - containerWidth
-        const finalScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft))
-
-        container.scrollTo({
-            left: finalScrollLeft,
-            behavior: "smooth",
+        if (!currentPlayerRef.current) return
+      
+        currentPlayerRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center", // esto centrará el jugador horizontalmente
         })
-    }, [])
+      }, [])
+      
 
     useEffect(() => {
         const timeoutId = setTimeout(scrollToCurrentPlayer, 100)
@@ -57,8 +46,8 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
 
     return (
         <div className="flex items-center justify-center w-full mb-4">
-            <div className="bg-indigo-950/80 rounded-lg px-4 py-2 border border-indigo-500/30 w-full max-w-2xl shadow-lg">
-                <div className="flex items-center justify-between mb-3">
+            <div className="bg-indigo-950/80 rounded-lg px-4 py-2 border border-indigo-500/30 w-full shadow-lg">
+                <div className="flex items-center justify-between mb-1">
                     <p className="text-indigo-300 text-sm font-medium">Turn Order</p>
                     <div className="flex items-center space-x-2 text-xs text-indigo-400">
                         <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
@@ -69,13 +58,13 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
                 {/* Container con scroll horizontal */}
                 <div
                     ref={containerRef}
-                    className="overflow-x-auto scrollbar-thin scrollbar-track-indigo-900/50 p-2 scrollbar-thumb-indigo-600/50 hover:scrollbar-thumb-indigo-500/70"
+                    className="overflow-x-auto p-2 flex justify-center items-center"
                     style={{
                         scrollbarWidth: "thin",
                         scrollbarColor: "rgba(99, 102, 241, 0.5) rgba(30, 27, 75, 0.5)",
                     }}
                 >
-                    <div className="flex items-center space-x-3" style={{ minWidth: "max-content" }}>
+                    <div className="flex items-center space-x-3 w-max">
                         {players.map((player, index) => {
                             const isCurrent = index === currentPlayerIndex
                             const isTopPlayer = player._id === topPlayer._id
@@ -118,14 +107,14 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
                                                     src={player.avatar || "/placeholder.svg"}
                                                     alt={player.username}
                                                     className={`
-                            size-8 rounded-full border-3 transition-all duration-300
-                            ${isCurrent
+                                                        size-8 rounded-full border-3 transition-all duration-300
+                                                        ${isCurrent
                                                             ? "border-yellow-400 ring-2 ring-yellow-400/30 shadow-lg shadow-yellow-400/20"
                                                             : isNext
                                                                 ? "border-blue-400 ring-2 ring-blue-400/20"
                                                                 : "border-indigo-600 opacity-70"
                                                         }
-                          `}
+                                                        `}
                                                 />
                                             </motion.div>
                                         </div>
@@ -156,24 +145,6 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
                     </div>
                 </div>
             </div>
-
-            {/* Estilos personalizados para scrollbar */}
-            <style>{`
-        .scrollbar-thin::-webkit-scrollbar {
-          height: 4px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: rgba(30, 27, 75, 0.5);
-          border-radius: 2px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: rgba(99, 102, 241, 0.5);
-          border-radius: 2px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: rgba(99, 102, 241, 0.7);
-        }
-      `}</style>
         </div>
     )
 }
