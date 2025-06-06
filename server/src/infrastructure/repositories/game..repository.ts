@@ -174,7 +174,7 @@ export class GameRepository {
         return await GameModel.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(gameId) },
             {
-                $pull: { questions: questionId }, // Elimina la pregunta del arreglo `questions`
+                // $pull: { questions: questionId }, // Elimina la pregunta del arreglo `questions`
                 $push: {
                     questionsLocalAnswered: {
                         questionId: questionId,

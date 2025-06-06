@@ -4,8 +4,8 @@ import { useGameStore } from "../store/gameStore";
 import { PlayerCard } from "./PlayerCard";
 import { Timer } from "./Timer";
 import { QuestionCard } from "./QuestionCard"; 
-import { ThemeToggle } from "./ThemeToggle";
-import { Clock, RotateCcw, Zap } from "lucide-react";
+// import { ThemeToggle } from "./ThemeToggle";
+import { Clock} from "lucide-react";
 import { socketService } from "../../../../services/socketService";
 import { useSound } from "../hooks/useSound";
 import { FinalResults } from "./FinalResults";
@@ -32,9 +32,12 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
     initializeGame,
     setShowFeedback,
     finalResults,
-    setFinalScore
+    setFinalScore, 
+    setAnswerSelected,
+    selectAnswer,
+    setTimerGameOut // Actualizar el temporizador de finalizacion del juego:: antes de redireccionar
   } = useGameStore();
-  const [playersJoined, setPlayersJoined] = React.useState<any[]>([]);
+  // const [playersJoined, setPlayersJoined] = React.useState<any[]>([]);
   const [currentPlayerId, setCurrentPlayerId] = React.useState<string | null>(
     null
   );
@@ -43,15 +46,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
   >("");
 
   const [timer, setTimer] = React.useState<number>(0);
-  const [question, setQuestion] = React.useState<string | null>(null);
+  // const [question, setQuestion] = React.useState<string | null>(null);
 
-  const [selectedAnswer, setSelectedAnswer] = React.useState<number | null>(
-    null
-  );
-  const [numberRound, setNumberRound] = React.useState<number[]>([]);
+  // const [selectedAnswer, setSelectedAnswer] = React.useState<number | null>(
+  //   null
+  // );
+  // const [numberRound, setNumberRound] = React.useState<number[]>([]);
 
   const [currentRound, setCurrentRound] = React.useState<number>(1);
-  const [currentPlayer, setCurrentPlayer] = React.useState<any>(null);
+  // const [currentPlayer, setCurrentPlayer] = React.useState<any>(null);
 
   const { playCorrect, playIncorrect, playTick, playCountdown } = useSound();
 
@@ -68,27 +71,30 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
 
       socketService.on("gamePlayers", (playersJoined: any) => {
         console.log("Players joined event received:", playersJoined);
-        setPlayersJoined(playersJoined);
+        // setPlayersJoined(playersJoined);
       });
 
       socketService.on("newTurn", (data: any) => {
         console.log("New turn data received:", data);
-        const { currentPlayerId, currentPlayerUsername, question, timer } =
+        const { currentPlayerId, currentPlayerUsername, timer } =
           data;
         setCurrentPlayerId(currentPlayerId);
-        setQuestion(question);
+        // selectAnswer(null); // Reset selected answer for the new turn
+        // setQuestion(question);
         setTimer(timer);
         setCurrentPlayerUsername(currentPlayerUsername);
         setShowFeedback(false); 
         nextQuestion(data.question);
       });
-
+      
+      // Actualizar el estado del juego cuando se recibe una nueva pregunta
       socketService.on("updateTimerOut", (timerLeft: any) => {
         playCountdown();
         console.log("Timer update received:", timerLeft);
         startCountdown(timerLeft);
       });
 
+      // Actualizar el estado de espera a responder
       socketService.on("updateTimer", (timer: any) => {
         playTick();
         inTurn();
@@ -99,10 +105,12 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
         }
       });
 
+      // Mostrar la respuesta correcta y el feedback
       socketService.on("answerResult", (data: any) => {
-        const { isCorrect, correctAnswer, players } = data;
+        const { isCorrect, correctAnswer, players, answerSelected } = data;
+        setAnswerSelected(answerSelected);
         selectCorrectAnswer(correctAnswer);
-        setShowFeedback(true)
+        setShowFeedback(true);
         initializeGame(players);
         if (isCorrect) {
           console.log("Correct answer!");
@@ -112,16 +120,32 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
           playIncorrect();
         }
       });
+
+      // Finalizar el juego y mostrar resultados
       socketService.on("gameOver",(data:any)=>{
         console.log("Game over evento received:", data);
         setFinalScore(data);
       })
 
+      // Cuando la ronda termina, actualiza el estado del juego
       socketService.on("roundFinished", (currentRound: any) => {
         console.log("Round finished:", currentRound);
         // Aquí podrías actualizar el estado del juego para reflejar el fin de la ronda
         setCurrentRound(currentRound.currentRound);
       });
+
+      // Contador antes de devolver a los jugadores a la pantalla de inicio
+      socketService.on("updateTimerOutGame",(timeLeft:any)=>{
+        console.log("updated timer out game received:", timeLeft);
+        setTimerGameOut(timeLeft);
+      })
+      // Redirigir a los jugadores a la pantalla de inicio después de un tiempo
+      socketService.on("redirectToHome", (data: any) => {
+        console.log("Game timeout, redirecting to home",data);
+        sessionStorage.removeItem("gameCode");
+        socketService.disconnect();
+        window.location.href = "/";
+      })
     }
   }, []);
   console.log(gameStatus);
