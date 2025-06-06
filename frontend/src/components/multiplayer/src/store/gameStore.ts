@@ -22,6 +22,9 @@ interface GameStore extends GameState {
     playersScores: { userId: string; username: string; score: number }[];
   };
 
+  answerSelected: string | null;
+  setAnswerSelected: (answerSelected: string | null) => void;
+
   setFinalScore: (rankings: any) => void;
   timerGameOut: number;
   setTimerGameOut: (timerGameOut: number) => void;
@@ -39,6 +42,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   timeInRounds: 0,
   correctAnswer: null,
   timerGameOut: 0,
+  answerSelected: null,
   finalResults: {
     ranking: [],
     playersScores: []
@@ -80,7 +84,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
 
-  selectAnswer: (selectedAnswer: number) => { // This function is called when a player selects an answer
+  selectAnswer: (selectedAnswer: number | null) => { // This function is called when a player selects an answer
     set({
       selectedAnswer,
     });
@@ -159,5 +163,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     */
   },
-  setTimerGameOut: (timerGameOut: number) => set({ timerGameOut })
+  setTimerGameOut: (timerGameOut: number) => set({ timerGameOut }),
+  setAnswerSelected: (answerSelected: string | null) => set({ answerSelected })
+
 }));
