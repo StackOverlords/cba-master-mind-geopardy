@@ -27,7 +27,7 @@ export const useChampionShipGameById = ({
 }: PaginatedOptions) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   return useQuery<ChampioShipGame>({
-    queryKey: ['games', id, status, name, user],
+    queryKey: ['ChampionShipGame', id, status, name, user],
     queryFn: async () => {
       const response = await masterMindApi.get<GameResponse>(gameEndpoints.getAll, {
         params: {

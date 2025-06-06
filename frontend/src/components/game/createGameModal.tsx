@@ -199,7 +199,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     if (mode === "playerVsPlayer") {
       setCurrentStep("multiplayer-config");
     } else if (mode === "championship") {
-      setCurrentStep("championship-config"); // Redirect Ronald
+      navigate("/create-game")
     } else if (mode === "joinGame") {
       setCurrentStep("joinGame");
     }

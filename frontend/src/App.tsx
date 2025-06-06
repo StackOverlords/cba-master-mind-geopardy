@@ -36,6 +36,12 @@ const App = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route index path="/" element={<LandingPage />} />
+        </Route>
+        <Route element={
+          <ProtectedRoute roles={['admin', 'player']}>
+            <MainLayout />
+          </ProtectedRoute>
+        }>
           <Route path="/championship-game/:gameId" element={<GamePage />} />
           <Route path="/multiplayer" element={<IndexMultiplayer />} />
           <Route path="/create-game" element={<CreateGamePage />} />
