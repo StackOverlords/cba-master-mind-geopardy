@@ -39,10 +39,10 @@ export interface IGame extends Document {
         score: number;
         currentTurn?: boolean; // Indica si es el turno actual del jugador
     }];
-    
+    finalResultsLocal?:object[],
     // rondas
     rounds?: number; // Número de rondas en el juego
-}
+} 
 const question = {
     type: mongoose.Types.ObjectId,
     ref: "Question"
@@ -174,6 +174,11 @@ const gameSchema = new Schema<IGame>({
         required: false,
         default: 1, // Número de rondas por defecto
         min: 1, // Al menos una ronda 
+    },
+
+    finalResultsLocal:{
+        type:[{}],
+        default: [],
     }
 },
     {

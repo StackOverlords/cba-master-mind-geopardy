@@ -7,6 +7,7 @@ import { QuestionModel, IQuestion } from "../core/models/Question.Model"; // Imp
 import http from "http";
 import { generate } from 'short-uuid'; // Librería para generar IDs cortos y únicos
 import mongoose from "mongoose";
+import { instrument } from "@socket.io/admin-ui";
 
 interface PlayerInGame {
     socketId: string;
@@ -32,7 +33,10 @@ interface GameRoomState {
     // Añadir historial de preguntas si es necesario para el frontend
     // askedQuestions: IQuestion[];
     defaultTurnTime: number;
+    rounds:number;
 
+    outGameTimer:NodeJS.Timeout | null; // Temporizador para el tiempo de espera fuera del juego
+    outGameTime:number;
 }
 
 const games: { [gameCode: string]: GameRoomState } = {};
@@ -66,16 +70,24 @@ export class SocketConnection {
         try {
             this.io = new Server(server, {
                 cors: {
-                    origin: process.env.CORS_ORIGIN || "*",
-                    methods: ["GET", "POST"]
+                    origin: process.env.NODE_ENV === 'development' ? "https://admin.socket.io" : "*",
+                    methods: ["GET", "POST"],
+                    credentials:true
                 },
                 transports: ["websocket", "polling"],
+                allowEIO3:true
             });
-
+            // Configuración del Admin UI
+            instrument(this.io, {
+                auth: false,
+                mode: "development",
+            });
             this.setupSocketEvents();
+            
             if (process.env.NODE_ENV === 'development') {
                 console.log("✅ Socket.io inicializado correctamente");
             }
+
         } catch (error) {
             if (process.env.NODE_ENV === 'development') {
                 console.error("❌ Error al inicializar Socket.io:", error);
@@ -90,8 +102,8 @@ export class SocketConnection {
 
         this.io.on("connection", (socket: Socket) => {
             console.log(`👤 Cliente conectado: ${socket.id}`);
-             const userId = socket.handshake.auth?.userId;
-             console.log(`👤 Usuario conectado: ${userId} con socket ID: ${socket.id}`);
+            const userId = socket.handshake.auth?.userId;
+            console.log(`👤 Usuario conectado: ${userId} con socket ID: ${socket.id}`);
             socket.on("disconnect", () => {
                 console.log(`👤 Cliente desconectado: ${socket.id}`);
                 this.handleDisconnect(socket);
@@ -111,9 +123,9 @@ export class SocketConnection {
                         socket.emit("error", { message: "Usuario no encontrado" });
                         return;
                     }
-                    const gameCode = generate().substring(0, 8).toUpperCase(); 
-                    
-                    if(!userData.gameData.categorys || userData.gameData.categorys.length === 0) {
+                    const gameCode = generate().substring(0, 8).toUpperCase();
+
+                    if (!userData.gameData.categorys || userData.gameData.categorys.length === 0) {
                         socket.emit("error", { message: "No hay categorías seleccionadas." });
                         return;
                     }
@@ -125,6 +137,7 @@ export class SocketConnection {
                         questions: [], // No hay preguntas al crear, se cargarán al iniciar
                         categorys: userData.gameData.categorys,
                         defaultTurnTime: userData.gameData.defaultTurnTime || TURN_TIMER_SECONDS,
+                        rounds: userData.gameData.rounds || DEFAULT_ROUNDS,
                         currentRound: 0, // Se iniciará en 1 al empezar
                         currentPlayerDbId: null,
                     });
@@ -144,15 +157,18 @@ export class SocketConnection {
                         currentPlayerIndex: 0, // El primer jugador es el owner inicialmente
                         currentRound: 0,
                         turnTimer: null,
-                        turnOutTimer:null,
+                        turnOutTimer: null,
                         defaultTurnTime: userData.gameData.defaultTurnTime || TURN_TIMER_SECONDS,
+                        rounds: userData.gameData.rounds || DEFAULT_ROUNDS,
+                        outGameTimer: null, // Temporizador para el tiempo de espera fuera del juego
+                        outGameTime: 0 // Tiempo de espera fuera del juego
                     };
                     games[gameCode] = newRoom;
 
                     socket.join(gameCode);
-                    socket.emit("gameCreated", { gameCode });
                     this.io?.to(gameCode).emit("playerJoined", { userId: userData.userId, username: user.name, score: 0 });
                     console.log(`🎮 Juego creado con código: ${gameCode} por el usuario ${user.name} (${userData.userId})`);
+                    socket.emit("gameCreated", { gameCode });
                 } catch (error) {
                     console.error("❌ Error al crear el juego:", error);
                     socket.emit("error", { message: "Error al crear el juego" });
@@ -160,6 +176,7 @@ export class SocketConnection {
             });
 
             socket.on("joinGame", async (joinData: { gameCode: string; userData: { userId: string } }) => {
+                console.log("Uniendo a sala")
                 const { gameCode, userData } = joinData;
                 const gameRoom = games[gameCode];
 
@@ -230,9 +247,9 @@ export class SocketConnection {
             );
 
             // En SocketConnection class, dentro de setupSocketEvents()
-            socket.on("startGame", async (gameData:{gameCode:string,userId:string}) => {
+            socket.on("startGame", async (gameData: { gameCode: string, userId: string }) => {
                 const { gameCode, userId } = gameData;
-                if(!gameCode || !userId) {
+                if (!gameCode || !userId) {
                     console.log("Datos de partida incompletos:", gameData);
                     socket.emit("error", { message: "Datos de partida incompletos" });
                     return;
@@ -267,7 +284,7 @@ export class SocketConnection {
                 // Calcular la cantidad total de preguntas necesarias
                 const numberOfPlayers = gameRoom.players.length;
                 console.log(numberOfPlayers, "jugadores");
-                const totalQuestionsNeeded = (numberOfPlayers * DEFAULT_ROUNDS) + EXTRA_QUESTIONS_BUFFER;
+                const totalQuestionsNeeded = (numberOfPlayers * gameRoom.rounds ) + EXTRA_QUESTIONS_BUFFER;
                 console.log(totalQuestionsNeeded, "preguntas necesarias");
 
                 let allAvailableQuestions: IQuestion[] = [];
@@ -292,11 +309,11 @@ export class SocketConnection {
                 // Esto es crucial si algunas categorías no tenían suficientes preguntas en el Paso 1.
                 if (allAvailableQuestions.length < totalQuestionsNeeded) {
                     const questionsToFetchMore = totalQuestionsNeeded - allAvailableQuestions.length;
-                    
+
                     // Obtener preguntas adicionales de forma aleatoria de todas las categorías seleccionadas
                     // Excluye las preguntas que ya tienes para evitar duplicados.
                     const existingQuestionIds = allAvailableQuestions.map(q => q._id);
-                    
+
                     const additionalQuestions = await QuestionModel.aggregate([
                         { $match: { categoryId: { $in: selectedCategories }, _id: { $nin: existingQuestionIds } } },
                         { $sample: { size: questionsToFetchMore } }
@@ -317,7 +334,7 @@ export class SocketConnection {
 
                 // Recortar si tenemos más preguntas de las necesarias
                 gameRoom.questionsAvailable = allAvailableQuestions.slice(0, totalQuestionsNeeded);
-                
+
                 gameRoom.gameData.status = "playing";
                 gameRoom.currentRound = 1;
                 gameRoom.currentPlayerIndex = Math.floor(Math.random() * gameRoom.players.length);
@@ -402,7 +419,27 @@ export class SocketConnection {
             });
 
             // Otros eventos del juego (manejo de turnos, respuestas, etc.) irán aquí
-
+            socket.on("exitGamePlay", async (gameCode: string) => {
+                try {
+                    const gamePlayer = games[gameCode];
+                    if (gamePlayer) {
+                        await socket.leave(gameCode); 
+                    }
+                    
+                    // Emitir confirmación al cliente que está abandonando
+                    socket.emit("exitGamePlay", { 
+                        success: true, 
+                        message: "You have left the game" 
+                    });
+                } catch (error) {
+                    console.error("Error exiting game:", error);
+                    socket.emit("exitGamePlay", { 
+                        success: false, 
+                        message: "Error leaving the game" 
+                    });
+                }
+            });
+            
 
         });
     }
@@ -452,7 +489,7 @@ export class SocketConnection {
             currentPlayerId: currentPlayer.userId,
             currentPlayerUsername: currentPlayer.username,
             question: questionForClient,
-            timer: gameRoom.defaultTurnTime 
+            timer: gameRoom.defaultTurnTime
         });
         console.log(`❓ Pregunta enviada para ${currentPlayer.username} en la partida ${gameCode}`);
 
@@ -533,8 +570,8 @@ export class SocketConnection {
 
         // Dar un pequeño respiro antes de la siguiente pregunta/turno 
         let timeLeft = 3;
-        const timeOut = setInterval(()=> {
-            if(timeLeft <= 0) {
+        const timeOut = setInterval(() => {
+            if (timeLeft <= 0) {
                 clearInterval(timeOut);
                 gameRoom.turnOutTimer = null;
                 this.sendNextQuestion(gameCode);
@@ -542,7 +579,7 @@ export class SocketConnection {
             }
             this.io?.to(gameCode).emit("updateTimerOut", timeLeft);
             timeLeft--;
-        }, 1000); 
+        }, 1000);
     }
 
     // Inside endGame(gameCode: string) function
@@ -560,7 +597,7 @@ export class SocketConnection {
 
         // Calcular la clasificación final
         const sortedPlayers = [...gameRoom.players].sort((a, b) => b.score - a.score);
-        
+
         // Store the full finalResults object structure directly
         gameRoom.gameData.finalResults = {
             positions: sortedPlayers.map((player, index) => ({
@@ -576,7 +613,7 @@ export class SocketConnection {
             {
                 status: "finished",
                 // Directly assign the structured finalResults object
-                finalResults: gameRoom.gameData.finalResults, 
+                finalResults: gameRoom.gameData.finalResults,
                 // Update scores for all players in the DB
                 players: gameRoom.players.map(p => ({ playerId: p.userId, username: p.username, score: p.score }))
             },
@@ -589,32 +626,28 @@ export class SocketConnection {
         this.io?.to(gameCode).emit("gameOver", {
             ranking: gameRoom.gameData.finalResults.positions, // This will now correctly reflect the data
             playersScores: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score }))
-        });
-        /*
-        {
-            ranking: [
-                { playerId: '123', position: 1, score: 100 },
-                { playerId: '456', position: 2, score: 80 },
-            ],
-            playersScores: [
-                { userId: '123', username: 'Player1', score: 100 },
-                { userId: '456', username: 'Player2', score: 80 },
-            ]
-        }
-        */
-
-        // The console log will now correctly show the positions array
+        }); 
+        
         console.log(`🏆 Partida ${gameCode} finalizada. Resultados:`, gameRoom.gameData.finalResults.positions);
+        let timeLeft = gameRoom.outGameTime; // Tiempo por defecto para el turno
 
-        // Puedes decidir eliminar la sala de la memoria después de un tiempo o al final del juego
+        const timerInterval = setInterval(() => {
+            if (timeLeft) {
+                clearInterval(timerInterval);
+                gameRoom.outGameTimer = null; 
+                this.io?.to(gameCode).emit("timeOutGame", { message: "Partida finalizada, saliendo de la sala en 5 segundos." });
+                return;
+            }
+            this.io?.to(gameCode).emit("updateTimerOutGame", timeLeft); // A todos los jugadores en la sala
+            timeLeft--;
+        }, 5000);
         delete games[gameCode];
-        console.log(`🗑️ Partida ${gameCode} eliminada de la memoria.`);
-
-        // Opcional: desconectar a todos los sockets de la sala para asegurar la limpieza
         this.io?.sockets.in(gameCode).socketsLeave(gameCode);
         
+
         console.log(`🗑️ Partida ${gameCode} eliminada de la base de datos.`);
     }
+
 
     private async handleDisconnect(socket: Socket): Promise<void> {
         for (const gameCode in games) {
