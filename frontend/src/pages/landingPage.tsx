@@ -52,6 +52,10 @@ const LandingPage = () => {
 
   // Modal crear juego
   const handleOpenCreateGameModal = () => { 
+    if(!user || !user._id) {
+      window.location.href = "/auth/sign-in"; // Redirigir al login si no hay usuario
+      return;
+    }
     setIsCreateGameModalOpen(true);
   };
 

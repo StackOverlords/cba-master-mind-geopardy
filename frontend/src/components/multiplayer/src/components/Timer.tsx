@@ -6,25 +6,10 @@ import { motion } from 'framer-motion';
 
 interface TimerProps {
   timeLeft: number;
+  timeInRounds: number;
 }
-export const Timer: React.FC<TimerProps> = ({ timeLeft }) => {
-  // const { timeLeft, updateTimer, gameStatus } = useGameStore();
-  // const { playTick } = useSound();
-
-  // useEffect(() => {
-  //   if (gameStatus === 'playing') {
-  //     const interval = setInterval(() => {
-  //       updateTimer();
-  //       if (timeLeft > 0 && timeLeft <= 5) {
-  //         playTick();
-  //       }
-  //     }, 1000);
-
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [gameStatus, updateTimer, timeLeft, playTick]);
-
-  const percentage = (timeLeft / 15) * 100;
+export const Timer: React.FC<TimerProps> = ({ timeLeft, timeInRounds }) => { 
+  const percentage = (timeLeft / timeInRounds || 60) * 100;
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
