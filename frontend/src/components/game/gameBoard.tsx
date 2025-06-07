@@ -78,7 +78,7 @@ const GameBoard: React.FC<Props> = ({
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
-    const [usedQuestions, setUsedQuestions] = useState<Question[]>([])
+    // const [usedQuestions, setUsedQuestions] = useState<Question[]>([])
     const [timeLeft, setTimeLeft] = useState(time)
     const [timerActive, setTimerActive] = useState(false)
     // const [categoryCards, setCategoryCards] = useState<{ [key: string]: QuizzCardType[] }>(
@@ -134,11 +134,12 @@ const GameBoard: React.FC<Props> = ({
     }
 
     const handleAnswerSelected = (answerId: string, isCorrect: boolean) => {
-        stopTimer()
+        console.log(answerId, isCorrect)
+        // stopTimer()
 
-        if (selectedQuestion) {
-            setUsedQuestions((prev) => [...prev, selectedQuestion])
-        }
+        // if (selectedQuestion) {
+        //     setUsedQuestions((prev) => [...prev, selectedQuestion])
+        // }
 
         // if (isCorrect) {
         //     handleUpdatePlayers()
