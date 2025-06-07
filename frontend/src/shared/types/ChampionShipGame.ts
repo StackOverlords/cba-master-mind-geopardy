@@ -35,9 +35,12 @@ export interface ChampioShipGame {
     currentRound: number,
     rounds: number,
     defaultTurnTime: number,
-    questionsLocalAnswered: []
+    questionsLocalAnswered: QuestionsAnswered[]
     createdAt: string,
     updatedAt: string
+}
+interface QuestionsLocalAnswered extends AnswerData {
+    questionId: string
 }
 
 export interface AnswerData {

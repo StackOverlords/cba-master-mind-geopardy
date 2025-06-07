@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logoCBADark from "../assets/appLogo/logo_cba_white.webp"
+import logoAmericanSpaces from "../assets/appLogo/AmSpacesLogo_HORZT(White)-01.png"
 import { useAuthStore } from "../stores/authStore";
 import { hasLoggedBefore } from "../utils/localStorage";
 import AccountMenu from "./ui/accountMenu";
@@ -23,12 +23,12 @@ const Header = () => {
     }, [isAuthenticated]);
 
     return (
-        <nav className="absolute top-0 px-4 py-4 w-full flex items-center justify-center">
+        <nav className="absolute top-0 px-4 py-3 w-full flex items-center justify-center">
             <div className="w-full xl:w-7xl flex items-center justify-between px-6 z-20">
                 <div className="flex items-center justify-center gap-3">
                     <img
-                        className="h-5 drop-shadow-xl/45 drop-shadow-blue-500 hidden"
-                        src={logoCBADark}
+                        className="h-10 drop-shadow-xl/45 drop-shadow-blue-500"
+                        src={logoAmericanSpaces}
                         alt={LANDING_PAGE_CONTENT.altTexts.cbaTarija} />
                 </div>
                 <div className="flex items-center justify-center gap-2 text-xs sm:text-sm">
