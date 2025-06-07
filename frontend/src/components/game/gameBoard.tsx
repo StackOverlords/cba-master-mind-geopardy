@@ -78,7 +78,6 @@ const GameBoard: React.FC<Props> = ({
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
-    // const [usedQuestions, setUsedQuestions] = useState<Question[]>([])
     const [timeLeft, setTimeLeft] = useState(time)
     const [timerActive, setTimerActive] = useState(false)
     // const [categoryCards, setCategoryCards] = useState<{ [key: string]: QuizzCardType[] }>(
@@ -162,41 +161,108 @@ const GameBoard: React.FC<Props> = ({
     const stopTimer = () => {
         setTimerActive(false)
     }
+// Función utilitaria fuera del componente (o en la parte superior del archivo)
+// const calculateGridTemplateColumns = (cardCount: number): string => {
+//     for (let i = 5; i > 0; i--) {
+//         if (cardCount % i === 0) return `repeat(${i}, minmax(0, 1fr))`;
+//     }
+//     return `repeat(${Math.min(cardCount, 5)}, minmax(0, 1fr))`;
+// };
 
     return (
-        <div className="flex items-center justify-center space-y-8 gap-6 w-full">
-
+        <div className="flex items-start flex-col justify-center gap-2 w-full">
             <div
-                className={`grid gap-4 w-full`}
+                className={`grid gap-4 px-2 w-full`}
                 style={{
-                    gridTemplateColumns: `repeat(${categories.length}, minmax(0, 1fr))`,
+                    gridTemplateColumns: categories.length === 1
+                        ? (() => {
+                            const cardCount = categoryCards[categories[0]._id]?.length || 1;
+                            // Si el número de tarjetas es divisible por un número menor o igual a 5, usa ese número como columnas
+                            for (let i = 5; i > 0; i--) {
+                                if (cardCount % i === 0) {
+                                    return `repeat(${i}, minmax(0, 1fr))`;
+                                }
+                            }
+                            // Si no es divisible, usa el límite de 5 columnas
+                            return `repeat(${Math.min(cardCount, 5)}, minmax(0, 1fr))`;
+                        })()
+                        : `repeat(${categories.length}, minmax(0, 1fr))`, // Una columna por categoría
                 }}
             >
                 {categories.map((category) => (
                     <div
                         key={category._id}
-                        className="flex flex-col gap-2 col-auto h-full w-full"
+                        className={`flex flex-col gap-2 col-auto h-full w-full ${categories.length === 1 ? "col-span-full" : ""
+                            }`}
                     >
-                        <div className="flex items-center justify-center p-2 rounded-md bg-indigo-950 border-indigo-400/50 border text-indigo-200 font-bold text-center text-xs sm:text-sm w-full h-full">
+                        <div
+                            className={`flex items-center justify-center p-2 rounded-md bg-indigo-950 border-indigo-400/50 border text-indigo-200 font-bold text-center text-xs sm:text-sm w-full h-full ${categories.length === 1 ? "col-span-full" : ""
+                                }`}
+                        >
                             {category.name}
                         </div>
-                        {categoryCards[category._id]?.map((card, cardIndex) => (
-                            <div
-                                key={`${category._id}-${cardIndex}`}
-                                onClick={() => !questionsAnswered.find((q) => q.questionId === card.question._id) && handleCardClick(category._id, cardIndex)}
-                                className={` w-full ${questionsAnswered.some(q => q.questionId === card.question._id)
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : "hover:scale-105 transition-transform cursor-pointer"
-                                    }`}
-                            >
-                                <QuizzCard Icon={card.icon} color={card.color} />
-                            </div>
-                        ))}
-
                     </div>
                 ))}
             </div>
-
+            <div
+                className={`grid gap-4 w-full h-full max-h-[365px] overflow-y-auto p-2`}
+                style={{
+                    gridTemplateColumns: categories.length === 1
+                        ? (() => {
+                            const cardCount = categoryCards[categories[0]._id]?.length || 1;
+                            // Si el número de tarjetas es divisible por un número menor o igual a 5, usa ese número como columnas
+                            for (let i = 5; i > 0; i--) {
+                                if (cardCount % i === 0) {
+                                    return `repeat(${i}, minmax(0, 1fr))`;
+                                }
+                            }
+                            // Si no es divisible, usa el límite de 5 columnas
+                            return `repeat(${Math.min(cardCount, 5)}, minmax(0, 1fr))`;
+                        })()
+                        : `repeat(${categories.length}, minmax(0, 1fr))`, // Una columna por categoría
+                }}
+            >
+                {categories.map((category) => (
+                    <div
+                        key={category._id}
+                        className={`flex flex-col gap-2 col-auto h-full w-full ${categories.length === 1 ? "col-span-full" : ""
+                            }`}
+                    >
+                        <div
+                            className={`grid gap-4`}
+                            style={categories.length === 1 ? {
+                                gridTemplateColumns: (() => {
+                                    const cardCount = categoryCards[category._id]?.length || 1;
+                                    // Si el número de tarjetas es divisible por un número menor o igual a 5, usa ese número como columnas
+                                    for (let i = 5; i > 0; i--) {
+                                        if (cardCount % i === 0) {
+                                            return `repeat(${i}, minmax(0, 1fr))`;
+                                        }
+                                    }
+                                    // Si no es divisible, usa el límite de 5 columnas
+                                    return `repeat(${Math.min(cardCount, 5)}, minmax(0, 1fr))`;
+                                })(),
+                            } : {}}
+                        >
+                            {categoryCards[category._id]?.map((card, cardIndex) => (
+                                <div
+                                    key={`${category._id}-${cardIndex}`}
+                                    onClick={() =>
+                                        !questionsAnswered.find((q) => q.questionId === card.question._id) &&
+                                        handleCardClick(category._id, cardIndex)
+                                    }
+                                    className={`w-full ${questionsAnswered.some((q) => q.questionId === card.question._id)
+                                        ? "opacity-50 cursor-not-allowed"
+                                        : "hover:scale-102 transition-transform cursor-pointer"
+                                        }`}
+                                >
+                                    <QuizzCard Icon={card.icon} color={card.color} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
 
             {/* <button
                 onClick={() => setCards(createCards())}
