@@ -15,7 +15,7 @@ import { motion } from "motion/react"
 
 const usePointRange = (currentRound: number, baseHigh: number, baseMid: number, baseLow: number, percentageIncrease: number) => {
     const [pointRange, setPointRange] = useState<string>("");
-
+    console.log(baseMid)
     useEffect(() => {
         const round = currentRound || 1;
         const multiplier = Math.pow(1 + percentageIncrease, round - 1);
