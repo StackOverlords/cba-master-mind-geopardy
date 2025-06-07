@@ -156,17 +156,17 @@ const QuizModal: React.FC<Props> = ({
 
         return isCorrect ? "bg-green-300/40 border-green-400 text-green-100" : "bg-red-400/40 border-red-400 text-red-100"
     }
-    const getTimerColor = () => {
-        if (timeLeft > 20) return 'text-green-400 border-green-400';
-        if (timeLeft > 5) return 'text-yellow-400 border-yellow-400';
-        return 'text-red-400 border-red-400';
-    };
+    // const getTimerColor = () => {
+    //     if (timeLeft > 20) return 'text-green-400 border-green-400';
+    //     if (timeLeft > 5) return 'text-yellow-400 border-yellow-400';
+    //     return 'text-red-400 border-red-400';
+    // };
 
-    const getProgressColor = () => {
-        if (timeLeft > 20) return 'bg-green-400';
-        if (timeLeft > 5) return 'bg-yellow-400';
-        return 'bg-red-400';
-    };
+    // const getProgressColor = () => {
+    //     if (timeLeft > 20) return 'bg-green-400';
+    //     if (timeLeft > 5) return 'bg-yellow-400';
+    //     return 'bg-red-400';
+    // };
     const closeModal = () => {
         stopCounterSound()
         handleCloseModal()
