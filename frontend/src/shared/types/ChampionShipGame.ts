@@ -39,9 +39,6 @@ export interface ChampioShipGame {
     createdAt: string,
     updatedAt: string
 }
-interface QuestionsLocalAnswered extends AnswerData {
-    questionId: string
-}
 
 export interface AnswerData {
     answer: string;
