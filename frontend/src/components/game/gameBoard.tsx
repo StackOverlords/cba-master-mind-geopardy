@@ -133,7 +133,8 @@ const GameBoard: React.FC<Props> = ({
     }
 
     const handleAnswerSelected = (answerId: string, isCorrect: boolean) => {
-        stopTimer()
+        console.log(answerId, isCorrect)
+        // stopTimer()
 
         // if (selectedQuestion) {
         //     setUsedQuestions((prev) => [...prev, selectedQuestion])
@@ -161,12 +162,12 @@ const GameBoard: React.FC<Props> = ({
         setTimerActive(false)
     }
 // Función utilitaria fuera del componente (o en la parte superior del archivo)
-const calculateGridTemplateColumns = (cardCount: number): string => {
-    for (let i = 5; i > 0; i--) {
-        if (cardCount % i === 0) return `repeat(${i}, minmax(0, 1fr))`;
-    }
-    return `repeat(${Math.min(cardCount, 5)}, minmax(0, 1fr))`;
-};
+// const calculateGridTemplateColumns = (cardCount: number): string => {
+//     for (let i = 5; i > 0; i--) {
+//         if (cardCount % i === 0) return `repeat(${i}, minmax(0, 1fr))`;
+//     }
+//     return `repeat(${Math.min(cardCount, 5)}, minmax(0, 1fr))`;
+// };
 
     return (
         <div className="flex items-start flex-col justify-center gap-2 w-full">
