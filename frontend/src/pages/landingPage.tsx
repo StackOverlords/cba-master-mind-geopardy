@@ -3,7 +3,7 @@ import DeviceGameIcon from "../components/ui/icons/deviceGameIcon";
 import PlayButton from "../components/ui/playButton";
 import logoMastermindDark from "../assets/appLogo/Logo-MasterMind.webp";
 import bghero from "../assets/bghero.webp";
-import logoCBADark from "../assets/appLogo/logo_cba_white.webp";
+import logoCBADark from "../assets/appLogo/CBA Horizontal-blanco.webp";
 import SocialButton from "../components/ui/socialButton";
 import FacebookIcon from "../components/ui/icons/facebookIcon";
 import WhatsAppIcon from "../components/ui/icons/WhatsAppIcon";
@@ -20,9 +20,8 @@ const LANDING_PAGE_CONTENT = {
   },
   hero: {
     title: "Master Mind",
-    subtitle: "Challenge your mind with Jeopardy",
-    description:
-      "Not just a trivia game, but a complete experience that will test your knowledge in various categories.",
+    subtitle: "Challenge your mind and compete with others",
+    description: "Not just a trivia game, but a complete experience that will test your knowledge in various categories.",
     playButton: "Play",
   },
 } as const;
@@ -129,7 +128,7 @@ const LandingPage = () => {
             style={{ transform: "scale(1.2)" }}
           />
           <img
-            className="h-12 sm:h-16"
+            className="h-16 sm:h-24"
             src={logoMastermindDark}
             alt={LANDING_PAGE_CONTENT.altTexts.jeopardyMasterMind}
           />
@@ -170,7 +169,7 @@ const LandingPage = () => {
         <div className="w-full xl:w-7xl flex flex-col sm:flex-row items-center justify-center sm:justify-between px-6 z-20 sm:gap-2 gap-8">
           <div>
             <img
-              className="h-5 drop-shadow-xl/45 drop-shadow-blue-500"
+              className="h-10 drop-shadow-xl/45 drop-shadow-blue-500"
               src={logoCBADark}
               alt={LANDING_PAGE_CONTENT.altTexts.cbaTarija}
             />
