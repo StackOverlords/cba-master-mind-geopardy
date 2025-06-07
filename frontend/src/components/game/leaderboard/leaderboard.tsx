@@ -17,8 +17,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
       <LeaderboardHeader />
 
 
-      <div className="bg-gradient-to-br from-leaderboard-bg/60 to-black/30 rounded-xl overflow-hidden shadow-xl border border-white/5 px-5 py-3 backdrop-blur-md">
-        <div className="flex items-center justify-between mb-2">
+      <div className="bg-gradient-to-br from-leaderboard-bg/60 to-black/30 rounded-xl overflow-hidden shadow-xl border border-white/5 px-5 py-3 backdrop-blur-md max-h-[485px] overflow-y-auto pb-10">
+        <div className="flex items-center justify-between mb-2 relative">
           <div className="text-xl font-bold text-white">Rankings</div>
           {/* <TimeFilter activeFilter={activeFilter} onFilterChange={handleFilterChange} /> */}
         </div>
@@ -39,6 +39,9 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
             ))}
           </div>
         </section>
+        {/* <div className="fixed z-10 h-8 items-center justify-center bottom-0 w-full">
+          <div className="bg-linear-to-b from-transparent to-black/50 backdrop-blur-sm mask-t-from-50% inset-0 absolute"></div>
+        </div> */}
       </div>
     </div>
   );

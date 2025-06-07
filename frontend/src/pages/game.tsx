@@ -94,7 +94,7 @@ const GamePage = () => {
                     const currentRound = championShipGame.currentRound + 1
                     updateChampionShipGame({ id: championShipGame._id, data: { currentRound } })
                 }
-            } else if (championShipGame?.questionsLocalAnswered === championShipGame?.questions.length) {
+            } else if (championShipGame?.questionsLocalAnswered.length === championShipGame?.questions.length) {
                 console.log("Game Over");
                 if (championShipGame) {
                     updateChampionShipGame({
@@ -111,14 +111,16 @@ const GamePage = () => {
     }
     const { mutate: answerChampionshipGame } = useAnswerChampionshipGame()
     const handlePlayerAnswered = (questionId: string, answerData: AnswerData) => {
-        const payload: SubmitAnswerPayload = {
-            gameId: championShipGame?._id ?? "",
-            answerData,
-            questionId
+        if (championShipGame && !championShipGame?.questionsLocalAnswered.find((q) => q.questionId === questionId)) {
+            const payload: SubmitAnswerPayload = {
+                gameId: championShipGame?._id ?? "",
+                answerData,
+                questionId
+            }
+            answerChampionshipGame(
+                payload
+            )
         }
-        answerChampionshipGame(
-            payload
-        )
     }
     useEffect(() => {
         console.log(GameData)
