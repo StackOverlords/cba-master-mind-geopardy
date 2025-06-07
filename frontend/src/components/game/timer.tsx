@@ -1,18 +1,17 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useSound } from '../multiplayer/src/hooks/useSound';
+// import { useSound } from '../multiplayer/src/hooks/useSound';
 interface Props {
     gameStatus: string,
     timeLeft: number
     time: number
 }
 export const Timer: React.FC<Props> = ({
-    gameStatus,
     time,
     timeLeft
 }) => {
-    const { playTick } = useSound();
+    // const { playTick } = useSound();
 
     const percentage = (timeLeft / time) * 100;
     const circumference = 2 * Math.PI * 45;

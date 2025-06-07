@@ -34,7 +34,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
     finalResults,
     setFinalScore, 
     setAnswerSelected,
-    selectAnswer,
+    // selectAnswer,
     setTimerGameOut // Actualizar el temporizador de finalizacion del juego:: antes de redireccionar
   } = useGameStore();
   // const [playersJoined, setPlayersJoined] = React.useState<any[]>([]);

@@ -4,13 +4,13 @@ import { GameScreen } from "./components/GameScreen";
 import "../../../index.css";
 import { useAuthStore } from "../../../stores/authStore";
 import { GameNotFound } from "./components/GameNotFound";
-import { useEffect } from "react";
-import { socketService } from "../../../services/socketService";
-import { useGameStore } from "./store/gameStore";
+// import { useEffect } from "react";
+// import { socketService } from "../../../services/socketService";
+// import { useGameStore } from "./store/gameStore";
 
 function MultiplayerApp() {
   const { user } = useAuthStore();
-  const { nextQuestion } = useGameStore();
+  // const { nextQuestion } = useGameStore();
   const code = sessionStorage.getItem("gameCode");
 
   if (!user || !code) {

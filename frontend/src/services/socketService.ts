@@ -1,8 +1,8 @@
-import { io, Socket } from "socket.io-client";
+import io from "socket.io-client";
 import { apiVariables } from "../config/env";
 
 
-let socket: Socket | null = null;
+let socket: any = null;
 
 const SOCKET_URL = apiVariables.socketUri || "http://localhost:3000"; // O desde una variable de entorno
 
@@ -13,7 +13,7 @@ interface SocketServiceInterface {
     on: <T>(event: string, callback: (data: T) => void) => void;
     off: (event: string, callback?: (...args: any[]) => void) => void;
     isActive: () => boolean; // Verifica si el socket está conectado
-    getSocket: () => Socket | null; // Opcional, si necesitas acceso directo en algunos casos
+    getSocket: () => any; // Opcional, si necesitas acceso directo en algunos casos
 }
 
 export const socketService: SocketServiceInterface = {
@@ -39,7 +39,7 @@ export const socketService: SocketServiceInterface = {
             console.log("✅ Conectado al servidor WebSocket con ID:", socket?.id);
         });
 
-        socket.on("disconnect", (reason) => {
+        socket.on("disconnect", (reason:any) => {
             console.log("❌ Desconectado del servidor WebSocket:", reason);
             // Podrías intentar reconectar aquí si la razón es inesperada,
             // o limpiar el objeto socket si la desconexión es intencional.
@@ -48,12 +48,12 @@ export const socketService: SocketServiceInterface = {
             // }
         });
 
-        socket.on("connect_error", (error) => {
+        socket.on("connect_error", (error:any) => {
             console.error("❌ Error de conexión WebSocket:", error.message, error);
         });
 
 
-        socket.on("error", (error) => {
+        socket.on("error", (error:any) => {
             console.error("❌ Error en el socket:", error.message, error);
         });
         // Aquí podrías registrar listeners globales si los necesitas

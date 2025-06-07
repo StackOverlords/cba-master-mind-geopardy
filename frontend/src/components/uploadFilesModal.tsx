@@ -1,9 +1,9 @@
 import { useRef, useState, type ChangeEvent, type FormEvent, type DragEvent } from 'react';
 import ImageUpload from '../assets/upload-file.webp';
-import axios from 'axios';
+// import axios from 'axios';
 import toast from 'react-hot-toast';
 import SuccessAlert from './toastAlerts/successAlert';
-import InformationAlert from './toastAlerts/informationAlert';
+// import InformationAlert from './toastAlerts/informationAlert';
 import ErrorAlert from './toastAlerts/errorAlert';
 import ModalContainer from './ui/modalContainer';
 import XIcon from './ui/icons/xIcon';

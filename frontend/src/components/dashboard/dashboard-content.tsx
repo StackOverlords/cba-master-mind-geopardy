@@ -1,12 +1,12 @@
-import { OverviewSection } from "./sections/overview-section"
-import { UserManagementSection } from "./sections/userManagement-section"
-import { CategoriesSection } from "./sections/categories-section"
-import { QuestionsSection } from "./sections/questions-section"
-import { AnalyticsSection } from "./sections/analytics-section"
-import { PlaySection } from "./sections/play-section"
-import { HistorySection } from "./sections/history-section"
-import { LeaderboardSection } from "./sections/leaderboard-section"
-import { SettingsSection } from "./sections/settings-section"
+// import { OverviewSection } from "./sections/overview-section"
+// import { UserManagementSection } from "./sections/userManagement-section"
+// import { CategoriesSection } from "./sections/categories-section"
+// import { QuestionsSection } from "./sections/questions-section"
+// import { AnalyticsSection } from "./sections/analytics-section"
+// import { PlaySection } from "./sections/play-section"
+// import { HistorySection } from "./sections/history-section"
+// import { LeaderboardSection } from "./sections/leaderboard-section"
+// import { SettingsSection } from "./sections/settings-section"
 import type { UserRole } from "../../shared/auth.types"
 import LeftCollapseIcon from "../ui/icons/leftCollapse"
 import AccountMenu from "../ui/accountMenu"
@@ -23,7 +23,7 @@ interface DashboardContentProps {
     setSidebarOpen: (open: boolean) => void
 }
 
-export function DashboardContent({ activeSection, userRole, sidebarOpen, setSidebarOpen }: DashboardContentProps) {
+export function DashboardContent({ activeSection, sidebarOpen, setSidebarOpen }: DashboardContentProps) {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const [hasLogged, setHasLogged] = useState<boolean>(hasLoggedBefore());
     useEffect(() => {
