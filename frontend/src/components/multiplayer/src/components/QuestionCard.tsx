@@ -16,7 +16,7 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
     selectedAnswer,
     showFeedback,
     selectAnswer,
-    gameStatus,
+    // gameStatus,
     correctAnswer,
     answerSelected, // Este es el texto de la respuesta seleccionada por otro jugador
   } = useGameStore();
@@ -28,28 +28,7 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
     selectAnswer(index); 
     socketService.emit("answerQuestion", { gameCode: sessionStorage.getItem("gameCode"), answerText: currentQuestion.answers[index].text });
   };
-
-  const getOptionStyle = (index: number) => {
-    // Esta función de estilos no necesita cambios, ya que el nuevo indicador es un elemento aparte.
-    if (!showFeedback) {
-      return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:scale-[1.02] shadow-sm hover:shadow-md';
-    }
-    
-    // if (index === currentQuestion.answers.findIndex(a => a.isCorrect)) {
-    //   if (index === selectedAnswer) {
-    //     return 'bg-green-50 dark:bg-green-900/20 border-green-400 text-green-800 dark:text-green-200 shadow-md';
-    //   }
-    // }
-    
-    // if (index === selectedAnswer && index !== currentQuestion.answers.findIndex(a => a.isCorrect)) {
-    //   if (gameStatus === 'playing') {
-    //     return 'bg-red-50 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200 shadow-md hover:scale-[1.02] hover:shadow-lg';
-    //   }
-    //   return 'bg-red-50 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200 shadow-md';
-    // }
-    
-    // return 'bg-gray-50 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 opacity-60';
-  };
+ 
 
   return (
     <AnimatePresence mode="wait">
@@ -80,7 +59,7 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
               disabled={user._id !== currentPlayerId}
               className={`
                 relative p-6 rounded-2xl border-2 transition-all duration-300 text-left backdrop-blur-sm
-                ${getOptionStyle(index)}
+                
                 disabled:cursor-not-allowed
               `}
               initial={{ opacity: 0, scale: 0.9 }}

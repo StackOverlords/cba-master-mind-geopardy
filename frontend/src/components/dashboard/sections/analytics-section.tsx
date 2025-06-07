@@ -108,7 +108,7 @@ export function AnalyticsSection() {
             <p className="text-sm text-slate-400">Game distribution across quiz categories</p>
           </div>
           <div className="p-4 space-y-4">
-            {analyticsData.popularCategories.map((category, index) => (
+            {analyticsData.popularCategories.map((category) => (
               <div key={category.name} className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">

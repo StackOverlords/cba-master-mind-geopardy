@@ -41,7 +41,7 @@ const CreateGamePage = () => {
     }, [userId])
     const { mutate: createChampionshipGame, isPending } = useCreateChampionshipGame()
     const [newPlayerName, setNewPlayerName] = useState("")
-    const [timeLimit, setTimeLimit] = useState(30)
+    // const [timeLimit, setTimeLimit] = useState(30)
     const handleChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setGameSetup((prev) => ({
