@@ -38,9 +38,8 @@ const PlayButton: React.FC<Props> = ({
         text-gray-100
         cursor-pointer
         font-semibold
-        text-2xl
-        h-[84px]
-        min-w-[230px]
+        h-16 sm:h-20
+        w-52 sm:min-w-60
         p-4
         relative
         transition-all
@@ -82,6 +81,7 @@ const PlayButton: React.FC<Props> = ({
           pointer-events-none
           select-none
           drop-shadow-md
+          text-xl sm:text-2xl
         "
         >
           {children}

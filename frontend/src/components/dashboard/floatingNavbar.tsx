@@ -1,10 +1,10 @@
+import { Home } from "lucide-react";
 import { FloatingDock } from "../ui/floating-dock";
 import CategoryIcon from "../ui/icons/categoryIcon";
 import DashboardIcon from "../ui/icons/dashboardIcon";
 import FileTextIcon from "../ui/icons/fileTextIcon";
 import SettingsIcon from "../ui/icons/settingsIcon";
 import TrophyIcon from "../ui/icons/trophyIcon";
-import UserIcon from "../ui/icons/userIcon";
 import UsersIcon from "../ui/icons/usersIcon";
 
 export function FloatingNavbar() {
@@ -12,7 +12,7 @@ export function FloatingNavbar() {
         {
             title: "Home",
             icon: (
-                <UserIcon className="h-full w-full text-neutral-300" />
+                <Home className="h-full w-full text-neutral-300" />
             ),
             href: "/",
         },

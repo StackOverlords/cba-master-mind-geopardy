@@ -56,15 +56,15 @@ export function DashboardContent({ activeSection, sidebarOpen, setSidebarOpen }:
 
     return (
         <div className="flex flex-col h-screen">
-            <header className="relative h-16 z-10 flex items-center justify-between gap-2 border-b border-border/50 bg-leaderboard-bg/50 px-4">
+            <header className="relative h-16 z-10 flex items-center justify-between gap-2 border-b border-border/50 bg-leaderboard-bg/50 px-2 sm:px-4">
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="size-8 cursor-pointer z-50 flex items-center justify-center text-slate-300 hover:text-white rounded-md hover:bg-[#2a2550]/50 transition-colors"
+                        className="size-6 sm:size-8 cursor-pointer z-50 flex items-center justify-center text-slate-300 hover:text-white rounded-md hover:bg-[#2a2550]/50 transition-colors"
                     >
                         <LeftCollapseIcon className="size-5" />
                     </button>
-                    <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400">
                         <span>Dashboard</span>
                         <span>/</span>
                         <span className="text-white capitalize">{activeSection}</span>

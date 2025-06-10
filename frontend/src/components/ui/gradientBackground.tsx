@@ -3,7 +3,7 @@ const GradientBackground = () => {
         <div className="fixed
          top-0 
          -z-10 
-         h-screen w-screen 
+         min-h-dvh w-screen 
          overflow-hidden 
          bg-[#0b0e14]">
             <div className="absolute inset-0 bg-linear-to-br from-purple-900/10 to-blue-900/10 blur-[100px]"></div>
