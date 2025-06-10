@@ -24,10 +24,10 @@ const Header = () => {
 
     return (
         <nav className="absolute top-0 px-4 py-3 w-full flex items-center justify-center">
-            <div className="w-full xl:w-7xl flex items-center justify-between px-6 z-20">
-                <div className="flex items-center justify-center gap-3">
+            <div className={`w-full xl:w-7xl flex items-center justify-between sm:px-6 z-20 ${isAuthenticated?'flex-row':'flex-col gap-2 sm:flex-row'}`}>
+                <div className="flex items-center justify-center">
                     <img
-                        className="h-10 drop-shadow-xl/45 drop-shadow-blue-500"
+                        className="sm:h-10 h-9"
                         src={logoAmericanSpaces}
                         alt={LANDING_PAGE_CONTENT.altTexts.cbaTarija} />
                 </div>

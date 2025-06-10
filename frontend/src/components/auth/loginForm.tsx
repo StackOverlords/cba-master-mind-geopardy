@@ -59,12 +59,12 @@ const LoginForm = () => {
         }
     },[user])
     return (
-        <section className="flex flex-col items-center justify-center p-2">
-            <h2 className="text-2xl">Hi, welcome back!</h2>
-            <form className="mt-4 px-4 py-2 
+        <section className="flex flex-col items-center justify-center">
+            <h2 className="text-xl tex-center sm:text-2xl">Hi, welcome back!</h2>
+            <form className="mt-4 py-2 
             flex flex-col gap-4 
             items-center 
-            max-w-sm w-sm text-sm"
+            sm:max-w-sm sm:w-sm w-auto text-xs sm:text-sm"
                 action="" onSubmit={handleSubmit}>
                 <div className="w-full">
                     <label htmlFor="email">Email</label>
@@ -105,13 +105,13 @@ const LoginForm = () => {
                 >
                     Sign In
                 </GlowButton>
-                <p className="text-sm">Don't have an account?
+                <p className="text-center">Don't have an account?
                     <a
                         href="/auth/sign-up"
                         className="text-purple-400 hover:text-purple-300 transition-colors duration-300 ease-in-out"> Sign up</a>
                 </p>
             </form>
-            <section className="flex flex-col items-center justify-center max-w-sm w-sm px-6 mt-5 gap-6">
+            <section className="flex flex-col items-center justify-center sm:max-w-sm sm:w-sm w-full mt-5 gap-6">
                 <SeparatorWithText text="Or" className="w-full" />
 
                 <AuthProviderButton

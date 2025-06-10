@@ -313,7 +313,7 @@ const CreateGamePage = () => {
                     <button
                         onClick={handleStartGame}
                         disabled={!canStartGame || isPending}
-                        className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 
+                        className="bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all 
                         text-white px-8 py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed 
                         flex items-center justify-center rounded-md gap-2"
                     >

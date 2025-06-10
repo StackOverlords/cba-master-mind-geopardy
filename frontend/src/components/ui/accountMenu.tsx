@@ -70,7 +70,7 @@ const AccountMenu = () => {
         if (isAuthenticated && !userData?.photoURL) {
             return (
                 <div
-                    className="border p-2 rounded-full size-10 font-bold uppercase flex justify-center items-center border-border/50 transition-colors duration-500 ease-in-out backdrop-blur-sm cursor-pointer"
+                    className="border p-2 rounded-full size-8 sm:size-10 font-bold uppercase flex justify-center items-center border-border/50 transition-colors duration-500 ease-in-out backdrop-blur-sm cursor-pointer text-sm sm:text-base"
                     style={{ background: localStorage.getItem(LOCAL_STORAGE_COLOR_KEY) || AVATAR_COLORS[0] }}
                     onClick={toggleDropdown}
                 >
@@ -81,15 +81,13 @@ const AccountMenu = () => {
 
         return (
             <button
-                className="border-border/50 bg-background/20 hover:bg-background/70 transition-colors duration-500 ease-in-out border backdrop-blur-sm rounded-full cursor-pointer size-10"
+                className="border-border/50 bg-background/20 hover:bg-background/70 transition-colors duration-500 ease-in-out border backdrop-blur-sm rounded-full cursor-pointer size-8 sm:size-10"
                 onClick={toggleDropdown}
             >
                 <img
                     src={userData?.photoURL || ''}
                     alt="User Avatar"
-                    width={48}
-                    height={48}
-                    className="rounded-full"
+                    className="rounded-full size-8 sm:size-10 w-max "
                 />
             </button>
         );
@@ -99,7 +97,7 @@ const AccountMenu = () => {
         <li>
             <button
                 onClick={onClick}
-                className="w-full my-1.5 rounded-md flex items-center py-2 px-4 text-sm transition-colors duration-300 text-gray-300 hover:bg-border/50 hover:text-white cursor-pointer"
+                className="w-full my-1.5 rounded-md flex items-center py-2 px-2 sm:px-4 text-xs sm:text-sm transition-colors duration-300 text-gray-300 hover:bg-border/50 hover:text-white cursor-pointer"
                 role="menuitem"
             >
                 <span className="inline-flex items-center justify-center" aria-hidden="true">
@@ -117,18 +115,18 @@ const AccountMenu = () => {
             {isOpen && (
                 <nav
                     id="account-menu"
-                    className="absolute right-0 z-50 w-max p-2 mt-2 overflow-hidden origin-top-right rounded-md shadow-xl bg-background/50 backdrop-blur-xl"
+                    className="absolute right-0 z-50 w-60 sm:w-max p-1 sm:p-2 mt-2 overflow-hidden origin-top-right rounded-md shadow-xl bg-background/50 backdrop-blur-xl"
                     role="menu"
                     aria-orientation="vertical"
                     aria-labelledby="user-menu-button"
                 >
-                    <header className="flex items-center gap-2 p-3 -mt-2 text-sm transition-colors duration-300">
+                    <header className="flex items-center gap-2 p-2 sm:p-3 -mt-2 text-xs sm:text-sm transition-colors duration-300">
                         {renderAvatar()}
                         <div className="mx-1">
-                            <h2 className="text-sm font-semibold text-gray-200 text-start">
+                            <h2 className="font-semibold text-gray-200 text-start text break-all sm:break-normal">
                                 {userData?.displayName}
                             </h2>
-                            <p className="text-sm text-gray-400 break-all">
+                            <p className="text-gray-400 break-all">
                                 {userData?.email}
                             </p>
                         </div>
@@ -139,7 +137,7 @@ const AccountMenu = () => {
                     <ul className="py-2" role="menu">
                         {renderDropdownMenuItem({
                             icon: (
-                                <UserIcon className="size-5" />
+                                <UserIcon className="size-4 sm:size-5" />
                             ),
                             text: "My account",
                             onClick: () => {
@@ -178,8 +176,8 @@ const AccountMenu = () => {
             )}
             {/* Help Modal */}
             <HelpModal
-                isOpen={showHelpModal} 
-                onClose={() => setShowHelpModal(false)} 
+                isOpen={showHelpModal}
+                onClose={() => setShowHelpModal(false)}
             />
         </div>
     );
