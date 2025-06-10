@@ -11,7 +11,7 @@ const AuthProviderButton: React.FC<Props> = ({ children, className, disabled, ..
                  bg-gray-700/30 hover:bg-gray-700/70 text-white 
                  border  border-gray-700/50
                  rounded-md px-6 py-2 group  
-                 text-sm 
+                 text-xs sm:text-sm 
                  transition-colors duration-500 ease-in-out ${className}`}
         >
             {children}

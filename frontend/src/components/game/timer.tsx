@@ -31,14 +31,14 @@ export const Timer: React.FC<Props> = ({
     return (
         <div className="relative">
             <motion.div
-                className="relative size-18"
+                className="relative size-14 sm:size-18"
                 animate={timeLeft <= 5 && timeLeft > 0 ? { scale: [1, 1.05, 1] } : { scale: 1 }}
                 transition={{ duration: 0.5, repeat: timeLeft <= 5 && timeLeft > 0 ? Infinity : 0 }}
             >
                 {/* Background circle */}
-                <div className="absolute inset-0 size-18 bg-dashboard-bg rounded-full shadow-lg border-4 border-dashboard-border"></div>
+                <div className="absolute inset-0 size-14 sm:size-18 bg-dashboard-bg rounded-full shadow-lg border-4 border-dashboard-border"></div>
 
-                <svg className="size-18 transform -rotate-90 absolute inset-0" viewBox="0 0 100 100">
+                <svg className="size-14 sm:size-18 transform -rotate-90 absolute inset-0" viewBox="0 0 100 100">
                     <circle
                         cx="50"
                         cy="50"
@@ -66,7 +66,7 @@ export const Timer: React.FC<Props> = ({
 
                 <div className="absolute inset-0 flex items-center justify-center">
                     <motion.span
-                        className="text-xl font-bold text-gray-900 dark:text-white"
+                        className="sm:text-xl text-sm font-bold text-gray-900 dark:text-white"
                         animate={timeLeft <= 5 ? { color: '#EF4444' } : {}}
                     >
                         {timeLeft}

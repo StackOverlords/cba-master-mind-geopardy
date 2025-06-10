@@ -48,7 +48,7 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
         <div className="flex items-center justify-center w-full mb-4">
             <div className="bg-indigo-950/80 rounded-lg px-4 py-2 border border-indigo-500/30 w-full shadow-lg">
                 <div className="flex items-center justify-between mb-1">
-                    <p className="text-indigo-300 text-sm font-medium">Turn Order</p>
+                    <p className="text-indigo-300 text-xs sm:text-sm font-medium">Turn Order</p>
                     <div className="flex items-center space-x-2 text-xs text-indigo-400">
                         <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                         <span>Current Player</span>

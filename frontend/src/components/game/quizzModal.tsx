@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import XIcon from "../ui/icons/xIcon";
-import TrophyIcon from "../ui/icons/trophyIcon";
 import CheckIcon from "../ui/icons/checkIcon";
 import ErrorIcon from "../ui/icons/errorIcon";
 import useSound from "../../hooks/useSound";
@@ -22,8 +21,6 @@ type Props = {
     category?: string | null,
     currentPlayer: ChampionShipPlayer
     time: number
-    onAnswerSelected: (answerId: string, isCorrect: boolean) => void
-    onTimeUp: () => void,
     handleCloseModal: () => void
     handleUpdatePlayers: (isCorrect: boolean, points: number) => void
     handlePlayerAnswered: (questionId: string, answerData: AnswerData) => void
@@ -35,8 +32,6 @@ const QuizModal: React.FC<Props> = ({
     question,
     category,
     currentPlayer,
-    onAnswerSelected,
-    onTimeUp,
     handleCloseModal,
     handleUpdatePlayers,
     handlePlayerAnswered,
@@ -92,7 +87,6 @@ const QuizModal: React.FC<Props> = ({
         const timer = timeLeft > 0 && setInterval(() => setTimeLeft(timeLeft - 1), 1000);
 
         if (timeLeft === 0) {
-            onTimeUp();
             setIsAnswered(true);
             stopCorrect();
             playIncorrect();
@@ -141,7 +135,6 @@ const QuizModal: React.FC<Props> = ({
         handlePlayerAnswered(question?._id || '', { answer: answer.text, isCorrect: answer.isCorrect })
         setSelectedAnswer(answer)
         setIsAnswered(true)
-        onAnswerSelected(answer._id, isCorrect)
     }
 
     const getAnswerStyle = (answerId: string, isCorrect: boolean) => {
@@ -171,57 +164,64 @@ const QuizModal: React.FC<Props> = ({
         stopCounterSound()
         handleCloseModal()
     }
+
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, []);
     return (
         <AnimatePresence>
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className={`fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50 ${isAnswered && !selectedAnswer || selectedAnswer?.isCorrect === false ? 'animate-flash-red' : ''}`}
-                onClick={() => !isAnswered && closeModal()}
+                className={`fixed mi-h-dvh inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50 ${isAnswered && !selectedAnswer || selectedAnswer?.isCorrect === false ? 'animate-flash-red' : ''}`}
+                onClick={() => !isStarted && closeModal()}
             >
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                    className="relative w-full max-w-3xl p-6 overflow-hidden rounded-xl
+                    className="relative w-full max-w-3xl p-6 overflow-y-auto rounded-xl
                         bg-gradient-to-br from-leaderboard-bg/60 to-black/30 backdrop-blur-sm 
-                        border border-border/70 shadow-[0_0_15px_rgba(72,66,165,0.3)]"
+                        border border-border/70 shadow-[0_0_15px_rgba(72,66,165,0.3)] max-h-full"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Glass overlay */}
                     <div className="absolute inset-0 bg-[#6f65ff]/5" />
                     <button
-                        disabled={isAnswered}
+                        disabled={isStarted}
                         className={`p-1 rounded-md hover:bg-dashboard-border/50 transition-colors ease-in-out delay-100 absolute top-6 right-4 z-40 disabled:cursor-not-allowed`}
-                        onClick={() => !isAnswered && closeModal()}
+                        onClick={() => !isStarted && closeModal()}
                     >
                         <XIcon className="w-5 h-5" />
                     </button>
                     {/* Content */}
                     <div className="relative z-10">
                         {/* Header */}
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 sm:gap-6 flex-wrap sm:flex-nowrap justify-center w-full">
                             {/* <img
                                 src={currentPlayer.avatar || "/placeholder.svg"}
                                 alt={currentPlayer.username}
                                 className="size-16 rounded-full border-2 border-indigo-400"
                             /> */}
                             <Timer timeLeft={timeLeft} gameStatus="playing" time={time} />
-                            <div className="w-full pr-10">
-                                <div className="flex justify-between gap-2">
+                            <div className="w-full sm:pr-10">
+                                <div className="flex justify-between gap-2 w-full">
                                     <div className="flex flex-col gap-2">
                                         <div className="flex items-center gap-2">
-                                            <span className={`px-3 py-1 rounded-full text-sm font-semibold bg-linear-to-r from-purple-400/60 to-blue-400/60 transition-colors ease-in-out duration-300 hover:from-purple-400 hover:to-blue-400 text-white capitalize`}>
+                                            <span className={`sm:px-3 px-1 py-1 rounded-full text-xs sm:text-sm font-semibold bg-linear-to-r transition-colors ease-in-out duration-300 from-purple-400 to-blue-400 text-white capitalize text-center`}>
                                                 {category || "Quiz"}
                                             </span>
-                                            <Trophy className="w-4 h-4 text-yellow-400" />
+                                            <Trophy className="w-4 h-4 text-yellow-400 hidden sm:block" />
 
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Target className="size-4" />
-                                            <p className="font-semibold">Round {currentRound}</p>
+                                            <p className="font-semibold text-xs sm:text-base">Round {currentRound}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2 text-indigo-300">
@@ -231,7 +231,7 @@ const QuizModal: React.FC<Props> = ({
                                             className="size-10 rounded-full border-2 border-indigo-400"
                                         />
                                         <div>
-                                            <h3 className="text-xl font-bold text-white">{currentPlayer.username}</h3>
+                                            <h3 className="text-sm sm:text-xl font-bold text-white">{currentPlayer.username}</h3>
                                             <p className="text-xs">Your turn</p>
                                         </div>
                                     </div>
@@ -242,7 +242,7 @@ const QuizModal: React.FC<Props> = ({
 
                         {/* Question */}
                         <div className="p-5 my-6">
-                            <h2 className="text-3xl text-wrap text-center font-bold">{question?.question}</h2>
+                            <h2 className=" text-lg sm:text-3xl text-wrap text-center font-bold">{question?.question}</h2>
                         </div>
 
                         {/* Answers */}
@@ -253,9 +253,9 @@ const QuizModal: React.FC<Props> = ({
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 className="flex flex-col items-center justify-center gap-4"
                             >
-                                <p className="text-indigo-200  font-medium text-center">Are you ready?</p>
+                                <p className="text-indigo-200  font-medium text-center text-xs sm:text-base">Are you ready?</p>
                                 <button
-                                    className="px-6 py-3 text-lg font-semibold text-white bg-gradient-to-r from-indigo-500 to-pink-500 rounded-md max-w-sm w-full cursor-pointer transition-all"
+                                    className="px-6 py-3 font-semibold text-white bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all rounded-md max-w-sm w-full cursor-pointer text-sm sm:text-lg"
                                     onClick={() => setIsStarted(true)}
                                 >
                                     Start
@@ -290,7 +290,7 @@ const QuizModal: React.FC<Props> = ({
                                                 <div className="absolute inset-0 bg-gradient-to-br from-transparent via-indigo-500/5 to-white/7" />
                                                 <div
                                                     className={`
-                                                w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
+                                                w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300
                                                 ${showCorrect ? "bg-emerald-500 text-white" : ""}
                                                 ${showIncorrect ? "bg-red-500/70 text-white" : ""}
                                                 ${!isAnswered ? "bg-indigo-600 text-indigo-200" : ""}
@@ -299,7 +299,7 @@ const QuizModal: React.FC<Props> = ({
                                                 >
                                                     {String.fromCharCode(65 + idx)}
                                                 </div>
-                                                <span className="text-[#e0ddff] flex grow gap-4 justify-between items-center">
+                                                <span className="text-white text-xs sm:text-base flex grow gap-4 justify-between items-center">
                                                     {answer.text}
                                                     {isAnswered && (
                                                         answer.isCorrect ? (
@@ -323,18 +323,18 @@ const QuizModal: React.FC<Props> = ({
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="flex justify-between mt-6"
+                                className="flex justify-center items-center mt-6"
                             >
-                                <div className="flex items-center">
+                                {/* <div className="flex items-center">
                                     {selectedAnswer && selectedAnswer.isCorrect && (
                                         <div className="flex items-center text-yellow-400">
                                             <TrophyIcon className="w-5 h-5 mr-2" />
                                             <span className="font-medium">{points} points</span>
                                         </div>
                                     )}
-                                </div>
+                                </div> */}
                                 <button
-                                    className="flex items-center justify-center p-2 rounded-md bg-indigo-950 border-indigo-400/50 border text-indigo-200 font-bold text-center text-xs sm:text-sm w-18 sm:w-24"
+                                    className="flex items-center justify-center py-3 px-5 rounded-md bg-indigo-950 border-indigo-400/50 border text-indigo-200 font-bold text-center text-xs sm:text-sm w-full max-w-sm"
                                     onClick={() => handleSuccessAnswered()}
                                 >
                                     Continue

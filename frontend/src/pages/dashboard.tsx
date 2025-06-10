@@ -20,8 +20,8 @@ export default function DashboardPage() {
     return (
         <>
             <GradientBackground />
-            <FloatingNavbar />
-            <div id="dashboard-container" className="min-h-screen bg-black/50 flex backdrop-blur-sm">
+            <div id="dashboard-container" className="min-h-dvh min-w-dvw bg-black/50 flex backdrop-blur-sm">
+                <FloatingNavbar />
                 <AppSidebar
                     activeSection={activeSection}
                     setActiveSection={setActiveSection}
