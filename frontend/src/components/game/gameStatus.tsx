@@ -13,9 +13,8 @@ interface GameStatusProps {
 import { useState, useEffect } from "react";
 import { motion } from "motion/react"
 
-const usePointRange = (currentRound: number, baseHigh: number, baseMid: number, baseLow: number, percentageIncrease: number) => {
+const usePointRange = (currentRound: number, baseHigh: number, baseLow: number, percentageIncrease: number) => {
     const [pointRange, setPointRange] = useState<string>("");
-    console.log(baseMid)
     useEffect(() => {
         const round = currentRound || 1;
         const multiplier = Math.pow(1 + percentageIncrease, round - 1);
@@ -38,11 +37,10 @@ const GameStatus: React.FC<GameStatusProps> = ({
     turnTime
 }) => {
     const baseHigh = 100;
-    const baseMid = 90;
     const baseLow = 80;
     const percentageIncrease = 0.10; // 10% extra por ronda
 
-    const pointRange = usePointRange(currentRound, baseHigh, baseMid, baseLow, percentageIncrease);
+    const pointRange = usePointRange(currentRound, baseHigh, baseLow, percentageIncrease);
 
     return (
         <div className="bg-indigo-950/80 rounded-lg p-3 border border-indigo-500/30 shadow-lg mb-4 w-full">
@@ -53,30 +51,30 @@ const GameStatus: React.FC<GameStatusProps> = ({
                             <Gamepad className="h-6 w-6 text-yellow-400" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-indigo-200">{gameName}</h2>
+                            <h2 className="text-lg sm:text-2xl font-bold text-indigo-200">{gameName}</h2>
                             <motion.p
-                                className="text-yellow-400 font-bold flex items-center gap-2 text-sm"
+                                className="text-yellow-400 font-bold flex items-center gap-2 text-xs sm:text-sm"
                                 key={pointRange} // Cambia la animación cuando cambia el rango
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <Trophy className="w-5 h-5" />
+                                <Trophy className="size-3 sm:size-5" />
                                 {pointRange} points
                             </motion.p>
                         </div>
                     </header>
-                    <div className="flex space-x-4 text-sm mt-2">
+                    <div className="flex space-x-4 text-xs sm:text-sm mt-2">
                         <div className="flex gap-2 items-center justify-center text-indigo-300">
-                            <Target className="size-4" />
+                            <Target className="size-3 sm:size-4" />
                             <p className="">Round {currentRound}</p>
                         </div>
                         <div className="flex items-center gap-2 text-indigo-300">
-                            <Users className="size-4" />
+                            <Users className="size-3 sm:size-4" />
                             <span>players {countPlayers}</span>
                         </div>
                         <div className="flex items-center gap-2 text-indigo-300">
-                            <Clock className="size-4" />
+                            <Clock className="size-3 sm:size-4" />
                             <span>{turnTime}s per turn</span>
                         </div>
                     </div>
@@ -89,8 +87,8 @@ const GameStatus: React.FC<GameStatusProps> = ({
                         className="h-10 w-10 rounded-full border-2 border-indigo-400"
                     />
                     <div>
-                        <p className="text-indigo-200 font-semibold">{currentPlayer?.username}'s Turn</p>
-                        <p className="text-indigo-300 text-sm">Score: {currentPlayer?.score}</p>
+                        <p className="text-indigo-200 font-semibold text-sm sm:text-base">{currentPlayer?.username}'s Turn</p>
+                        <p className="text-indigo-300 text-xs sm:text-sm">Score: {currentPlayer?.score}</p>
                     </div>
                 </div>
             </div>

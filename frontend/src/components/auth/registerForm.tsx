@@ -57,10 +57,10 @@ const SignUpForm = () => {
     return (
         <section className="flex flex-col items-center justify-center p-2">
             {/* <h2 className="text-2xl font-semibold">Hi, welcome back!</h2> */}
-            <form className="mt-4 px-4 py-2 
+            <form className="mt-4 py-2 
             flex flex-col gap-4 
             items-center 
-            max-w-sm w-sm text-sm"
+            sm:max-w-sm sm:w-sm w-auto text-xs sm:text-sm"
                 action="" onSubmit={handleSubmit}>
                 <div className="w-full">
                     <label htmlFor="email">Email</label>
@@ -114,13 +114,13 @@ const SignUpForm = () => {
                 >
                     Sign Up
                 </GlowButton>
-                <p className="text-sm">Already have an account?
+                <p className="text-center">Already have an account?
                     <a
                         href="/auth/sign-in"
                         className="text-purple-400 hover:text-purple-300 transition-colors duration-300 ease-in-out"> Sign in</a>
                 </p>
             </form>
-            <section className="flex flex-col items-center justify-center max-w-sm w-sm px-6 mt-5 gap-6">
+            <section className="flex flex-col items-center justify-center sm:max-w-sm sm:w-sm w-full mt-5 gap-6">
                 <SeparatorWithText text="Or" className="w-full" />
 
                 <AuthProviderButton
