@@ -22,6 +22,9 @@ import GlowButton from "../../ui/glowButton"
 import Pagination from "../../pagination"
 import SelectOptions from "../../ui/selectOptions"
 import ConfirmationModal from "../../confirmationModal"
+import { DownloadIcon } from "lucide-react"
+import ExcelIcon from "../../ui/icons/excelcon"
+import { handleDownloadTemplateWithExcelJS } from "./excelFormat/excelFormated"
 
 interface CategoryState extends CreateCategoryDto {
   _id?: string;
@@ -211,6 +214,17 @@ export function CategoriesSection() {
     setCurrentPage(1);
   };
 
+  const handleDownload = async (categoryName: string) => {
+    const res = await fetch(`/api/export/excel?category=${encodeURIComponent(categoryName)}`);
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${categoryName}_formatted.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
@@ -311,10 +325,21 @@ export function CategoriesSection() {
                     <p className="text-slate-400 text-xs sm:text-sm">{category.description}</p>
                   </section>
                   <footer className="px-4 pb-4 text-xs sm:text-sm">
-                    <button className="px-3 py-1.5 border border-dashboard-border text-slate-400 hover:bg-dashboard-border/50 hover:text-white rounded-md flex items-center transition-colors w-max">
-                      <FileTextIcon className="size-4 mr-2" />
-                      View Questions
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <button className="px-3 py-1.5 border border-dashboard-border text-slate-400 hover:bg-dashboard-border/50 hover:text-white rounded-md flex items-center transition-colors w-max">
+                        <FileTextIcon className="size-4 mr-2" />
+                        View Questions
+                      </button>
+                      <button
+                        onClick={() => handleDownloadTemplateWithExcelJS(category.name)}
+                        className="px-3 py-1.5 border border-dashboard-border text-slate-400 hover:bg-dashboard-border/50 hover:text-white rounded-md flex items-center transition-colors w-max"
+                      >
+                        <DownloadIcon className="size-4 mr-2" />
+                        Formatted Excel
+                        <ExcelIcon className="size-4 ml-2" />
+                      </button>
+
+                    </div>
                   </footer>
                 </article>
               )
