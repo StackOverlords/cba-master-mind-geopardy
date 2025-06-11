@@ -26,14 +26,12 @@ export default function DashboardPage() {
                     activeSection={activeSection}
                     setActiveSection={setActiveSection}
                     userRole={userRole}
-                    setUserRole={setUserRole}
                     isOpen={sidebarOpen}
                     setIsOpen={setSidebarOpen}
                 />
                 <main className="flex-1">
                     <DashboardContent
                         activeSection={activeSection}
-                        userRole={userRole}
                         sidebarOpen={sidebarOpen}
                         setSidebarOpen={setSidebarOpen}
                     />

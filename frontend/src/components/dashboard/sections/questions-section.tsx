@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import PlusIcon from "../../ui/icons/plusIcon"
 import SearchIcon from "../../ui/icons/searchIcon"
 import EditIcon from "../../ui/icons/editIcon"
@@ -25,6 +25,7 @@ import UploadIcon from "../../ui/icons/uploadIcon"
 import GlowButton from "../../ui/glowButton"
 import UploadFilesModal from "../../uploadFilesModal"
 import ConfirmationModal from "../../confirmationModal"
+import { useSearchParams } from "react-router"
 interface QuestionState extends CreateQuestionDto {
   _id?: string;
 }
@@ -39,7 +40,13 @@ export function QuestionsSection() {
 
   const creatorId = useAuthStore((state) => state.user?._id)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [searchParams] = useSearchParams();
+  const categoryFromParams = searchParams.get("category") || "all";
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  useEffect(() => {
+    setSelectedCategory(categoryFromParams);
+  }, [categoryFromParams]);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);

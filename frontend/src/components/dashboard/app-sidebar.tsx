@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import TrophyIcon from "../ui/icons/trophyIcon"
 import UserIcon from "../ui/icons/userIcon"
 import { useAuthStore } from "../../stores/authStore"
@@ -7,17 +7,15 @@ import MasterMindLogo from "../../assets/appLogo/Logo-MasterMind.webp"
 import DashboardIcon from "../ui/icons/dashboardIcon"
 import CategoryIcon from "../ui/icons/categoryIcon"
 import SettingsIcon from "../ui/icons/settingsIcon"
-import LogoutIcon from "../ui/icons/logoutIcon"
 import type { IconType } from "../../shared/types"
 import UsersIcon from "../ui/icons/usersIcon"
 import FileTextIcon from "../ui/icons/fileTextIcon"
-import { useNavigate } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 
 interface AppSidebarProps {
     activeSection: string
     setActiveSection: (section: string) => void
     userRole: UserRole
-    setUserRole: (role: UserRole) => void
     isOpen: boolean
     setIsOpen: (open: boolean) => void
 }
@@ -103,13 +101,12 @@ const AppSidebar = ({
     activeSection,
     setActiveSection,
     userRole,
-    setUserRole,
     isOpen,
     // setIsOpen,
 }: AppSidebarProps) => {
-    const [userMenuOpen, setUserMenuOpen] = useState(false)
     const { hasRole, user } = useAuthStore()
     const navigate = useNavigate()
+    const location = useLocation()
     // const [activeSection, setActiveSection] = useState("overview")
     useEffect(() => {
         // Set the active section based on the current URL
@@ -120,7 +117,7 @@ const AppSidebar = ({
         } else {
             setActiveSection("overview") // Default to overview if no match found
         }
-    }, [])
+    }, [location.pathname])
     return (
         <div
             className={`${isOpen ? "w-64" : "w-20"} hidden md:flex transition-all duration-300 ease-in-out h-screen bg-gradient-to-br from-leaderboard-bg/60 to-black/30 border-r border-border/50 flex-col overflow-hidden`}
@@ -208,51 +205,16 @@ const AppSidebar = ({
             </div>
 
             <div className="p-4 border-t border-border/50 relative">
-                <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left text-slate-300 hover:text-white hover:bg-leaderboard-bg/80 transition-colors"
+                <div
+                    className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-left text-slate-300 hover:text-white hover:bg-leaderboard-bg/80 transition-colors"
                 >
-                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-sm flex-shrink-0">
-                        RG
-                    </div>
-                    <div
-                        className={`flex-1 min-w-0 ${isOpen ? "opacity-100" : "opacity-0 md:hidden"} transition-opacity duration-300`}
+                    <span className="text-sm truncate">{user?.displayName}</span>
+                    <span
+                        className={`text-[10px] px-2 rounded-full inline-flex w-fit bg-purple-400/40`}
                     >
-                        <div className="flex flex-col">
-                            <span className="text-sm truncate">{user?.displayName}</span>
-                            <span
-                                className={`text-xs px-3 py-0.5 rounded-full inline-flex w-fit bg-purple-400/40`}
-                            >
-                                {user?.role}
-                            </span>
-                        </div>
-                    </div>
-                    {/* <ChevronDown
-            className={`w-4 h-4 ${isOpen ? "opacity-100" : "opacity-0 md:hidden"} transition-opacity duration-300`}
-          /> */}
-                </button>
-
-                {userMenuOpen && (
-                    <div className="absolute bottom-full left-4 right-4 mb-2 bg-background border border-border/50 backdrop-blur-xl rounded-md shadow-xl p-2 z-10">
-                        <button className="w-full my-1.5 rounded-md flex items-center py-2 px-4 text-sm transition-colors duration-300 text-gray-300 hover:bg-border/50 hover:text-white cursor-pointer gap-3">
-                            <UserIcon className="w-4 h-4" />
-                            <span>My Account</span>
-                        </button>
-                        <div className="h-px bg-border/50 my-1"></div>
-                        <button
-                            onClick={() => setUserRole(userRole === "admin" ? "player" : "admin")}
-                            className="w-full my-1.5 rounded-md flex items-center py-2 px-4 text-sm transition-colors duration-300 text-gray-300 hover:bg-border/50 hover:text-white cursor-pointer gap-3"
-                        >
-                            {/* <Shield className="w-4 h-4" /> */}
-                            <span>Switch to {userRole === "admin" ? "Player" : "Admin"}</span>
-                        </button>
-                        <div className="h-px bg-border/50 my-1"></div>
-                        <button className="w-full my-1.5 rounded-md flex items-center py-2 px-4 text-sm transition-colors duration-300 text-gray-300 hover:bg-border/50 hover:text-white cursor-pointer gap-3">
-                            <LogoutIcon className="size-4" />
-                            <span>Sign Out</span>
-                        </button>
-                    </div>
-                )}
+                        {user?.role}
+                    </span>
+                </div>
             </div>
         </div>
     )

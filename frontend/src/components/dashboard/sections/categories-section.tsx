@@ -25,6 +25,7 @@ import ConfirmationModal from "../../confirmationModal"
 import { DownloadIcon } from "lucide-react"
 import ExcelIcon from "../../ui/icons/excelcon"
 import { handleDownloadTemplateWithExcelJS } from "./excelFormat/excelFormated"
+import { useNavigate } from "react-router"
 
 interface CategoryState extends CreateCategoryDto {
   _id?: string;
@@ -213,7 +214,11 @@ export function CategoriesSection() {
     setRowsPerPage(rows);
     setCurrentPage(1);
   };
+  const navigate = useNavigate();
 
+  const handleViewQuestions = (category: string) => {
+    navigate(`/dashboard/questions?category=${category}`);
+  };
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
@@ -315,7 +320,9 @@ export function CategoriesSection() {
                   </section>
                   <footer className="px-4 pb-4 text-xs sm:text-sm">
                     <div className="flex flex-col sm:flex-row gap-2">
-                      <button className="px-3 py-1.5 border border-dashboard-border text-slate-400 hover:bg-dashboard-border/50 hover:text-white rounded-md flex items-center transition-colors w-max">
+                      <button
+                        onClick={() => handleViewQuestions(category._id)}
+                        className="px-3 py-1.5 border border-dashboard-border text-slate-400 hover:bg-dashboard-border/50 hover:text-white rounded-md flex items-center transition-colors w-max">
                         <FileTextIcon className="size-4 mr-2" />
                         View Questions
                       </button>

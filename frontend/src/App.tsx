@@ -52,7 +52,7 @@ const App = () => {
           </ProtectedRoute>
         }>
           <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<OverviewSection userRole="admin" />} />
+          <Route path="overview" element={<OverviewSection />} />
           <Route path="users" element={<UserManagementSection />} />
           <Route path="categories" element={<CategoriesSection />} />
           <Route path="questions" element={<QuestionsSection />} />
