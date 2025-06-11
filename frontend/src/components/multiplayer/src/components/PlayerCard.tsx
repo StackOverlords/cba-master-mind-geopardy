@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { motion } from 'framer-motion'; 
-import { Crown, User } from 'lucide-react';
+import { Crown, Zap } from 'lucide-react';
 import type { Player } from '../types/game';
 
 interface PlayerCardProps {
@@ -10,57 +9,104 @@ interface PlayerCardProps {
 }
 
 export const PlayerCard: React.FC<PlayerCardProps> = ({ player, isActive }) => {
+  console.log(player)
   return (
     <motion.div
       className={`
-        relative p-4 rounded-2xl border transition-all duration-300 backdrop-blur-sm
+        relative p-3 rounded-xl border-2 transition-all duration-300 backdrop-blur-md
         ${isActive 
-          ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-900/20 shadow-lg shadow-blue-500/20' 
-          : 'border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 hover:shadow-md'
+          ? 'border-gradient-to-r from-purple-500 to-pink-500 bg-gradient-to-br from-purple-500/10 to-pink-500/10 shadow-lg shadow-purple-500/25' 
+          : 'border-slate-200/50 bg-slate-50/80 hover:bg-slate-100/80 hover:shadow-md hover:border-slate-300/50'
         }
       `}
-      animate={isActive ? { scale: 1.02 } : { scale: 1 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      animate={isActive ? { scale: 1.02, y: -2 } : { scale: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
+      {/* Active pulse indicator */}
       {isActive && (
         <motion.div
-          className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-2 border-white"
+          animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
         />
       )}
       
+      {/* Glowing border for active player */}
+      {isActive && (
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 blur-sm -z-10" />
+      )}
+      
       <div className="flex items-center space-x-3">
+        {/* Avatar container - more compact */}
         <div className={`
-          w-12 h-12 rounded-xl flex items-center justify-center text-xl border-2
+          relative w-10 h-10 rounded-lg flex items-center justify-center border-2 transition-all duration-300
           ${isActive 
-            ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-600' 
-            : 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
+            ? 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300 shadow-md' 
+            : 'bg-slate-100 border-slate-200'
           }
         `}>
-          <User className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+          <img className='w-7 h-7 rounded-md' src={player.avatar} alt="avatar" />
+          {isActive && (
+            <motion.div
+              className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              <Zap className="w-2 h-2 text-white" />
+            </motion.div>
+          )}
         </div>
         
+        {/* Player info - more compact */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white truncate">
-              {player?.username || `Jugador ${player.userId}`}
+            <h3 className={`
+              font-bold text-sm truncate transition-colors duration-300
+              ${isActive 
+                ? 'text-slate-800 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent' 
+                : 'text-slate-700'
+              }
+            `}>
+              {player?.username || `Player ${player.userId}`}
             </h3>
             {player.score > 0 && (
-              <Crown className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Crown className="w-3 h-3 text-amber-500 flex-shrink-0" />
+              </motion.div>
             )}
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {player.score} puntos
-          </p>
+          <div className="flex items-center space-x-1">
+            <span className={`
+              text-xs font-semibold transition-colors duration-300
+              ${isActive 
+                ? 'text-purple-600' 
+                : 'text-slate-500'
+              }
+            `}>
+              {player.score}
+            </span>
+            <span className="text-xs text-slate-400">pts</span>
+          </div>
         </div>
         
+        {/* Active indicator - sleeker design */}
         {isActive && (
-          <div className="flex-shrink-0">
-            <div className="w-2 h-8 bg-blue-500 rounded-full animate-pulse" />
-          </div>
+          <motion.div
+            className="flex-shrink-0"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          >
+            <div className="w-1.5 h-6 bg-gradient-to-t from-purple-500 to-pink-500 rounded-full shadow-lg" />
+          </motion.div>
         )}
       </div>
+      
+      {/* Subtle gradient overlay for depth */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
     </motion.div>
   );
 };
+export default PlayerCard;

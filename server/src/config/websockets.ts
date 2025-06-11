@@ -15,6 +15,8 @@ interface PlayerInGame {
     username: string;
     score: number; // Añadimos el puntaje del jugador en tiempo real
     hasAnsweredThisTurn: boolean; // Para controlar si el jugador ya respondió en su turno
+    avatar: string | null // Puedes añadir un avatar o imagen del jugador si lo necesitas
+    isReady: boolean; // Para manejar el estado de "listo" del jugador
 }
 
 interface GameRoomState {
@@ -37,6 +39,9 @@ interface GameRoomState {
 
     outGameTimer: NodeJS.Timeout | null; // Temporizador para el tiempo de espera fuera del juego
     outGameTime: number;
+
+    // Points
+    pointsByRound?: 100 | 80 | 50 | 20; // Puntos por ronda, puedes definirlo como quieras
 }
 
 const games: { [gameCode: string]: GameRoomState } = {};
@@ -147,11 +152,11 @@ export class SocketConnection {
                         socket.emit("error", { message: "Error al crear el juego" });
                         return;
                     }
-
+                    const avatar = `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name}`
                     const newRoom: GameRoomState = {
                         code: gameCode,
                         ownerId: userData.userId,
-                        players: [{ socketId: socket.id, userId: userData.userId, username: user.name, score: 0, hasAnsweredThisTurn: false }],
+                        players: [{ socketId: socket.id, avatar, userId: userData.userId, username: user.name, score: 0, hasAnsweredThisTurn: false, isReady: false }], // El primer jugador es el owner
                         gameData: newGame,
                         questionsAvailable: [], // Vacío inicialmente
                         currentQuestion: null,
@@ -162,7 +167,8 @@ export class SocketConnection {
                         defaultTurnTime: userData.gameData.defaultTurnTime || TURN_TIMER_SECONDS,
                         rounds: userData.gameData.rounds || 2,
                         outGameTimer: null, // Temporizador para el tiempo de espera fuera del juego
-                        outGameTime: 0 // Tiempo de espera fuera del juego
+                        outGameTime: 0,// Tiempo de espera fuera del juego
+                        pointsByRound: 100
                     };
                     games[gameCode] = newRoom;
 
@@ -213,8 +219,8 @@ export class SocketConnection {
                     socket.emit("error", { message: "La partida ya ha comenzado. No puedes unirte ahora." });
                     return;
                 }
-
-                gameRoom.players.push({ socketId: socket.id, userId: userData.userId, username: user.name, score: 0, hasAnsweredThisTurn: false });
+                const avatar = `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name}`
+                gameRoom.players.push({ socketId: socket.id, avatar, userId: userData.userId, username: user.name, score: 0, hasAnsweredThisTurn: false, isReady: false });
                 // NOTA: gameRoom.gameData.players.push() no es estrictamente necesario aquí si actualizas la DB después
                 socket.join(gameCode);
                 socket.emit("gameJoined", { gameCode });
@@ -235,7 +241,7 @@ export class SocketConnection {
             socket.on("getGameState", (gameCode: string) => {
                 const gameRoom = games[gameCode];
                 if (gameRoom) {
-                    socket.emit("gameState", { players: gameRoom.players, gameData: gameRoom.gameData, currentQuestion: gameRoom.currentQuestion, defaultTurnTime: gameRoom.defaultTurnTime });
+                    socket.emit("gameState", { players: gameRoom.players, gameData: gameRoom.gameData, currentQuestion: gameRoom.currentQuestion, defaultTurnTime: gameRoom.defaultTurnTime, rounds: gameRoom.rounds });
                 } else {
                     socket.emit("error", { message: "Partida no encontrada" });
                 }
@@ -244,8 +250,7 @@ export class SocketConnection {
                 console.log(socket.id, "solicita la lista de partidas");
                 socket.emit("roomsList", games);
                 console.log("🗂️ Lista de partidas enviadas:", JSON.stringify(games));
-            }
-            );
+            });
 
             // En SocketConnection class, dentro de setupSocketEvents()
             socket.on("startGame", async (gameData: { gameCode: string, userId: string }) => {
@@ -255,8 +260,22 @@ export class SocketConnection {
                     socket.emit("error", { message: "Datos de partida incompletos" });
                     return;
                 }
+                // Verificar que todos esten ready: 
                 console.log("Iniciando partida con código:", gameCode);
                 const gameRoom = games[gameCode];
+                let isReadyGame = true;
+                gameRoom.players.forEach(player => {
+                    if (!player.isReady) {
+                        isReadyGame = false;
+                        return;
+                    }
+                });
+                console.log(gameRoom.players, "jugadores en la partida");
+                if (!isReadyGame) {
+                    console.log("No todos los jugadores están listos");
+                    socket.emit("error", { message: "No todos los jugadores están listos para iniciar la partida." });
+                    return;
+                }
                 if (!gameRoom) {
                     console.log("Partida no encontrada")
                     socket.emit("error", { message: "Partida no encontrada" });
@@ -364,6 +383,8 @@ export class SocketConnection {
             socket.on("answerQuestion", async (data: { gameCode: string; answerText: string }) => {
                 const { gameCode, answerText } = data;
                 const gameRoom = games[gameCode];
+
+                let turnPoint = games[gameCode].pointsByRound || 100; // Puntos por ronda, puedes ajustar esto según la lógica de tu juego
                 if (!gameRoom || !gameRoom.currentQuestion) {
                     socket.emit("error", { message: "No hay una pregunta activa o la partida no existe." });
                     return;
@@ -391,7 +412,7 @@ export class SocketConnection {
                 let pointsAwarded = 0;
                 if (isCorrect) {
                     // Asume que la pregunta tiene una propiedad 'points' o calcula en base a la categoría/dificultad
-                    pointsAwarded = 100; // Ejemplo de puntos
+                    pointsAwarded = turnPoint; // Ejemplo de puntos
                     currentPlayer.score += pointsAwarded;
                 }
 
@@ -439,13 +460,32 @@ export class SocketConnection {
                     });
                 }
             });
-            
+
+            socket.on("playerReady", async ({ gameCode, userId }: { gameCode: string, userId: string }) => {
+                const gameRoom = games[gameCode];
+                console.log(userId, "intenta cambiar su estado de listo");
+                if (!gameRoom) {
+                    socket.emit("error", { message: "Partida no encontrada" });
+                    return;
+                }
+                const player = gameRoom.players.find(p => p.userId === userId);
+                if (!player) {
+                    socket.emit("error", { message: "Jugador no encontrado en la partida" });
+                    return;
+                }
+                player.isReady = !player.isReady; // Cambiar el estado de "listo"
+                console.log(`Jugador ${player.username} (${userId}) está ${player.isReady ? "listo" : "no listo"} en la partida ${gameCode}`);
+                this.io?.to(gameCode).emit("gamePlayers", { players: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score, isReady: p.isReady, avatar: p.avatar })) });
+            });
 
 
         });
     }
     private async sendNextQuestion(gameCode: string): Promise<void> {
         const gameRoom = games[gameCode];
+        games[gameCode].pointsByRound = 100; // Asignar puntos por ronda al iniciar el turno
+        this.io?.to(gameCode).emit("updatePointsShow", 100); // Enviar puntos por ronda al frontend
+
         if (!gameRoom || gameRoom.gameData.status !== "playing") return;
 
         // Resetear el estado de respuesta para todos los jugadores para el nuevo turno
@@ -533,6 +573,18 @@ export class SocketConnection {
                 return;
             }
             this.io?.to(gameCode).emit("updateTimer", timeLeft); // A todos los jugadores en la sala
+            if (timeLeft <= 0.8 * gameRoom.defaultTurnTime) {
+                games[gameCode].pointsByRound = 80; // Asignar puntos por ronda
+                this.io?.to(gameCode).emit("updatePointsShow", 80)
+            }
+            if (timeLeft <= 0.5 * gameRoom.defaultTurnTime) {
+                games[gameCode].pointsByRound = 50; // Asignar puntos por ronda
+                this.io?.to(gameCode).emit("updatePointsShow", 50)
+            }
+            if (timeLeft <= 0.2 * gameRoom.defaultTurnTime) {
+                games[gameCode].pointsByRound = 20; // Asignar puntos por ronda
+                this.io?.to(gameCode).emit("updatePointsShow", 20)
+            }
             timeLeft--;
         }, 1000);
 
@@ -666,7 +718,7 @@ export class SocketConnection {
             if (gameRoom.players.length < initialPlayerCount && disconnectedPlayer) {
                 console.log(`👤 Jugador ${disconnectedPlayer.username} (${disconnectedPlayer.userId}) abandonó la partida ${gameCode}. Jugadores restantes: ${gameRoom.players.length}`);
                 this.io?.to(gameCode).emit("playerLeft", { userId: disconnectedPlayer.userId, username: disconnectedPlayer.username });
-                this.io?.to(gameCode).emit("gamePlayers", { players: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score })) });
+                this.io?.to(gameCode).emit("gamePlayers", { players: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score, isReady: p.isReady, avatar: p.avatar })) });
 
 
                 // Si el jugador desconectado tenía el turno, pasarlo al siguiente
