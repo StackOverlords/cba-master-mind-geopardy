@@ -12,7 +12,7 @@ import { useNavigate } from "react-router";
 import SpinnerIcon from "../ui/icons/spinnerIcon";
 
 const SignUpForm = () => {
-    const { loginWithGoogle, register, isLoading } = useAuthStore()
+    const { loginWithGoogle, register, isLoadingButtons } = useAuthStore()
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loginData, setLoginData] = useState<RegisterCredentials>({
@@ -49,6 +49,7 @@ const SignUpForm = () => {
         try {
             await register(loginData)
             setError(null);
+            navigate('/')
         } catch (error) {
             setError('Invalid email or password');
         }
@@ -108,12 +109,18 @@ const SignUpForm = () => {
                     </button>
                 </div>
 
-                <GlowButton
-                    type="submit"
-                    className="w-full"
-                >
-                    Sign Up
-                </GlowButton>
+                {
+                    isLoadingButtons.withEmail ? (
+                        <SpinnerIcon className="size-6 animate-spin" />
+                    ) : (
+                        <GlowButton
+                            type="submit"
+                            className="w-full"
+                        >
+                            Sign Up
+                        </GlowButton>
+                    )
+                }
                 <p className="text-center">Already have an account?
                     <a
                         href="/auth/sign-in"
@@ -125,10 +132,10 @@ const SignUpForm = () => {
 
                 <AuthProviderButton
                     onClick={() => handleSignInWithGoogle()}
-                    disabled={isLoading}
-                    className={`${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                    disabled={isLoadingButtons.withGoogle}
+                    className={`${isLoadingButtons.withGoogle ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
-                    {isLoading ? (
+                    {isLoadingButtons.withGoogle ? (
                         <SpinnerIcon className="size-4 animate-spin" />
                     ) : (
                         <GoogleIcon className="size-4" />

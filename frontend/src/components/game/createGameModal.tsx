@@ -12,6 +12,7 @@ import { useNavigate } from "react-router";
 import { useGameStore } from "../multiplayer/src/store/gameStore";
 import ErrorToast from "../toastAlerts/errorAlert";
 import toast from "react-hot-toast";
+import SpinnerIcon from "../ui/icons/spinnerIcon";
 
 const httpClient = new HttpClient();
 
@@ -124,7 +125,8 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
       maxPlayers: 8,
       rounds: 4,
     });
-
+  // Animation state for the refresh button
+  const [isLoadingCreate, setIsLoadingCreate] = useState(false);
   // Reset modal when closed
   useEffect(() => {
     socketService.connect(user?._id || ""); // Make sure user is connected
@@ -150,6 +152,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
       // console.log("Game created event received:", gameCode.gameCode);
       socketService.emit("getGameState", gameCode.gameCode);
       handleGameCreated(gameCode);
+      setIsLoadingCreate(false);
     });
     socketService.on("gameOverPlayersCero", () => {
       // console.log("Game over due to no players:", reason);
@@ -167,15 +170,12 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
       // console.log("Game state received:", gameState);
       setGameState(gameState);
     });
-    socketService.on(
-      "gameCancelledOwnerLeft",
-      () => {
-        // console.log("Game cancelled due to owner leaving:", reason.message);
-        setCurrentStep("mode-selection");
-        setGameCode(null);
-        setPlayersJoined([]);
-      }
-    );
+    socketService.on("gameCancelledOwnerLeft", () => {
+      // console.log("Game cancelled due to owner leaving:", reason.message);
+      setCurrentStep("mode-selection");
+      setGameCode(null);
+      setPlayersJoined([]);
+    });
     socketService.on("gameStarted", (gameCodeHere: any) => {
       setCurrentStep("mode-selection");
       //Redirect to the game page
@@ -188,11 +188,11 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
 
     socketService.on("error", (error: any) => {
       // console.log("Error event received:", error);
-        toast.custom((t) => (
-        <ErrorToast 
-          t={t} 
-          title="Something went wrong" 
-          description={error.message || "An unexpected error occurred."} 
+      toast.custom((t) => (
+        <ErrorToast
+          t={t}
+          title="Something went wrong"
+          description={error.message || "An unexpected error occurred."}
         />
       ));
     });
@@ -249,13 +249,28 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
   };
 
   const handleCreateMultiplayerGame = async () => {
+    setIsLoadingCreate(true);
     if (!multiplayerConfig.name.trim()) {
-      alert("Please enter a name for the game");
+      toast.error((t) => (  
+        <ErrorToast
+          t={t}
+          title="Game name is required"
+          description="Please enter a name for the game"
+        />
+      ))
+      setIsLoadingCreate(false);
       return;
     }
 
     if (multiplayerConfig.categories.length === 0) {
-      alert("Please select at least one category");
+      toast.error((t) => (
+        <ErrorToast
+          t={t}
+          title="At least one category is required"
+          description="Please select at least one category for the game"
+        />
+      ));
+      setIsLoadingCreate(false);
       return;
     }
 
@@ -275,7 +290,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     if (gameCode && socket) {
       // console.log(gameCode);
       socket.emit("startGame", { gameCode: gameCode, userId: user?._id });
-      // setDeactivatedButtonStart(true); // Disable start button
+      setDeactivatedButtonStart(true); // Disable start button
     } else {
       console.error("Game code is not set");
     }
@@ -283,10 +298,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
   const handleReady = (userId: string) => {
     // console.log("handleReady called with userId:", userId);
     let socket = socketService.getSocket();
-    if(userId !== user?._id) {
+    if (userId !== user?._id) {
       toast.error("You can only mark yourself as ready.");
       return;
-    }else{
+    } else {
       // console.log("Marking player as ready:", userId);
       socket.emit("playerReady", { gameCode: gameCode, userId: userId });
     }
@@ -307,33 +322,28 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="space-y-6 w-full max-w-md mx-auto"
+        className="space-y-4 w-full max-w-md mx-auto"
       >
-        {/* Game Code Section */}
-        <div className="p-6 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-xl border-2 border-cyan-500/30 shadow-lg shadow-cyan-500/10">
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-sm shadow-cyan-400/50"></div>
-              <p className="text-xs font-bold text-cyan-300 tracking-wider uppercase">
-                {TextComponent.gameCode}
-              </p>
-              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-sm shadow-cyan-400/50"></div>
-            </div>
-
+        {/* Sección del Código de Juego (Sin cambios) */}
+        <div className="bg-zinc-900/70 border border-zinc-700/80 rounded-xl p-4 shadow-lg shadow-black/20">
+          <div className="text-center space-y-3">
+            <p className="text-xs font-semibold text-violet-400 tracking-wider uppercase">
+              {TextComponent.gameCode}
+            </p>
             <div className="flex items-center justify-center gap-3">
-              <div className="px-6 py-3 bg-slate-800/80 rounded-xl border-2 border-dashed border-cyan-400/60 shadow-inner">
-                <span className="text-2xl font-mono font-bold tracking-wider text-cyan-300 drop-shadow-sm">
+              <div className="px-5 py-2 bg-black/20 rounded-lg border border-dashed border-violet-500/50">
+                <span className="text-2xl font-mono font-bold tracking-widest text-violet-300">
                   {gameCode}
                 </span>
               </div>
               <motion.button
                 whileHover={{
                   scale: 1.05,
-                  boxShadow: "0 0 15px rgba(34, 211, 238, 0.3)",
+                  boxShadow: "0 0 15px rgba(139, 92, 246, 0.3)",
                 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigator.clipboard.writeText(gameCode || "")}
-                className="p-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-xl transition-all duration-200 border-2 border-blue-400/50 shadow-lg shadow-blue-500/20"
+                className="p-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition-colors duration-200 shadow-md shadow-violet-600/20"
                 aria-label="Copy code"
               >
                 <svg
@@ -351,53 +361,43 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                 </svg>
               </motion.button>
             </div>
-
-            <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-lg p-2 border border-blue-400/30">
-              <p className="text-xs text-cyan-300 font-medium">
-                Share this code with your friends to join the game.
+            <div className="bg-violet-500/10 rounded-md p-2 border border-violet-500/20">
+              <p className="text-xs text-violet-300 font-medium">
+                {TextComponent.shareCode}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Players Section */}
-        <div className="rounded-xl border-2 border-slate-600/50 bg-gradient-to-b from-slate-800/40 to-slate-900/60 overflow-hidden shadow-xl shadow-slate-900/20">
-          <div className="px-6 py-4 bg-gradient-to-r from-slate-700/50 to-slate-800/50 border-b-2 border-slate-600/50">
+        {/* Sección de Jugadores - ¡REDISENADA! */}
+        <div className="bg-zinc-900/70 border border-zinc-700/80 rounded-xl overflow-hidden shadow-lg shadow-black/20">
+          <div className="px-4 py-3 bg-zinc-800/20 border-b border-zinc-700/80">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 border border-blue-400/30">
-                    <svg
-                      className="w-6 h-6 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-                    </svg>
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full border-2 border-slate-800 flex items-center justify-center shadow-lg shadow-cyan-400/30">
-                    <span className="text-[10px] font-bold text-white">
-                      {playersJoined?.length || 0}
-                    </span>
-                  </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/20 border border-violet-500/30">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                  </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-cyan-300 drop-shadow-sm">
+                  <h3 className="text-base font-bold text-zinc-100">
                     Jugadores Conectados
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-zinc-400">
                     {playersJoined?.length || 0} de{" "}
                     {multiplayerConfig.maxPlayers} jugadores
                   </p>
                 </div>
               </div>
             </div>
-
-            {/* Progress bar */}
             <div className="mt-3">
-              <div className="w-full bg-slate-700/60 rounded-full h-2 overflow-hidden border border-slate-600/50">
+              <div className="w-full bg-zinc-800 rounded-full h-1.5 border border-zinc-700">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-600 rounded-full shadow-sm shadow-cyan-400/50"
+                  className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
                   initial={{ width: 0 }}
                   animate={{
                     width: `${Math.min(
@@ -413,92 +413,117 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
             </div>
           </div>
 
-          {/* Players List - Scrollable area with consistent styling */}
-          <div className="px-4 py-3 max-h-[calc(100vh-400px)] overflow-y-auto">
+          {/* Lista de Jugadores con nuevo diseño */}
+          <div className="p-2 max-h-[calc(100vh-450px)] overflow-y-auto">
             {playersJoined?.length > 0 ? (
-              <div className="space-y-3">
-                {playersJoined.map((player, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-slate-800/30 to-slate-700/30 border border-slate-600/40 hover:border-cyan-400/50 hover:bg-gradient-to-r hover:from-slate-700/40 hover:to-slate-600/40 transition-all duration-200 shadow-sm"
-                  >
-                    <div className="relative">
-                      <div className="w-11 h-11 rounded-xl border-2 border-slate-600/50 overflow-hidden">
-                        <img
-                          className="w-full h-full object-cover"
-                          src={player.avatar}
-                          alt=""
-                        />
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-slate-800 shadow-sm shadow-green-400/30"></div>
-                    </div>
+              <div className="space-y-2">
+                {playersJoined.map((player, index) => {
+                  // ⭐ DETERMINAMOS SI ESTA TARJETA PERTENECE AL JUGADOR ACTUAL
+                  // Reemplaza 'currentUserId' con la variable que contenga el ID del usuario logueado
+                  const isCurrentUser = player.userId === user?._id;
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-semibold text-cyan-300 truncate">
-                          {player.username ||
-                            player.name ||
-                            `Jugador ${index + 1}`}
-                        </h4>
-                        <span className="text-[10px] font-bold text-green-400 bg-green-400/20 px-2 py-1 rounded-full border border-green-400/30">
-                          Online
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400 truncate">Ready</p>
-                    </div>
-
-                    <div
-                      className={`
-          relative w-12 h-12 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-300
-          ${player.isReady
-            ? "bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/30"
-            : "bg-gradient-to-r from-red-500 to-rose-500 hover:scale-105"
-          }
-        `}
+                  return (
+                    <motion.div
+                      key={player.userId || index}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50"
                     >
-                      {!player.isReady && (
-                        <div 
-                        className="absolute inset-0 rounded-lg border-2 border-yellow-400 animate-ping"></div>
-                      )}
-                      <div 
-                        onClick={()=>handleReady(player.userId)}
-                       className="relative z-10">
-                        {player.isReady ? (
-                          <svg
-                            className="w-6 h-6 text-white"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
+                      {/* Avatar */}
+                      <div className="relative flex-shrink-0">
+                        <img
+                          className="w-12 h-12 rounded-lg object-cover border-2 border-zinc-700"
+                          src={player.avatar}
+                          alt={player.username}
+                        />
+                        <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-zinc-800 shadow"></div>
+                      </div>
+
+                      {/* Contenedor principal para nombre y botón */}
+                      <div className="flex-1 min-w-0 space-y-2">
+                        {/* Nombre y estado de texto */}
+                        <div>
+                          <h4 className="text-base font-bold text-zinc-100 truncate">
+                            {player.username || `Jugador ${index + 1}`}
+                            {isCurrentUser && (
+                              <span className="text-xs text-violet-400">
+                                {" "}
+                                (Tú)
+                              </span>
+                            )}
+                          </h4>
+                          <p
+                            className={`text-xs font-semibold ${
+                              player.isReady
+                                ? "text-green-400"
+                                : "text-zinc-400"
+                            }`}
                           >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                            {player.isReady ? "Listo" : "Esperando..."}
+                          </p>
+                        </div>
+
+                        {/* LÓGICA CORREGIDA: mostramos el botón o el indicador */}
+                        {isCurrentUser ? (
+                          // BOTÓN INTERACTIVO PARA EL JUGADOR ACTUAL
+                          <motion.button
+                            layout
+                            onClick={() => handleReady(player.userId)}
+                            className={`w-full text-sm font-bold rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 py-2
+                  ${
+                    player.isReady
+                      ? "bg-green-600 border-2 border-green-500 text-white shadow-lg shadow-green-500/20"
+                      : "bg-zinc-700/50 border-2 border-dashed border-violet-500/60 text-violet-300 hover:bg-violet-500/80 hover:text-white hover:border-solid animate-pulse"
+                  }`}
+                          >
+                            {player.isReady ? (
+                              <>
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                <span>Listo</span>
+                              </>
+                            ) : (
+                              <span>¡Declárate Listo!</span>
+                            )}
+                          </motion.button>
                         ) : (
-                          <svg
-                            className="w-6 h-6 text-white"
-                            viewBox="0 0 14 14"
+                          // INDICADOR VISUAL PARA OTROS JUGADORES (NO INTERACTIVO)
+                          <div
+                            className={`w-full text-sm font-bold rounded-lg flex items-center justify-center gap-2 py-2
+                 ${
+                   player.isReady
+                     ? "bg-green-600/30 text-green-400"
+                     : "bg-zinc-700/30 text-zinc-400"
+                 }`}
                           >
-                            <path
-                              fill="currentColor"
-                              d="M13 10.65657q0 .40404-.28283.68686l-1.37374 1.37374Q11.06061 13 10.65657 13t-.68687-.28283L7 9.74747l-2.9697 2.9697Q3.74747 13 3.34343 13q-.40404 0-.68686-.28283l-1.37374-1.37374Q1 11.06061 1 10.65657t.28283-.68687L4.25253 7l-2.9697-2.9697Q1 3.74747 1 3.34343q0-.40404.28283-.68686l1.37374-1.37374Q2.93939 1 3.34343 1t.68687.28283L7 4.25253l2.9697-2.9697Q10.25253 1 10.65657 1q.40404 0 .68686.28283l1.37374 1.37374Q13 2.93939 13 3.34343t-.28283.68687L9.74747 7l2.9697 2.9697Q13 10.25253 13 10.65657z"
-                            />
-                          </svg>
+                            {player.isReady ? (
+                              <span>✓ Listo</span>
+                            ) : (
+                              <span>Esperando...</span>
+                            )}
+                          </div>
                         )}
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center mx-auto mb-4 border-2 border-slate-600/50 shadow-lg">
+              // Estado cuando no hay jugadores
+              <div className="text-center py-10 px-4">
+                <div className="w-16 h-16 bg-zinc-800 rounded-xl flex items-center justify-center mx-auto mb-4 border border-zinc-700 shadow-md">
                   <svg
-                    className="w-7 h-7 text-slate-400"
+                    className="w-7 h-7 text-zinc-500"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -511,28 +536,27 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                     />
                   </svg>
                 </div>
-                <h4 className="text-sm font-bold text-cyan-300 mb-2">
+                <h4 className="text-sm font-bold text-zinc-300 mb-1">
                   Esperando jugadores...
                 </h4>
-                <p className="text-slate-400 text-xs">
-                  Comparte el código para que se unan
+                <p className="text-zinc-400 text-xs">
+                  Comparte el código para que otros se unan.
                 </p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Action Button */}
+        {/* Botón de Acción Principal (Sin cambios) */}
         {deactivatedButtonStart !== true ? (
           <motion.button
-            // whileHover={{
-            //   scale: 1.02,
-            //   boxShadow: "0 0 25px rgba(34, 211, 238, 0.4)",
-            //   backgroundImage: "linear-gradient(135deg, #0ea5e9, #22d3ee, #06b6d4)"
-            // }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 0 25px rgba(139, 92, 246, 0.4)",
+            }}
             whileTap={{ scale: 0.98 }}
             onClick={handleStartGame}
-            className="flex-1 px-4 py-2.5 text-white bg-dashboard-border/80 hover:bg-dashboard-border rounded-lg font-medium transition-colors w-full"
+            className="w-full py-3 text-base text-white bg-violet-600 hover:bg-violet-500 rounded-lg font-bold transition-all duration-200 shadow-lg shadow-violet-600/30"
           >
             {TextComponent.startGame}
           </motion.button>
@@ -546,39 +570,34 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-6 text-center"
+      className="space-y-4 w-full max-w-md mx-auto" // Usamos el mismo ancho y centrado
     >
-      <div className="text-5xl mb-4">🎉</div>
-      <h3 className="text-2xl font-bold text-gray-300">
-        {TextComponent.gameCreated}
-      </h3>
-
-      <div className="p-6 bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-xl border-2 border-cyan-500/30 shadow-lg shadow-cyan-500/10">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-sm shadow-cyan-400/50"></div>
-            <p className="text-xs font-bold text-cyan-300 tracking-wider uppercase">
-              {TextComponent.gameCode}
-            </p>
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-sm shadow-cyan-400/50"></div>
-          </div>
+      {/* Sección del Código de Juego - Re-estilizada */}
+      <div className="bg-zinc-900/70 border border-zinc-700/80 rounded-xl p-4 shadow-lg shadow-black/20">
+        <div className="text-center space-y-3">
+          <p className="text-xs font-semibold text-violet-400 tracking-wider uppercase">
+            {TextComponent.gameCode}
+          </p>
 
           <div className="flex items-center justify-center gap-3">
-            <div className="px-6 py-3 bg-slate-800/80 rounded-xl border-2 border-dashed border-cyan-400/60 shadow-inner">
-              <span className="text-2xl font-mono font-bold tracking-wider text-cyan-300 drop-shadow-sm">
+            {/* El código con un fondo más oscuro y borde de acento */}
+            <div className="px-5 py-2 bg-black/20 rounded-lg border border-dashed border-violet-500/50">
+              <span className="text-2xl font-mono font-bold tracking-widest text-violet-300">
                 {gameCode}
               </span>
             </div>
+            {/* Botón de Copiar con el nuevo acento */}
             <motion.button
               whileHover={{
                 scale: 1.05,
-                boxShadow: "0 0 15px rgba(34, 211, 238, 0.3)",
+                boxShadow: "0 0 15px rgba(139, 92, 246, 0.3)", // Sombra violeta
               }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigator.clipboard.writeText(gameCode || "")}
-              className="p-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-xl transition-all duration-200 border-2 border-blue-400/50 shadow-lg shadow-blue-500/20"
+              className="p-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg transition-colors duration-200 shadow-md shadow-violet-600/20"
               aria-label="Copy code"
             >
+              {/* Icono de Copiar */}
               <svg
                 className="w-5 h-5"
                 fill="none"
@@ -595,20 +614,29 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
             </motion.button>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-lg p-2 border border-blue-400/30">
-            <p className="text-xs text-cyan-300 font-medium">
-              Share this code with your friends to join the game.
+          {/* Banner de información sutil */}
+          <div className="bg-violet-500/10 rounded-md p-2 border border-violet-500/20">
+            <p className="text-xs text-violet-300 font-medium">
+              Comparte este código para que tus amigos se unan a la partida.
             </p>
           </div>
         </div>
       </div>
 
-      <p className="text-gray-600">{TextComponent.shareCode}</p>
+      {/* Mensaje principal */}
+      <div className="text-center mt-6">
+        <div className="text-5xl mb-4">🎉</div>
+        <h3 className="text-2xl font-bold text-zinc-100">
+          {TextComponent.gameCreated}
+        </h3>
+        <p className="text-zinc-400 mt-2">{TextComponent.shareCode}</p>
+      </div>
 
+      {/* Botón de Acción Principal */}
       <div className="flex gap-3 mt-6">
         <button
           onClick={onClose}
-          className="flex-1 px-4 py-2.5 text-white bg-dashboard-border/80 hover:bg-dashboard-border rounded-lg font-medium transition-colors"
+          className="flex-1 px-4 py-3 text-base text-white bg-zinc-700 hover:bg-zinc-600 rounded-lg font-bold transition-colors duration-200 shadow-md shadow-black/20"
         >
           {TextComponent.waitingForPlayersAction}
         </button>
@@ -647,7 +675,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           label={TextComponent.joinExistingGame}
           description={TextComponent.enterCode}
           icon="🔗"
-          userId={user?._id} 
+          userId={user?._id}
           placeholder="Example: GZKQAYBK"
           buttonText="Join Now"
           setGameCode={(code) => setGameCode(code)}
@@ -919,7 +947,13 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                 : "bg-dashboard-border/50 text-white cursor-not-allowed"
             }`}
           >
-            {TextComponent.createGame}
+            {
+              isLoadingCreate?(
+                <SpinnerIcon className="inline-block mr-2 w-5 h-5 animate-spin" />
+              ):(
+                TextComponent.createGame
+              )
+            }
           </button>
         </div>
       );

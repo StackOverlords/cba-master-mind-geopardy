@@ -743,6 +743,7 @@ export class SocketConnection {
                     // 2. Terminar la partida
                     // 3. Pausar la partida
                     console.log(`🚨 El propietario de la partida ${gameCode} se ha desconectado. Partida en pausa o terminada.`);
+                    this.io?.to(gameCode).emit("gameCancelledOwnerLeft", { message: "El propietario de la partida se ha desconectado. La partida se terminará." });
                     this.endGame(gameCode); // Ejemplo: Terminar la partida
                 }
 

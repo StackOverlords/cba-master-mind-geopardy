@@ -19,12 +19,7 @@ interface GameResponse {
   data: ChampioShipGame[];
 }
 
-export const useChampionShipGameById = ({
-  id,
-  status,
-  name,
-  user,
-}: PaginatedOptions) => {
+export const useChampionShipGameById = ({id,status,name,user,}: PaginatedOptions) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   return useQuery<ChampioShipGame>({
     queryKey: ['ChampionShipGame', id, status, name, user],

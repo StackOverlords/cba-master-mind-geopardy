@@ -24,6 +24,7 @@ export interface RegisterCredentials extends LoginCredentials {
 export interface AuthState {
     user: UserData | null;
     isLoading: boolean;
+    isLoadingButtons: {withGoogle: boolean; withEmail: boolean; login: boolean; loaderPage: boolean;};
     error: string | null;
     isAuthenticated: boolean;
     login: (credentials: LoginCredentials) => Promise<void>;

@@ -17,9 +17,7 @@ import ConfirmationModal from "../components/confirmationModal";
 const GamePage = () => {
     const { play: playWinSound, stop: stopWinSound } = useSound(winsound)
     const { gameId } = useParams<{ gameId: string }>()
-    const { data: GameData, isLoading } = useChampionShipGameById({
-        id: gameId
-    })
+    const { data: GameData, isLoading } = useChampionShipGameById({ id: gameId })
     const { mutate: updateChampionShipGame } = useUpdateChampionShipGame()
     const [championShipGame, setChampionShipGame] = useState<ChampioShipGame>()
     const [hasUpdatedPlayers, setHasUpdatedPlayers] = useState<boolean>(false)
