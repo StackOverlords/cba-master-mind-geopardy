@@ -142,35 +142,35 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
 
     const handleGameCreated = (gameData: any) => {
       setGameCode(gameData.gameCode || gameData.code);
-      console.log(gameData);
+      // console.log(gameData);
       setCurrentStep("waiting-for-players");
     };
 
     socketService.on("gameCreated", (gameCode: { gameCode: string }) => {
-      console.log("Game created event received:", gameCode.gameCode);
+      // console.log("Game created event received:", gameCode.gameCode);
       socketService.emit("getGameState", gameCode.gameCode);
       handleGameCreated(gameCode);
     });
-    socketService.on("gameOverPlayersCero", (reason: string) => {
-      console.log("Game over due to no players:", reason);
+    socketService.on("gameOverPlayersCero", () => {
+      // console.log("Game over due to no players:", reason);
       setCurrentStep("mode-selection");
       setGameCode(null);
       setPlayersJoined([]);
     });
     socketService.on("gamePlayers", (playersJoined: any) => {
       setCurrentStep("room-waiting");
-      console.log("Players joined event received:", playersJoined);
+      // console.log("Players joined event received:", playersJoined);
       setPlayersJoined(playersJoined.players);
     });
 
     socketService.on("gameState", (gameState: any) => {
-      console.log("Game state received:", gameState);
+      // console.log("Game state received:", gameState);
       setGameState(gameState);
     });
     socketService.on(
       "gameCancelledOwnerLeft",
-      (reason: { message: string; gamecode: string }) => {
-        console.log("Game cancelled due to owner leaving:", reason.message);
+      () => {
+        // console.log("Game cancelled due to owner leaving:", reason.message);
         setCurrentStep("mode-selection");
         setGameCode(null);
         setPlayersJoined([]);
@@ -179,7 +179,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     socketService.on("gameStarted", (gameCodeHere: any) => {
       setCurrentStep("mode-selection");
       //Redirect to the game page
-      console.log("Initializing game with players:", gameCodeHere?.players);
+      // console.log("Initializing game with players:", gameCodeHere?.players);
       initializeGame(gameCodeHere?.players); // Initialize game with players
       navigate(`/multiplayer`); // Redirect to the game page
       setDeactivatedButtonStart(true); // Disable start button
@@ -187,7 +187,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     });
 
     socketService.on("error", (error: any) => {
-      console.log("Error event received:", error);
+      // console.log("Error event received:", error);
         toast.custom((t) => (
         <ErrorToast 
           t={t} 
@@ -270,10 +270,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
 
   const handleStartGame = () => {
     let socket = socketService.getSocket();
-    console.log("Click in Started!");
+    // console.log("Click in Started!");
 
     if (gameCode && socket) {
-      console.log(gameCode);
+      // console.log(gameCode);
       socket.emit("startGame", { gameCode: gameCode, userId: user?._id });
       // setDeactivatedButtonStart(true); // Disable start button
     } else {
@@ -281,13 +281,13 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
     }
   };
   const handleReady = (userId: string) => {
-    console.log("handleReady called with userId:", userId);
+    // console.log("handleReady called with userId:", userId);
     let socket = socketService.getSocket();
     if(userId !== user?._id) {
       toast.error("You can only mark yourself as ready.");
       return;
     }else{
-      console.log("Marking player as ready:", userId);
+      // console.log("Marking player as ready:", userId);
       socket.emit("playerReady", { gameCode: gameCode, userId: userId });
     }
   };
@@ -647,8 +647,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           label={TextComponent.joinExistingGame}
           description={TextComponent.enterCode}
           icon="🔗"
-          userId={user?._id}
-          onSubmit={(code) => console.log("Uniéndose a:", code)}
+          userId={user?._id} 
           placeholder="Example: GZKQAYBK"
           buttonText="Join Now"
           setGameCode={(code) => setGameCode(code)}

@@ -357,7 +357,7 @@ export class SocketConnection {
 
                 gameRoom.gameData.status = "playing";
                 gameRoom.currentRound = 1;
-                gameRoom.currentPlayerIndex = Math.floor(Math.random() * gameRoom.players.length);
+                gameRoom.currentPlayerIndex = 0;
 
                 // Guardar el estado inicial en DB
                 await GameModel.findOneAndUpdate(
