@@ -8,9 +8,19 @@ import { QuestionCard } from "./QuestionCard";
 import { Clock } from "lucide-react";
 import { socketService } from "../../../../services/socketService";
 import { useSound } from "../hooks/useSound";
-import { FinalResults } from "./FinalResults";
-import { Leaderboard } from "./ui/leaderBoard";
-
+// import { FinalResults } from "./FinalResults";
+// import { Leaderboard } from "./ui/leaderBoard";
+import PodiumResults from "../../../game/podiumResults";
+// import LeaderboardHeader from "../../../game/leaderboard/leaderboardHeader";
+import BackButton from "../../../ui/backButton";
+const overlayVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: { duration: 0.6, ease: "easeOut" },
+    },
+};
 interface GameScreenProps {
   user: any;
   code: any;
@@ -31,7 +41,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
     selectCorrectAnswer,
     initializeGame,
     setShowFeedback,
-    finalResults,
+    // finalResults,
     setFinalScore,
     setAnswerSelected,
     // selectAnswer,
@@ -151,7 +161,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
     }
   }, []);
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-screen  text-zinc-200">
       {/* Header */}
       <header className="sticky bg-transparent backdrop-blur-xl border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
@@ -214,19 +224,19 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center space-y-3 md:space-y-4 p-4 md:p-6 bg-gradient-to-br from-purple-50/95 to-pink-50/95 rounded-2xl border border-purple-200/50 backdrop-blur-xl max-w-sm md:max-w-lg mx-auto shadow-xl shadow-purple-500/10"
+              className="flex flex-col items-center space-y-3 md:space-y-4 p-4 md:p-6  rounded-2xl border border-purple-200/50 backdrop-blur-xl max-w-sm md:max-w-lg mx-auto shadow-xl shadow-purple-500/10"
             >
               <Timer timeLeft={timer} timeInRounds={timeInRounds} />
               <div className="text-center">
                 <h2 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-purple-700 via-pink-600 to-indigo-700 bg-clip-text text-transparent leading-tight">
-                  {currentPlayerId === user._id
-                    ? `¡Es tu turno, ${currentPlayerUsername}!`
-                    : `Turno de ${currentPlayerUsername}`}
+                    {currentPlayerId === user._id
+                    ? `It's your turn, ${currentPlayerUsername}!`
+                    : `${currentPlayerUsername}'s turn`}
                 </h2>
                 <p className="text-purple-600/80 text-xs md:text-sm mt-1 font-semibold px-2">
-                  {currentPlayerId === user._id
-                    ? "Selecciona la respuesta correcta"
-                    : "Esperando que el jugador responda..."}
+                    {currentPlayerId === user._id
+                    ? "Select the correct answer"
+                    : "Waiting for the player to answer..."}
                 </p>
               </div>
 
@@ -321,16 +331,21 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
       </div>
       {gameStatus === "finished" && (
         <AnimatePresence>
-          <FinalResults>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Leaderboard data={finalResults} />
-            </motion.div>
-          </FinalResults>
+          <motion.div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm bg-opacity-70 z-50 flex justify-center h-dvh"
+            initial="hidden"
+            animate="visible"
+            variants={overlayVariants}
+        >
+            <BackButton
+            href="/"
+            text="Go Home"
+            className="left-4 top-4"
+            />
+            <PodiumResults
+            players={players}
+            />
+        </motion.div>
         </AnimatePresence>
       )}
     </div>
