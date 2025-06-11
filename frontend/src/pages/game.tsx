@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GameBoard from "../components/game/gameBoard";
 import GameStatus from "../components/game/gameStatus";
 import Leaderboard from "../components/game/leaderboard/leaderboard";
@@ -7,8 +7,15 @@ import { useChampionShipGameById } from "../hooks/queries/championshipGame/useCh
 import { useParams } from "react-router";
 import type { AnswerData, ChampionShipPlayer, ChampioShipGame, SubmitAnswerPayload } from "../shared/types/ChampionShipGame";
 import { useAnswerChampionshipGame, useUpdateChampionShipGame } from "../hooks/mutations/championshipGameMutations";
+import AnimatedPodiumOverlay from "../components/game/animatedPodiumOverlay";
+import useSound from "../hooks/useSound";
+import winsound from "../assets/sounds/brass-fanfare-with-timpani-and-winchimes-reverberated-146260.mp3"
+import { AnimatePresence, motion } from "motion/react";
+import LeaderboardHeader from "../components/game/leaderboard/leaderboardHeader";
+import ConfirmationModal from "../components/confirmationModal";
 
 const GamePage = () => {
+    const { play: playWinSound, stop: stopWinSound } = useSound(winsound)
     const { gameId } = useParams<{ gameId: string }>()
     const { data: GameData, isLoading } = useChampionShipGameById({
         id: gameId
@@ -16,6 +23,10 @@ const GamePage = () => {
     const { mutate: updateChampionShipGame } = useUpdateChampionShipGame()
     const [championShipGame, setChampionShipGame] = useState<ChampioShipGame>()
     const [hasUpdatedPlayers, setHasUpdatedPlayers] = useState<boolean>(false)
+    const [showPodium, setShowPodium] = useState<boolean>(false);
+    const [showModalConfirm, setShowModalConfirm] = useState(false);
+    const [modalAction, setModalAction] = useState<"restart" | "finish" | null>(null);
+
     useEffect(() => {
         if (GameData) {
             setChampionShipGame(GameData);
@@ -52,7 +63,6 @@ const GamePage = () => {
         setChampionShipGame((prevGame) => {
             if (!prevGame) return undefined;
             const updatedPlayers = [...prevGame.playersLocal];
-            console.log(currentPlayerIndex)
             if (isCorrect) {
                 updatedPlayers[currentPlayerIndex].score += points;
                 updatedPlayers[currentPlayerIndex].scoreTimestamp = Date.now();
@@ -68,22 +78,27 @@ const GamePage = () => {
     useEffect(() => {
         if (hasUpdatedPlayers) {
             if (championShipGame) {
-                const updatePlayers: ChampionShipPlayer[] = championShipGame?.playersLocal.map(({ currentTurn, score, username, _id }) => ({
-                    currentTurn,
-                    score,
-                    username,
-                    _id,
-                }));
-                updatePlayers[currentPlayerIndex].currentTurn = true
+                const updatePlayers: ChampionShipPlayer[] = championShipGame?.playersLocal
+                    .map(({ currentTurn, score, username, _id, scoreTimestamp }) => ({
+                        currentTurn,
+                        score,
+                        username,
+                        _id,
+                        scoreTimestamp,
+                    }))
+                    .sort((a, b) => {
+                        if (b.score !== a.score) return b.score - a.score;
+                        return (a.scoreTimestamp ?? 0) - (b.scoreTimestamp ?? 0);
+                    });
+                updatePlayers[currentPlayerIndex].currentTurn = true;
                 updateChampionShipGame({
                     id: championShipGame?._id,
                     data: { playersLocal: updatePlayers }
-                })
+                });
             }
             setHasUpdatedPlayers(false);
         }
-
-    }, [championShipGame?.playersLocal, currentPlayerIndex])
+    }, [championShipGame?.playersLocal, currentPlayerIndex]);
     const moveToNextPlayer = () => {
         setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % (championShipGame?.playersLocal?.length ?? 1))
     }
@@ -94,13 +109,18 @@ const GamePage = () => {
                     const currentRound = championShipGame.currentRound + 1
                     updateChampionShipGame({ id: championShipGame._id, data: { currentRound } })
                 }
-            } else if (championShipGame?.questionsLocalAnswered === championShipGame?.questions.length) {
+            }
+            if (championShipGame?.questionsLocalAnswered.length === championShipGame?.questions.length) {
                 console.log("Game Over");
                 if (championShipGame) {
                     updateChampionShipGame({
                         id: championShipGame?._id,
-                        data: { status: 'finished' }
+                        data: {
+                            status: 'finished',
+                            finalResultsLocal: championShipGame.playersLocal
+                        }
                     })
+                    setShowPodium(true);
                 }
             }
             // setUsedQuestions([])
@@ -111,19 +131,112 @@ const GamePage = () => {
     }
     const { mutate: answerChampionshipGame } = useAnswerChampionshipGame()
     const handlePlayerAnswered = (questionId: string, answerData: AnswerData) => {
-        const payload: SubmitAnswerPayload = {
-            gameId: championShipGame?._id ?? "",
-            answerData,
-            questionId
+        if (championShipGame && !championShipGame?.questionsLocalAnswered.find((q) => q.questionId === questionId)) {
+            const payload: SubmitAnswerPayload = {
+                gameId: championShipGame?._id ?? "",
+                answerData,
+                questionId
+            }
+            answerChampionshipGame(
+                payload
+            )
         }
-        answerChampionshipGame(
-            payload
-        )
     }
     useEffect(() => {
+        if (GameData?.status === 'finished') {
+            setShowPodium(true)
+            return
+        }
+        if (GameData && GameData?.questionsLocalAnswered.length === GameData?.questions.length) {
+            updateChampionShipGame({
+                id: GameData?._id,
+                data: {
+                    status: 'finished',
+                }
+            })
+            setShowPodium(true);
+        }
         console.log(GameData)
     }, [GameData])
+    useEffect(() => {
+        if (showPodium) {
+            stopWinSound()
+            playWinSound()
+        }
+    }, [showPodium])
+
+    const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false)
     const currentPlayer = championShipGame?.playersLocal.find((p) => p.currentTurn === true) || championShipGame?.playersLocal[currentPlayerIndex]
+    const gameBoardRef = useRef<HTMLDivElement>(null);
+    const [gameBoardHeight, setGameBoardHeight] = useState<number | null>(null);
+    useEffect(() => {
+        const div = document.getElementById('game-board')
+        if (div?.offsetHeight === gameBoardHeight) return
+
+        const updateHeight = () => {
+            if (div) {
+                setGameBoardHeight(div.offsetHeight);
+                setShowLeaderboard(true)
+            }
+        };
+
+        updateHeight(); // Medir inicialmente
+
+        window.addEventListener("resize", updateHeight);
+        return () => window.removeEventListener("resize", updateHeight);
+
+    }, [championShipGame, showLeaderboard])
+
+    const handleRestartGame = () => {
+        if (championShipGame) {
+            const resetPlayers: ChampionShipPlayer[] = championShipGame.playersLocal.map(({ _id, username }, index) => ({
+                _id,
+                username,
+                score: 0,
+                currentTurn: index === 0,
+            }));
+
+            updateChampionShipGame({
+                id: championShipGame._id,
+                data: {
+                    playersLocal: resetPlayers,
+                    questionsLocalAnswered: [],
+                    finalResultsLocal: [],
+                    currentRound: 1,
+                    status: "playing",
+                },
+            });
+
+            // window.location.reload();
+        }
+    };
+    const handleFinishGame = () => {
+        if (championShipGame) {
+            updateChampionShipGame({
+                id: championShipGame._id,
+                data: {
+                    status: 'finished',
+                    finalResultsLocal: championShipGame.playersLocal,
+                },
+            });
+            setShowPodium(true);
+        }
+    }
+
+    const handleModalCancelConfirm = () => {
+        setShowModalConfirm(false);
+        setModalAction(null);
+    };
+
+    const handleModalConfirm = () => {
+        if (modalAction === "restart") {
+            handleRestartGame();
+        } else if (modalAction === "finish") {
+            handleFinishGame();
+        }
+        setShowModalConfirm(false);
+        setModalAction(null);
+    };
     return (
         isLoading ? (
             <div className="w-full min-h-screen flex items-center justify-center relative">
@@ -135,45 +248,101 @@ const GamePage = () => {
                 </div>
             </div>
         ) : championShipGame && (
-            <main className=" min-h-screen flex justify-center py-10 flex-wrap gap-6">
-                <div className="mt-6 sm:mt-4 max-w-xl lg:max-w-2xl xl:max-w-3xl w-full px-3 xl:px-0">
-                    <div className="sm:w-auto">
-                        {/* Game Info Header */}
-                        <GameStatus
-                            countPlayers={championShipGame.playersLocal.length}
-                            turnTime={championShipGame.defaultTurnTime}
-                            gameName={championShipGame.name}
+            <>
+                <main className="min-h-dvh flex justify-center pb-4 flex-wrap gap-6">
+                    <div
+                        ref={gameBoardRef}
+                        id="game-board"
+                        className="mt-6 sm:mt-4 max-w-xl md:min-w-3xl md:w-3xl w-full px-3 xl:px-0 flex-1">
+                        <div className="sm:w-auto">
+                            {/* <div className="xl:hidden xl:h-0">
+                                <LeaderboardHeader/>
+                            </div> */}
+                            {/* Game Info Header */}
+                            <GameStatus
+                                countPlayers={championShipGame.playersLocal.length}
+                                turnTime={championShipGame.defaultTurnTime}
+                                gameName={championShipGame.name}
+                                currentRound={championShipGame.currentRound}
+                                currentPlayer={currentPlayer ?? { _id: "", username: "", score: 0, avatar: "", currentTurn: false }}
+                            />
+                            <TurnIndicator players={championShipGame?.playersLocal} currentPlayerIndex={currentPlayerIndex} />
+                        </div>
+                        <GameBoard
+                            time={championShipGame.defaultTurnTime}
+                            questionsAnswered={championShipGame.questionsLocalAnswered}
+                            handlePlayerAnswered={handlePlayerAnswered}
+                            hasUpdatedPlayers={() => setHasUpdatedPlayers(true)}
                             currentRound={championShipGame.currentRound}
                             currentPlayer={currentPlayer ?? { _id: "", username: "", score: 0, avatar: "", currentTurn: false }}
+                            moveToNextPlayer={moveToNextPlayer}
+                            handleUpdatePlayers={handleUpdatePlayers}
+                            questions={championShipGame.questions}
+                            categories={championShipGame.categorys}
+                            moveToNextRound={moveToNextRound}
                         />
-                        <TurnIndicator players={championShipGame?.playersLocal} currentPlayerIndex={currentPlayerIndex} />
                     </div>
-                    <GameBoard
-                        time={championShipGame.defaultTurnTime}
-                        questionsAnswered={championShipGame.questionsLocalAnswered}
-                        handlePlayerAnswered={handlePlayerAnswered}
-                        hasUpdatedPlayers={() => setHasUpdatedPlayers(true)}
-                        currentRound={championShipGame.currentRound}
-                        currentPlayer={currentPlayer ?? { _id: "", username: "", score: 0, avatar: "", currentTurn: false }}
-                        moveToNextPlayer={moveToNextPlayer}
-                        handleUpdatePlayers={handleUpdatePlayers}
-                        questions={championShipGame.questions}
-                        categories={championShipGame.categorys}
-                        moveToNextRound={moveToNextRound}
-                    />
-                </div>
-                <section className="w-full max-w-xl lg:max-w-2xl xl:max-w-sm">
-                    <div className="p-4 flex items-center justify-center w-full">
-                        <div className="container mx-auto flex flex-col items-center w-full">
-                            <Leaderboard
-                                players={sortedPlayers}
-                            />
-                        </div>
-                    </div>
+                    <AnimatePresence>
+                        {showLeaderboard && (
+                            <motion.section
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="flex px-3 xl:px-0 flex-col gap-2 w-full max-w-xl md:max-w-3xl xl:max-w-sm mt-4 h-full"
+                                style={{
+                                    maxHeight: gameBoardHeight ? `${gameBoardHeight}px` : "",
+                                }}
+                            >
+                                <div className="xl:block hidden">
+                                    <LeaderboardHeader />
+                                </div>
+                                <Leaderboard players={sortedPlayers} />
+                                <div className="flex flex-col gap-3 w-full mt-2">
+                                    <button
+                                        onClick={() => {
+                                            setModalAction("restart");
+                                            setShowModalConfirm(true);
+                                        }}
+                                        className="w-full py-3 text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer text-xs sm:text-base"
+                                    >
+                                        Restart Game
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setModalAction("finish");
+                                            setShowModalConfirm(true);
+                                        }}
+                                        className="w-full py-3 text-white font-semibold rounded-md bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all shadow-md cursor-pointe text-xs sm:text-base"
+                                    >
+                                        End Game
+                                    </button>
+                                </div>
 
-                </section>
-
-            </main>
+                            </motion.section>
+                        )}
+                    </AnimatePresence>
+                </main>
+                {showPodium &&
+                    <AnimatedPodiumOverlay players={championShipGame.playersLocal ?? []} />
+                }
+                {
+                    showModalConfirm && (
+                        <ConfirmationModal
+                            title={modalAction === "restart" ? "Restart game?" : "End game?"}
+                            message={
+                                modalAction === "restart"
+                                    ? "Current progress will be lost. Are you sure you want to restart?"
+                                    : "Are you sure you want to end the game?"
+                            }
+                            onCancel={handleModalCancelConfirm}
+                            onConfirm={handleModalConfirm}
+                            confirmButtonText={modalAction === "restart" ? "Restart" : "End"}
+                            type={modalAction === "restart" ? "warning" : "danger"}
+                        />
+                    )
+                }
+            </>
         )
     );
 }

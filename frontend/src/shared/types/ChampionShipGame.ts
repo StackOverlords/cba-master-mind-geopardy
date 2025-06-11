@@ -30,12 +30,12 @@ export interface ChampioShipGame {
     questions: Question[],
     categorys: Omit<Category, 'questionCount'>[],
     finalResults: ChampioShipGameFinalResults,
-    finalResultsLocal: [],
+    finalResultsLocal: ChampionShipPlayer[],
     playersLocal: ChampionShipPlayer[],
     currentRound: number,
     rounds: number,
     defaultTurnTime: number,
-    questionsLocalAnswered: []
+    questionsLocalAnswered: QuestionsAnswered[]
     createdAt: string,
     updatedAt: string
 }

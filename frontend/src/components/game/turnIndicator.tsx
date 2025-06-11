@@ -16,14 +16,14 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
 
     const scrollToCurrentPlayer = useCallback(() => {
         if (!currentPlayerRef.current) return
-      
+
         currentPlayerRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-          inline: "center", // esto centrará el jugador horizontalmente
+            behavior: "smooth",
+            block: "nearest",
+            inline: "center", // esto centrará el jugador horizontalmente
         })
-      }, [])
-      
+    }, [])
+
 
     useEffect(() => {
         const timeoutId = setTimeout(scrollToCurrentPlayer, 100)
@@ -48,7 +48,7 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
         <div className="flex items-center justify-center w-full mb-4">
             <div className="bg-indigo-950/80 rounded-lg px-4 py-2 border border-indigo-500/30 w-full shadow-lg">
                 <div className="flex items-center justify-between mb-1">
-                    <p className="text-indigo-300 text-sm font-medium">Turn Order</p>
+                    <p className="text-indigo-300 text-xs sm:text-sm font-medium">Turn Order</p>
                     <div className="flex items-center space-x-2 text-xs text-indigo-400">
                         <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                         <span>Current Player</span>
@@ -58,7 +58,7 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
                 {/* Container con scroll horizontal */}
                 <div
                     ref={containerRef}
-                    className="overflow-x-auto p-2 flex justify-center items-center"
+                    className={`overflow-x-auto p-2 flex items-center ${players.length <= 5 ? 'justify-center' : ''}`}
                     style={{
                         scrollbarWidth: "thin",
                         scrollbarColor: "rgba(99, 102, 241, 0.5) rgba(30, 27, 75, 0.5)",
@@ -96,7 +96,7 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
 
                                             {/* Avatar del jugador */}
                                             <motion.div
-                                                className="relative"
+                                                className="relative w-max"
                                                 animate={{
                                                     scale: isCurrent ? 1.1 : isNext || isPrevious ? 1.05 : 1,
                                                     y: isCurrent ? -4 : 0,

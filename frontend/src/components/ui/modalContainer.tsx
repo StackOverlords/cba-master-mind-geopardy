@@ -32,7 +32,7 @@ const ModalContainer: React.FC<Props> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className={cn("fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-4", className)}
+                className={cn("fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md p-4 h-dvh", className)}
                 onClick={() => handleCloseModal()}
             >
                 <motion.div

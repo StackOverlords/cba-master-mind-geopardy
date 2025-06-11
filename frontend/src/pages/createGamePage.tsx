@@ -29,7 +29,7 @@ const CreateGamePage = () => {
         categorys: [],
         rounds: 1,
         currentRound: 1,
-        defaultTurnTime:20
+        defaultTurnTime: 20
     })
     useEffect(() => {
         if (userId) {
@@ -51,7 +51,7 @@ const CreateGamePage = () => {
     }
 
     const addPlayer = () => {
-        if (newPlayerName.trim() && gameSetup.playersLocal.length < 15) {
+        if (newPlayerName.trim()) {
             const newPlayer: PlayerChampionShip = {
                 _id: Date.now().toString(),
                 username: newPlayerName.trim(),
@@ -195,7 +195,7 @@ const CreateGamePage = () => {
                         <div className="p-3 border border-dashboard-border/50 rounded-xl bg-gradient-to-br from-leaderboard-bg/50 to-black/20 backdrop-blur-sm">
                             <h2 className="text-white flex items-center gap-2 text-md sm:text-xl font-semibold mb-2">
                                 <Users className="size-4 sm:size-5 text-blue-400" />
-                                Players ({gameSetup.playersLocal.length}/8)
+                                Players ({gameSetup.playersLocal.length})
                             </h2>
                             <div>
                                 <div className="flex gap-2 mb-4">
@@ -207,7 +207,7 @@ const CreateGamePage = () => {
                                     />
                                     <button
                                         onClick={addPlayer}
-                                        disabled={!newPlayerName.trim() || gameSetup.playersLocal.length >= 8}
+                                        disabled={!newPlayerName.trim()}
                                         className="bg-dashboard-bg hover:bg-dashboard-border transition-colors ease-in-out duration-200 px-3 rounded-md mt-1 disabled:cursor-not-allowed border border-dashboard-border flex items-center w-max gap-2 text-nowrap"
                                     >
                                         <Plus className="size-4" />
@@ -254,7 +254,7 @@ const CreateGamePage = () => {
                     className="lg:col-span-1"
                 >
                     <div className="p-3 border border-dashboard-border/50 rounded-xl bg-gradient-to-br from-leaderboard-bg/50 to-black/20 backdrop-blur-sm">
-                        <div className="flex gap-2 mb-6 flex-col">
+                        <div className="flex gap-2 mb-3 flex-col">
                             <h2 className="text-md sm:text-xl font-semibold text-white flex items-center gap-2">
                                 <CategoryIcon className="size-4 sm:size-5 text-purple-400" />
                                 Categories ({gameSetup.categorys.length})
@@ -262,7 +262,7 @@ const CreateGamePage = () => {
                             <p className="text-purple-200 text-xs sm:text-sm">Choose at least one category for your game</p>
                         </div>
 
-                        <div className="flex items-center gap-3 flex-wrap justify-center mb-3">
+                        <div className="h-full mb-3 max-h-80 overflow-y-auto flex gap-3 flex-wrap items-center justify-center py-3">
                             {categoriesData && categoriesData.data.map((category) => {
                                 const isSelected = gameSetup.categorys.includes(category._id)
 
@@ -313,7 +313,7 @@ const CreateGamePage = () => {
                     <button
                         onClick={handleStartGame}
                         disabled={!canStartGame || isPending}
-                        className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 
+                        className="bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all 
                         text-white px-8 py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed 
                         flex items-center justify-center rounded-md gap-2"
                     >

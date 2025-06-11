@@ -1,9 +1,9 @@
 import trophy from "../../../assets/copa-victoria-icon-3d-ilustracion-fondo.webp"
 const Trophy: React.FC = () => {
     return (
-        <div className="h-20 w-32 flex items-center justify-center">
+        <div className="h-14 sm:h-20 w-24 sm:w-32 flex items-center justify-center">
             <img
-                className="animate-float delay-300 absolute h-44"
+                className="animate-float delay-300 absolute h-32 sm:h-44"
                 src={trophy} alt="copa de victoria" />
 
             {/* Floating Clouds */}

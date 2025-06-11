@@ -3,7 +3,7 @@ import DeviceGameIcon from "../components/ui/icons/deviceGameIcon";
 import PlayButton from "../components/ui/playButton";
 import logoMastermindDark from "../assets/appLogo/Logo-MasterMind.webp";
 import bghero from "../assets/bghero.webp";
-import logoCBADark from "../assets/appLogo/logo_cba_white.webp";
+import logoCBADark from "../assets/appLogo/CBA Horizontal-blanco.webp";
 import SocialButton from "../components/ui/socialButton";
 import FacebookIcon from "../components/ui/icons/facebookIcon";
 import WhatsAppIcon from "../components/ui/icons/WhatsAppIcon";
@@ -12,6 +12,7 @@ import { AnimatedBadge } from "../components/ui/animatedBadge";
 import CreateGameModal from "../components/game/createGameModal";
 import { useAuthStore } from "../stores/authStore";
 import { socketService } from "../services/socketService";
+import Header from "../components/header";
 
 const LANDING_PAGE_CONTENT = {
   altTexts: {
@@ -20,9 +21,8 @@ const LANDING_PAGE_CONTENT = {
   },
   hero: {
     title: "Master Mind",
-    subtitle: "Challenge your mind with Jeopardy",
-    description:
-      "Not just a trivia game, but a complete experience that will test your knowledge in various categories.",
+    subtitle: "Challenge your mind and compete with others",
+    description: "Not just a trivia game, but a complete experience that will test your knowledge in various categories.",
     playButton: "Play",
   },
 } as const;
@@ -118,28 +118,29 @@ const LandingPage = () => {
   return (
     <main
       style={{ backgroundImage: `url(${bghero})` }}
-      className="relative flex flex-col min-h-screen w-full bg-cover bg-no-repeat bg-center"
+      className="relative flex flex-col min-h-dvh w-full bg-cover bg-no-repeat bg-center"
     >
+      <Header />
       {/* Contenedor para el contenido principal */}
       <div className="flex-1 flex flex-col items-center justify-center w-full py-6 px-4">
-        <div className="relative mt-10">
+        <div className="relative mt-20 sm:mt-10">
           <div
             className="absolute inset-[-8px] animate-[pulse_3s_ease-in-out_infinite] rounded-full bg-blue-500/20 blur-lg"
             style={{ transform: "scale(1.2)" }}
           />
           <img
-            className="h-12 sm:h-16"
+            className="h-16 sm:h-24"
             src={logoMastermindDark}
             alt={LANDING_PAGE_CONTENT.altTexts.jeopardyMasterMind}
           />
         </div>
 
-        <h1 className="text-3xl sm:text-5xl mt-8 font-extrabold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent font-PressStart2P">
+        <h1 className="text-3xl sm:text-5xl text-center mt-8 font-extrabold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent font-PressStart2P">
           {LANDING_PAGE_CONTENT.hero.title}
         </h1>
 
-        <section className="flex flex-col items-center max-w-4xl justify-center gap-4 px-6 py-6">
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-center text-wrap">
+        <section className="flex flex-col items-center max-w-4xl justify-center gap-4 px-6 py-2 sm:py-6">
+          <h2 className="text-2xl sm:text-5xl font-extrabold text-center text-wrap">
             {LANDING_PAGE_CONTENT.hero.subtitle}
           </h2>
 
@@ -149,10 +150,10 @@ const LandingPage = () => {
 
           <PlayButton
             handleOpenCreateGameModal={handleOpenCreateGameModal}
-            className="mt-14"
+            className="sm:mt-14 mt-10"
             disabled={isConnecting}
           >
-            <DeviceGameIcon className="size-8" />
+            <DeviceGameIcon className="size-7 sm:size-8" />
             {isConnecting ? "Creando..." : LANDING_PAGE_CONTENT.hero.playButton}
           </PlayButton>
 
@@ -169,7 +170,7 @@ const LandingPage = () => {
         <div className="w-full xl:w-7xl flex flex-col sm:flex-row items-center justify-center sm:justify-between px-6 z-20 sm:gap-2 gap-8">
           <div>
             <img
-              className="h-5 drop-shadow-xl/45 drop-shadow-blue-500"
+              className="h-10 drop-shadow-xl/45 drop-shadow-blue-500"
               src={logoCBADark}
               alt={LANDING_PAGE_CONTENT.altTexts.cbaTarija}
             />

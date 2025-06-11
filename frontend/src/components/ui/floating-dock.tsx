@@ -103,7 +103,7 @@ const FloatingDockDesktop = ({
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto flex h-14 items-end gap-4 rounded-2xl px-4 pb-3 md:hidden bg-dashboard-bg border border-dashboard-border",
+        "mx-auto flex h-14 items-end gap-2 sm:gap-4 rounded-2xl px-2 sm:px-4 pb-3 md:hidden bg-dashboard-bg border border-dashboard-border",
         className,
       )}
     >
@@ -177,7 +177,7 @@ function IconContainer({
         ref={ref}
         style={
           isMobile
-            ? { width: 35, height: 35 }
+            ? { width: 30, height: 30 }
             : { width, height }
         }
         onMouseEnter={() => setHovered(true)}
@@ -199,7 +199,7 @@ function IconContainer({
         <motion.div
           style={
             isMobile ?
-              { width: 20, height: 20 } :
+              { width: 15, height: 15 } :
               { width: widthIcon, height: heightIcon }
           }
           className="flex items-center justify-center"

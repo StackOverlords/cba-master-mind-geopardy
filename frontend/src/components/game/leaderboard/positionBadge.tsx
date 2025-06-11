@@ -5,17 +5,18 @@ import Laurel3Icon from "../../ui/icons/laurel3Icon";
 
 interface PositionBadgeProps {
   position: number;
+  size?: string
 }
 
-const PositionBadge: React.FC<PositionBadgeProps> = ({ position }) => {
+const PositionBadge: React.FC<PositionBadgeProps> = ({ position, size }) => {
   const getBadgeIcon = () => {
     switch (position) {
       case 1:
-        return <Laurel1Icon className="size-7" />
+        return <Laurel1Icon className={`${size ? size : 'size-7'}`} />
       case 2:
-        return <Laurel2Icon className="size-7" />
+        return <Laurel2Icon className={`${size ? size : 'size-7'}`} />
       case 3:
-        return <Laurel3Icon className="size-7" />
+        return <Laurel3Icon className={`${size ? size : 'size-7'}`} />
       default:
         return "bg-leaderboard-card text-gray-400";
     }

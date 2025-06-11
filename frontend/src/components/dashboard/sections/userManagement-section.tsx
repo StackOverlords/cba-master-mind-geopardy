@@ -128,17 +128,17 @@ export function UserManagementSection() {
         <div className="space-y-6">
             <header className="flex justify-between items-center flex-wrap gap-2">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">User Management</h1>
-                    <p className="text-slate-400">Manage user accounts, roles, and permissions</p>
+                    <h1 className="text-xl sm:text-3xl font-bold text-white mb-2">User Management</h1>
+                    <p className="text-xs sm:text-base text-slate-400">Manage user accounts, roles, and permissions</p>
                 </div>
             </header>
 
             <div className="bg-dashboard-bg/50 border border-dashboard-border/50 rounded-lg ">
-                <section className="p-4 border-b border-dashboard-border/50">
-                    <h3 className="text-lg font-medium text-white">Users</h3>
-                    <p className="text-sm text-slate-400 mb-4">Manage all registered users and their permissions</p>
+                <section className="p-2 sm:p-4 border-b border-dashboard-border/50 text-xs sm:text-base">
+                    <h3 className="text-base sm:text-lg font-medium text-white">Users</h3>
+                    <p className="text-xs sm:text-sm text-slate-400 mb-4">Manage all registered users and their permissions</p>
                     <div className="flex items-center space-x-2 grow flex-wrap gap-y-1.5">
-                        <div className="relative max-w-xs w-full">
+                        <div className="relative sm:max-w-xs sm:w-full">
                             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
                                 <SearchIcon className="w-4 h-4 text-slate-400" />
                             </div>
@@ -196,7 +196,7 @@ export function UserManagementSection() {
                         </div>
                     </div>
                 </section>
-                <div className="p-4 relative flex flex-col gap-2">
+                <div className="p-2 sm:p-4 relative flex flex-col gap-2">
                     {
                         isLoading || isFetching ? (
                             [...Array(5)].map((_, index) => (
@@ -217,10 +217,10 @@ export function UserManagementSection() {
                             filteredUsers && filteredUsers.map((user) => (
                                 <div
                                     key={user._id}
-                                    className="grid sm:grid-cols-2 items-center p-4 rounded-lg bg-dashboard-bg/50 border border-dashboard-border/50 hover:bg-dashboard-bg/70 transition-colors"
+                                    className="grid sm:grid-cols-2 items-center p-2 sm:p-4 rounded-lg bg-dashboard-bg/50 border border-dashboard-border/50 hover:bg-dashboard-bg/70 transition-colors"
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs uppercase">
+                                        <div className="size-7 sm:size-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs uppercase">
                                             {user.name
                                                 .split(" ")
                                                 .slice(0, 2)
@@ -228,12 +228,12 @@ export function UserManagementSection() {
                                                 .join("")}
                                         </div>
                                         <div>
-                                            <div className="text-white">{user.name}</div>
-                                            <div className="text-sm text-slate-400">{user.email}</div>
+                                            <div className="text-white text-sm sm:text-base">{user.name}</div>
+                                            <div className="text-xs sm:text-sm text-slate-400">{user.email}</div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-end gap-4 mt-2">
+                                    <div className="flex items-center justify-end gap-2 sm:gap-4 mt-2">
                                         <span
                                             className={`px-2 py-1 rounded-full text-xs ${user.role === "admin"
                                                 ? "bg-red-500/20 text-red-300"
