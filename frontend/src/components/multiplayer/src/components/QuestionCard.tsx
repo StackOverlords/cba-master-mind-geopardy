@@ -8,9 +8,10 @@ interface Props {
   socketService: any;
   user: any;
   currentPlayerId: string | null;
+  currentPlayerUsername:string | null;
 }
 
-export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlayerId }) => {
+export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlayerId,currentPlayerUsername }) => {
   const {
     currentQuestion,
     selectedAnswer,
@@ -59,13 +60,14 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
               disabled={user._id !== currentPlayerId}
               className={`
                 relative p-6 rounded-2xl border-2 transition-all duration-300 text-left backdrop-blur-sm
-                
                 disabled:cursor-not-allowed
+                ${answerSelected === answer.text ? 'shadow-[0_0_0_4px_rgba(96,165,250,0.6)] ring-2 ring-blue-400' : ''}
               `}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + index * 0.1 }}
             >
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <span className="w-10 h-10 bg-gray-100 dark:bg-gray-600 rounded-xl flex items-center justify-center text-sm font-bold border border-gray-200 dark:border-gray-500">
@@ -104,19 +106,19 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
                 />
               )}
 
-              {/* NUEVO: Indicador de la selección de OTRO jugador */}
               {answerSelected && answer.text === answerSelected  && (
                 <motion.div
-                  layoutId="selected-by-other" // Usar un layoutId puede crear una animación suave si el badge se mueve
+                  layoutId="selected-by-other"
                   className="absolute top-2 right-2 flex items-center gap-2 bg-gray-200/60 dark:bg-gray-900/60 backdrop-blur-sm py-1 px-2 rounded-full text-xs pointer-events-none"
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
                   <User className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
-                  <span className="font-semibold text-gray-800 dark:text-gray-200">Seleccionada</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">{currentPlayerUsername?currentPlayerUsername:''}</span>
                 </motion.div>
               )}
+
             </motion.button>
           ))}
         </div>

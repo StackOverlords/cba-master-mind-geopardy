@@ -61,10 +61,9 @@ const LandingPage = () => {
 
   // Cerrar modal crear juego
   const handleCloseCreateGameModal = () => {
-    // if (socketService.isActive()) {
-    //     console.log("🔌 Desconectando del servidor WebSocket al cerrar el modal...")
-    //     socketService.disconnect();
-    // }
+    if (socketService.isActive()) {
+        socketService.disconnect();
+    }
     setIsCreateGameModalOpen(false);
     setIsConnecting(false);
   };

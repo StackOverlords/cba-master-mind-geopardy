@@ -26,6 +26,7 @@ export const socketService: SocketServiceInterface = {
 
         console.log("🔌 Intentando conectar al servidor WebSocket...");
         socket = io(SOCKET_URL, {
+            // path: "/api/v1/socket.io/", // Asegúrate de que este path coincida con tu configuración del servidor
             transports: ["websocket", "polling"],
             auth: {
                 userId: userId,
