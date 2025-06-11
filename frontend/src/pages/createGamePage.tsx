@@ -78,7 +78,7 @@ const CreateGamePage = () => {
             ...prev,
             categorys: prev.categorys.includes(category._id)
                 ? prev.categorys.filter((id) => id !== category._id)
-                : [...prev.categorys, category._id],
+                : gameSetup.categorys.length < 5 ? [...prev.categorys, category._id] : prev.categorys,
         }))
     }
 
@@ -257,7 +257,7 @@ const CreateGamePage = () => {
                         <div className="flex gap-2 mb-3 flex-col">
                             <h2 className="text-md sm:text-xl font-semibold text-white flex items-center gap-2">
                                 <CategoryIcon className="size-4 sm:size-5 text-purple-400" />
-                                Categories ({gameSetup.categorys.length})
+                                Categories ({gameSetup.categorys.length}/5)
                             </h2>
                             <p className="text-purple-200 text-xs sm:text-sm">Choose at least one category for your game</p>
                         </div>
@@ -270,10 +270,11 @@ const CreateGamePage = () => {
                                     category.questionCount > 0 &&
                                     <motion.button
                                         key={category._id}
+                                        disabled={gameSetup.categorys.length >= 5 && !isSelected}
                                         onClick={() => toggleCategory(category)}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className={`relative p-3 size-24 sm:size-32 rounded-xl transition-all duration-300 border border-dashboard-border ${isSelected
+                                        className={`disabled:cursor-not-allowed relative p-3 size-24 sm:size-32 rounded-xl transition-all duration-300 border border-dashboard-border ${isSelected
                                             ? `bg-indigo-800 shadow-lg`
                                             : 'bg-gradient-to-b from-dashboard-bg to-indigo-800'
                                             }`}

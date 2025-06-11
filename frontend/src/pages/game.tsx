@@ -260,6 +260,16 @@ const GamePage = () => {
                             </div> */}
                             {/* Game Info Header */}
                             <GameStatus
+                                handleFinishGame={() => {
+                                    updateChampionShipGame({
+                                        id: championShipGame._id,
+                                        data: {
+                                            status: 'finished',
+                                            finalResultsLocal: championShipGame.playersLocal,
+                                        },
+                                    });
+                                }}
+                                rounds={championShipGame.rounds}
                                 countPlayers={championShipGame.playersLocal.length}
                                 turnTime={championShipGame.defaultTurnTime}
                                 gameName={championShipGame.name}
