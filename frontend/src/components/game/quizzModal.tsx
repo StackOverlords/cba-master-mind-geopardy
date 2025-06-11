@@ -8,7 +8,7 @@ import CorrectAnswerSound from "../../assets/sounds/mixkit-correct-answer-reward
 import IncorrectAnswerSound from "../../assets/sounds/mixkit-wrong-answer-fail-notification-946.wav"
 import CounterSound from "../../assets/sounds/25segundos.mp3"
 import type { Answer, Question } from "../../shared/types/question";
-import { Target, Trophy } from "lucide-react";
+import { Play, Target, Trophy, X } from "lucide-react";
 import { Timer } from "./timer";
 import type { AnswerData, ChampionShipPlayer } from "../../shared/types/ChampionShipGame";
 import confetti from "canvas-confetti";
@@ -43,6 +43,7 @@ const QuizModal: React.FC<Props> = ({
     const [isAnswered, setIsAnswered] = useState(false)
     const [isStarted, setIsStarted] = useState(false)
     const [points, setPoints] = useState<number>(0)
+    const [animatedPoints, setAnimatedPoints] = useState<number>(0);
 
     const { play: playCorrect, stop: stopCorrect } = useSound(CorrectAnswerSound)
     const { play: playIncorrect, stop: stopIncorrect } = useSound(IncorrectAnswerSound)
@@ -53,7 +54,15 @@ const QuizModal: React.FC<Props> = ({
             setTimeLeft(time);
             setSelectedAnswer(null);
             setIsAnswered(false);
-            setIsStarted(false); // <- Nuevo
+            setIsStarted(false);
+
+            const round = currentRound || 1;
+            const baseHigh = 100;
+            const percentageIncrease = 0.10;
+            const multiplier = Math.pow(1 + percentageIncrease, round - 1);
+            const high = Math.round(baseHigh * multiplier);
+
+            setAnimatedPoints(high);
         }
     }, [isModalOpen]);
 
@@ -96,6 +105,51 @@ const QuizModal: React.FC<Props> = ({
         return () => clearInterval(timer as NodeJS.Timeout);
     }, [timeLeft, isModalOpen, isAnswered, isStarted]);
 
+    useEffect(() => {
+        const round = currentRound || 1;
+
+        const baseHigh = 100;
+        const baseMid = 90;
+        const baseLow = 80;
+        const percentageIncrease = 0.10; // 10% extra por ronda
+
+        const multiplier = Math.pow(1 + percentageIncrease, round - 1);
+
+        const high = Math.round(baseHigh * multiplier);
+        const mid = Math.round(baseMid * multiplier);
+        const low = Math.round(baseLow * multiplier);
+
+        let points = 0;
+
+        if (timeLeft > twoThirdsTime) {
+            points = high;
+        } else if (timeLeft > 5) {
+            points = mid;
+        } else {
+            points = low;
+        }
+        setPoints(points)
+    }, [timeLeft])
+
+    useEffect(() => {
+        if (points === animatedPoints) return;
+
+        const difference = points - animatedPoints;
+        const increment = difference > 0 ? 1 : -1;
+
+        const interval = setInterval(() => {
+            setAnimatedPoints(prev => {
+                const next = prev + increment;
+                if ((increment > 0 && next >= points) || (increment < 0 && next <= points)) {
+                    clearInterval(interval);
+                    return points;
+                }
+                return next;
+            });
+        }, 80); // Velocidad de animación (puede ajustarse)
+
+        return () => clearInterval(interval);
+    }, [points, animatedPoints]);
 
     const handleAnswerClick = (answer: Answer, isCorrect: boolean) => {
         if (isAnswered) return
@@ -104,29 +158,6 @@ const QuizModal: React.FC<Props> = ({
             stopCorrect()
             playCorrect()
             fireConfetti()
-            const round = currentRound || 1;
-
-            const baseHigh = 100;
-            const baseMid = 90;
-            const baseLow = 80;
-            const percentageIncrease = 0.10; // 10% extra por ronda
-
-            const multiplier = Math.pow(1 + percentageIncrease, round - 1);
-
-            const high = Math.round(baseHigh * multiplier);
-            const mid = Math.round(baseMid * multiplier);
-            const low = Math.round(baseLow * multiplier);
-
-            let points = 0;
-
-            if (timeLeft > twoThirdsTime) {
-                points = high;
-            } else if (timeLeft > 5) {
-                points = mid;
-            } else {
-                points = low;
-            }
-            setPoints(points)
         }
         else {
             stopIncorrect()
@@ -149,17 +180,7 @@ const QuizModal: React.FC<Props> = ({
 
         return isCorrect ? "bg-green-300/40 border-green-400 text-green-100" : "bg-red-400/40 border-red-400 text-red-100"
     }
-    // const getTimerColor = () => {
-    //     if (timeLeft > 20) return 'text-green-400 border-green-400';
-    //     if (timeLeft > 5) return 'text-yellow-400 border-yellow-400';
-    //     return 'text-red-400 border-red-400';
-    // };
 
-    // const getProgressColor = () => {
-    //     if (timeLeft > 20) return 'bg-green-400';
-    //     if (timeLeft > 5) return 'bg-yellow-400';
-    //     return 'bg-red-400';
-    // };
     const closeModal = () => {
         stopCounterSound()
         handleCloseModal()
@@ -177,16 +198,52 @@ const QuizModal: React.FC<Props> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className={`fixed mi-h-dvh inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50 ${isAnswered && !selectedAnswer || selectedAnswer?.isCorrect === false ? 'animate-flash-red' : ''}`}
+                className={`fixed mi-h-dvh inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md bg-black/50`}
                 onClick={() => !isStarted && closeModal()}
             >
+
+                <AnimatePresence>
+                    {isAnswered && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{
+                                opacity: [0, 0.9, 0, 0.9, 0, 0.7, 0, 0.5, 0],
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                                duration: 2.5,
+                                ease: "easeInOut",
+                                times: [0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9, 1],
+                            }}
+                            className="absolute inset-0 pointer-events-none -m-2 p-2"
+                        >
+                            <div
+                                className="w-full h-full"
+                                style={{
+                                    background: `linear-gradient(45deg, 
+                                     ${selectedAnswer?.isCorrect
+                                            ? "rgba(34,197,94,0.3), rgba(34,197,94,0.1), rgba(34,197,94,0.3)"
+                                            : "rgba(239,68,68,0.3), rgba(239,68,68,0.1), rgba(239,68,68,0.3)"
+                                        })`,
+                                    boxShadow: `
+                                      0 0 20px ${selectedAnswer?.isCorrect ? "rgba(34,197,94,0.6)" : "rgba(239,68,68,0.6)"},
+                                       0 0 40px ${selectedAnswer?.isCorrect ? "rgba(34,197,94,0.4)" : "rgba(239,68,68,0.4)"},
+                                         0 0 60px ${selectedAnswer?.isCorrect ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"},
+                                           inset 0 0 20px ${selectedAnswer?.isCorrect ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)"}
+                                      `,
+                                    border: `2px solid ${selectedAnswer?.isCorrect ? "rgba(34,197,94,0.8)" : "rgba(239,68,68,0.8)"}`,
+                                }}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: "spring", damping: 20, stiffness: 300 }}
                     className="relative w-full max-w-3xl p-6 overflow-y-auto rounded-xl
-                        bg-gradient-to-br from-leaderboard-bg/60 to-black/30 backdrop-blur-sm 
+                        bg-gradient-to-br from-leaderboard-bg to-black backdrop-blur-sm 
                         border border-border/70 shadow-[0_0_15px_rgba(72,66,165,0.3)] max-h-full"
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -213,17 +270,30 @@ const QuizModal: React.FC<Props> = ({
                                 <div className="flex justify-between gap-2 w-full">
                                     <div className="flex flex-col gap-2">
                                         <div className="flex items-center gap-2">
-                                            <span className={`sm:px-3 px-1 py-1 rounded-full text-xs sm:text-sm font-semibold bg-linear-to-r transition-colors ease-in-out duration-300 from-purple-400 to-blue-400 text-white capitalize text-center`}>
+                                            <span className={`sm:px-3 px-1 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-linear-to-r transition-colors ease-in-out duration-300 from-purple-400 to-blue-400 text-white capitalize text-center`}>
                                                 {category || "Quiz"}
                                             </span>
-                                            <Trophy className="w-4 h-4 text-yellow-400 hidden sm:block" />
-
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <Target className="size-4" />
-                                            <p className="font-semibold text-xs sm:text-base">Round {currentRound}</p>
+                                        <div className="flex items-center gap-6 text-xs sm:text-base">
+                                            <div className="flex items-center gap-2">
+                                                <Target className="size-4 hidden sm:block" />
+                                                <p className="font-semibold">Round {currentRound}</p>
+                                            </div>
+                                            <div className="text-yellow-400 font-bold flex items-center gap-2 justify-center">
+                                                <Trophy className="size-4" />
+                                                <motion.span
+                                                    key={animatedPoints}
+                                                    className="inline-block"
+                                                >
+                                                    {animatedPoints}
+                                                </motion.span>
+                                                <span className="text-xs text-yellow-400 font-normal hidden sm:block">
+                                                    pts if correct
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
+
                                     <div className="flex gap-2 text-indigo-300">
                                         <img
                                             src={currentPlayer.avatar || "/placeholder.svg"}
@@ -232,7 +302,7 @@ const QuizModal: React.FC<Props> = ({
                                         />
                                         <div>
                                             <h3 className="text-sm sm:text-xl font-bold text-white">{currentPlayer.username}</h3>
-                                            <p className="text-xs">Your turn</p>
+                                            <p className="text-[10px] sm:text-xs">Your turn</p>
                                         </div>
                                     </div>
                                 </div>
@@ -241,8 +311,112 @@ const QuizModal: React.FC<Props> = ({
                         </div>
 
                         {/* Question */}
-                        <div className="p-5 my-6">
-                            <h2 className=" text-lg sm:text-3xl text-wrap text-center font-bold">{question?.question}</h2>
+                        <div className={`my-6 ${isAnswered ? '' : 'py-5'}`}>
+                            {/* Result Message - appears before question when answered */}
+                            {
+                                isAnswered && (
+                                    <AnimatePresence>
+                                        <motion.div
+                                            initial={{ opacity: 0, height: "auto", scale: 0.5, marginBottom: 24 }}
+                                            animate={{ opacity: 1, height: "auto", scale: 1, marginBottom: 24 }}
+                                            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                                            transition={{
+                                                duration: 0.5,
+                                                ease: "easeOut",
+                                                scale: {
+                                                    type: "spring",
+                                                    damping: 15,
+                                                    stiffness: 180,
+                                                },
+                                            }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div
+                                                className={`relative rounded-xl p-3 border-2 backdrop-blur-sm shadow-lg
+                                                    ${selectedAnswer?.isCorrect
+                                                        ? "bg-gradient-to-r from-emerald-500/20 to-green-500/20 border-emerald-400/50"
+                                                        : "bg-gradient-to-r from-red-500/20 to-rose-500/20 border-red-400/50"
+                                                    }`}
+                                            >
+                                                <div className="relative z-10 flex items-center justify-between flex-wrap gap-2">
+                                                    <div className="flex items-center gap-2 sm:gap-4">
+                                                        <div
+                                                            className={`p-2 sm:p-3 rounded-full ${selectedAnswer?.isCorrect ? "bg-emerald-500" : "bg-red-500/70"}`}
+                                                        >
+                                                            {selectedAnswer?.isCorrect ? (
+                                                                <CheckIcon className="size-4 sm:size-6 text-white" />
+                                                            ) : (
+                                                                <X className="size-4 sm:size-6 text-white" />
+                                                            )}
+                                                        </div>
+
+                                                        <div>
+                                                            <h3
+                                                                className={`text-lg sm:text-2xl font-bold ${selectedAnswer?.isCorrect ? "text-emerald-100" : "text-red-100"}`}
+                                                            >
+                                                                {selectedAnswer?.isCorrect ? "Correct Answer!" : "Incorrect Answer!"}
+                                                            </h3>
+                                                            <p className={`text-xs sm:text-sm ${selectedAnswer?.isCorrect ? "text-emerald-200" : "text-red-200"}`}>
+                                                                {selectedAnswer?.isCorrect
+                                                                    ? "Excellent work, keep it up"
+                                                                    : "Don't worry, next time will be better"}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    {selectedAnswer?.isCorrect && (
+                                                        <motion.div
+                                                            initial={{ scale: 0, rotate: -180 }}
+                                                            animate={{ scale: 1, rotate: 0 }}
+                                                            transition={{ delay: 0.2, type: "spring", damping: 15 }}
+                                                            className="flex items-center gap-2 rounded-full px-3 py-2 border border-yellow-400"
+                                                        >
+                                                            <Trophy className="size-4 sm:size-5 text-yellow-400" />
+                                                            <div className="text-right">
+                                                                <motion.p
+                                                                    initial={{ opacity: 0 }}
+                                                                    animate={{ opacity: 1 }}
+                                                                    transition={{ delay: 0.4 }}
+                                                                    className="text-xs sm:text-sm font-bold text-yellow-400"
+                                                                >
+                                                                    +{points} pts
+                                                                </motion.p>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </div>
+
+                                                {/* Decorative elements */}
+                                                <div className="absolute top-2 right-2 opacity-20">
+                                                    <div
+                                                        className={`w-16 h-16 blur-xl rounded-full ${selectedAnswer?.isCorrect ? "bg-emerald-300" : "bg-red-300"}`}
+                                                    />
+                                                </div>
+                                                <div className="absolute bottom-2 left-2 opacity-20">
+                                                    <div
+                                                        className={`w-12 h-12 blur-xl rounded-full ${selectedAnswer?.isCorrect ? "bg-emerald-300" : "bg-red-300"}`}
+                                                    />
+                                                </div>
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="flex justify-center items-center mt-6"
+                                                >
+                                                    <button
+                                                        className="px-6 py-3 font-semibold text-white bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all rounded-md max-w-sm w-full cursor-pointer text-sm sm:text-lg flex items-center justify-center gap-3"
+                                                        onClick={() => handleSuccessAnswered()}
+                                                    >
+                                                        Continue
+                                                        <Play className="size-4 sm:size-5" />
+                                                    </button>
+                                                </motion.div>
+                                            </div>
+                                        </motion.div>
+                                    </AnimatePresence>
+                                )
+                            }
+
+                            <h2 className="px-5 text-lg sm:text-3xl text-wrap text-center font-bold">{question?.question}</h2>
                         </div>
 
                         {/* Answers */}
@@ -255,9 +429,10 @@ const QuizModal: React.FC<Props> = ({
                             >
                                 <p className="text-indigo-200  font-medium text-center text-xs sm:text-base">Are you ready?</p>
                                 <button
-                                    className="px-6 py-3 font-semibold text-white bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all rounded-md max-w-sm w-full cursor-pointer text-sm sm:text-lg"
+                                    className="px-6 py-3 font-semibold text-white bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all rounded-md max-w-sm w-full cursor-pointer text-sm sm:text-lg flex items-center justify-center gap-3"
                                     onClick={() => setIsStarted(true)}
                                 >
+                                    <Play className="size-4 sm:size-6" />
                                     Start
                                 </button>
                             </motion.div>
@@ -317,30 +492,6 @@ const QuizModal: React.FC<Props> = ({
                                 </motion.div>
                             )}
                         </AnimatePresence>
-
-                        {/* Footer - shows after answering */}
-                        {isAnswered && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="flex justify-center items-center mt-6"
-                            >
-                                {/* <div className="flex items-center">
-                                    {selectedAnswer && selectedAnswer.isCorrect && (
-                                        <div className="flex items-center text-yellow-400">
-                                            <TrophyIcon className="w-5 h-5 mr-2" />
-                                            <span className="font-medium">{points} points</span>
-                                        </div>
-                                    )}
-                                </div> */}
-                                <button
-                                    className="flex items-center justify-center py-3 px-5 rounded-md bg-indigo-950 border-indigo-400/50 border text-indigo-200 font-bold text-center text-xs sm:text-sm w-full max-w-sm"
-                                    onClick={() => handleSuccessAnswered()}
-                                >
-                                    Continue
-                                </button>
-                            </motion.div>
-                        )}
                     </div>
                 </motion.div>
             </motion.div>

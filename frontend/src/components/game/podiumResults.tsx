@@ -3,6 +3,7 @@ import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame";
 import PodiumStep from "./leaderboard/podiumStep";
 import TrophyIcon from "../ui/icons/trophyIcon";
 import { useNavigate } from "react-router";
+import { Flag, Sparkles } from "lucide-react";
 
 interface Props {
     players: ChampionShipPlayer[];
@@ -35,14 +36,16 @@ const PodiumResults: React.FC<Props> = ({
             <div className="text-xs flex gap-2 w-full max-w-sm">
                 <button
                     onClick={handleNewGame}
-                    className="w-full p-2 text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer"
+                    className="w-full p-2 flex justify-center items-center gap-2 group text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer"
                 >
+                    <Sparkles className="size-4 text-teal-200 group-hover:text-teal-400 transition-colors duration-200" />
                     New Game
                 </button>
                 <button
                     onClick={handleEndGame}
-                    className="w-full py-2 px-3 text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer"
+                    className="w-full py-2 px-3 text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer flex items-center justify-center gap-2 group"
                 >
+                    <Flag className="size-4 text-red-200 group-hover:text-red-400" />
                     End Game
                 </button>
             </div>
