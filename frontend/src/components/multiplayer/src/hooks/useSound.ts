@@ -1,48 +1,39 @@
-
 import { useCallback } from 'react';
-// import { Howl } from 'howler';
+import { Howl } from 'howler';
+import soundCountdown from '../../../../assets/sounds/tick.wav'; // Sonido normal
+import soundCountdownEnd from '../../../../assets/sounds/ticktak.wav'; // Sonido de contador finalizando
+import soundCorrect from '../../../../assets/sounds/mixkit-correct-answer-reward-952.wav'; // Sonido de respuesta correcta
+import soundIncorrect from '../../../../assets/sounds/mixkit-wrong-answer-fail-notification-946.wav'; // Sonido de respuesta incorrecta
 
-// Simple sound effects using frequency synthesis
-const createBeepSound = (frequency: number, duration: number) => {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-  
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-  
-  oscillator.frequency.value = frequency;
-  oscillator.type = 'sine';
-  
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-  
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + duration);
+// Precargar los sonidos con Howler.js
+const sounds = {
+  countdown: new Howl({ src: [soundCountdown], volume: 0.7 }),
+  countdownEnd: new Howl({ src: [soundCountdownEnd], volume: 0.7 }),
+  correct: new Howl({ src: [soundCorrect], volume: 0.7 }),
+  incorrect: new Howl({ src: [soundIncorrect], volume: 0.7 }),
 };
 
 export const useSound = () => {
   const playCorrect = useCallback(() => {
-    createBeepSound(800, 0.3);
-    setTimeout(() => createBeepSound(1000, 0.2), 100);
+    sounds.correct.play();
   }, []);
 
   const playIncorrect = useCallback(() => {
-    createBeepSound(200, 0.5);
+    sounds.incorrect.play();
   }, []);
 
   const playTick = useCallback(() => {
-    createBeepSound(600, 0.1);
+    sounds.countdown.play();
   }, []);
 
   const playCountdown = useCallback(() => {
-    createBeepSound(500, 0.2);
+    sounds.countdownEnd.play();
   }, []);
 
   return {
     playCorrect,
     playIncorrect,
     playTick,
-    playCountdown
+    playCountdown,
   };
 };
