@@ -81,13 +81,13 @@ const AccountMenu = () => {
 
         return (
             <button
-                className="border-border/50 bg-background/20 hover:bg-background/70 transition-colors duration-500 ease-in-out border backdrop-blur-sm rounded-full cursor-pointer size-8 sm:size-10"
+                className="border-border/50 bg-background/20 w-max hover:bg-background/70 transition-colors duration-500 ease-in-out border backdrop-blur-sm rounded-full cursor-pointer size-8 sm:size-10"
                 onClick={toggleDropdown}
             >
                 <img
                     src={userData?.photoURL || ''}
                     alt="User Avatar"
-                    className="rounded-full size-8 sm:size-10 w-max "
+                    className="rounded-full size-8 sm:size-10 w-max"
                 />
             </button>
         );

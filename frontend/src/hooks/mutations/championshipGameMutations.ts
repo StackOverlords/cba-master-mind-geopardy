@@ -13,9 +13,10 @@ export const useCreateChampionshipGame = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: CreateGameChampionShipDto) => {
-            const cleanedPlayers = data.playersLocal.map(({ username, score }) => ({
+            const cleanedPlayers = data.playersLocal.map(({ username, score, scoreTimestamp }) => ({
                 username,
                 score,
+                scoreTimestamp
             }));
 
             const cleanedData = {

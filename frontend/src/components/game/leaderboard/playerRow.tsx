@@ -47,6 +47,7 @@ const PlayerRow: React.FC<PlayerRowProps> = ({ player, isCurrentUser, position }
   return (
     <motion.div
       layout
+      layoutId={`player-${player._id}`}
       transition={{ type: "spring", stiffness: 100, damping: 30 }}
       className={`${getRowStyle()} w-full flex items-center text-xs sm:text-sm py-2`}>
       <div className="w-3/12">

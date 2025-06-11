@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import GameBoard from "../components/game/gameBoard";
 import GameStatus from "../components/game/gameStatus";
 import Leaderboard from "../components/game/leaderboard/leaderboard";
@@ -13,6 +13,7 @@ import winsound from "../assets/sounds/brass-fanfare-with-timpani-and-winchimes-
 import { AnimatePresence, motion } from "motion/react";
 import LeaderboardHeader from "../components/game/leaderboard/leaderboardHeader";
 import ConfirmationModal from "../components/confirmationModal";
+import { Flag, RotateCcw } from "lucide-react";
 
 const GamePage = () => {
     const { play: playWinSound, stop: stopWinSound } = useSound(winsound)
@@ -26,32 +27,49 @@ const GamePage = () => {
     const [showPodium, setShowPodium] = useState<boolean>(false);
     const [showModalConfirm, setShowModalConfirm] = useState(false);
     const [modalAction, setModalAction] = useState<"restart" | "finish" | null>(null);
+    const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
 
     useEffect(() => {
-        if (GameData) {
-            setChampionShipGame(GameData);
-            if (GameData.playersLocal) {
-                const updatedPlayers = GameData.playersLocal.map((player) => ({
-                    ...player,
-                    avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${player.username}`
-                }));
-                setChampionShipGame((prev) => {
-                    if (!prev) return undefined;
-                    return {
-                        ...prev,
-                        playersLocal: updatedPlayers
-                    };
-                });
-            }
+        if (!GameData) return;
+
+        const updatedPlayers = GameData.playersLocal?.map((player) => ({
+            ...player,
+            avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${player.username}`,
+        })) ?? [];
+
+        setChampionShipGame({
+            ...GameData,
+            playersLocal: updatedPlayers,
+        });
+
+        if (GameData.status === 'finished') {
+            setShowPodium(true);
+            return;
         }
-    }, [GameData]);
-    const sortedPlayers = [...(championShipGame?.playersLocal ?? [])].sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        return (a.scoreTimestamp ?? 0) - (b.scoreTimestamp ?? 0);
-    });
-    const turnsPerRound = championShipGame?.playersLocal.length
-    const maxRounds = championShipGame?.rounds
-    const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
+
+        if (
+            GameData.questionsLocalAnswered.length === (GameData.playersLocal.length * GameData.rounds) &&
+            currentPlayerIndex === 0
+        ) {
+            updateChampionShipGame({
+                id: GameData._id,
+                data: {
+                    status: 'finished',
+                },
+            });
+            setShowPodium(true);
+        }
+    }, [GameData, currentPlayerIndex]);
+
+    const sortedPlayers = useMemo(() => {
+        return [...(championShipGame?.playersLocal ?? [])].sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return (a.scoreTimestamp ?? 0) - (b.scoreTimestamp ?? 0);
+        });
+    }, [championShipGame?.playersLocal]);
+
+    const turnsPerRound = GameData?.playersLocal.length
+    const maxRounds = GameData?.rounds
     useEffect(() => {
         if (championShipGame) {
             const currentTurnIndex = championShipGame.playersLocal.findIndex(player => player.currentTurn);
@@ -86,10 +104,6 @@ const GamePage = () => {
                         _id,
                         scoreTimestamp,
                     }))
-                    .sort((a, b) => {
-                        if (b.score !== a.score) return b.score - a.score;
-                        return (a.scoreTimestamp ?? 0) - (b.scoreTimestamp ?? 0);
-                    });
                 updatePlayers[currentPlayerIndex].currentTurn = true;
                 updateChampionShipGame({
                     id: championShipGame?._id,
@@ -123,8 +137,6 @@ const GamePage = () => {
                     setShowPodium(true);
                 }
             }
-            // setUsedQuestions([])
-            // resetCards()
         } else {
             // End Game
         }
@@ -142,22 +154,7 @@ const GamePage = () => {
             )
         }
     }
-    useEffect(() => {
-        if (GameData?.status === 'finished') {
-            setShowPodium(true)
-            return
-        }
-        if (GameData && GameData?.questionsLocalAnswered.length === GameData?.questions.length) {
-            updateChampionShipGame({
-                id: GameData?._id,
-                data: {
-                    status: 'finished',
-                }
-            })
-            setShowPodium(true);
-        }
-        console.log(GameData)
-    }, [GameData])
+
     useEffect(() => {
         if (showPodium) {
             stopWinSound()
@@ -194,6 +191,7 @@ const GamePage = () => {
                 username,
                 score: 0,
                 currentTurn: index === 0,
+                scoreTimestamp: 0
             }));
 
             updateChampionShipGame({
@@ -206,7 +204,7 @@ const GamePage = () => {
                     status: "playing",
                 },
             });
-
+            setShowPodium(false)
             // window.location.reload();
         }
     };
@@ -260,6 +258,16 @@ const GamePage = () => {
                             </div> */}
                             {/* Game Info Header */}
                             <GameStatus
+                                handleFinishGame={() => {
+                                    updateChampionShipGame({
+                                        id: championShipGame._id,
+                                        data: {
+                                            status: 'finished',
+                                            finalResultsLocal: championShipGame.playersLocal,
+                                        },
+                                    });
+                                }}
+                                rounds={championShipGame.rounds}
                                 countPlayers={championShipGame.playersLocal.length}
                                 turnTime={championShipGame.defaultTurnTime}
                                 gameName={championShipGame.name}
@@ -304,8 +312,9 @@ const GamePage = () => {
                                             setModalAction("restart");
                                             setShowModalConfirm(true);
                                         }}
-                                        className="w-full py-3 text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer text-xs sm:text-base"
+                                        className="w-full py-3 text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer text-xs sm:text-base flex items-center justify-center gap-3 group"
                                     >
+                                        <RotateCcw className="sm:size-5 size-3" />
                                         Restart Game
                                     </button>
                                     <button
@@ -313,8 +322,9 @@ const GamePage = () => {
                                             setModalAction("finish");
                                             setShowModalConfirm(true);
                                         }}
-                                        className="w-full py-3 text-white font-semibold rounded-md bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all shadow-md cursor-pointe text-xs sm:text-base"
+                                        className="w-full py-3 text-white font-semibold rounded-md bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all shadow-md cursor-pointe text-xs sm:text-base flex items-center justify-center gap-3 group"
                                     >
+                                        <Flag className="size-3 sm:size-5 text-red-400 group-hover:text-red-500" />
                                         End Game
                                     </button>
                                 </div>

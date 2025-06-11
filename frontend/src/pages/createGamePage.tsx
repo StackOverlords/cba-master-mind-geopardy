@@ -12,6 +12,7 @@ import { useCreateChampionshipGame } from "../hooks/mutations/championshipGameMu
 import toast from "react-hot-toast"
 import ErrorToast from "../components/toastAlerts/errorAlert"
 import SpinnerIcon from "../components/ui/icons/spinnerIcon"
+import SelectOptions from "../components/ui/selectOptions"
 
 const CreateGamePage = () => {
     const { data: categoriesData } = usePaginatedCategories({
@@ -27,7 +28,7 @@ const CreateGamePage = () => {
         generateQuestions: true,
         playersLocal: [],
         categorys: [],
-        rounds: 1,
+        rounds: 2,
         currentRound: 1,
         defaultTurnTime: 20
     })
@@ -42,7 +43,7 @@ const CreateGamePage = () => {
     const { mutate: createChampionshipGame, isPending } = useCreateChampionshipGame()
     const [newPlayerName, setNewPlayerName] = useState("")
     // const [timeLimit, setTimeLimit] = useState(30)
-    const handleChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeData = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target
         setGameSetup((prev) => ({
             ...prev,
@@ -57,6 +58,7 @@ const CreateGamePage = () => {
                 username: newPlayerName.trim(),
                 score: 0,
                 avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${newPlayerName}`,
+                scoreTimestamp: 0
             }
             setGameSetup((prevSetup) => ({
                 ...prevSetup,
@@ -78,7 +80,7 @@ const CreateGamePage = () => {
             ...prev,
             categorys: prev.categorys.includes(category._id)
                 ? prev.categorys.filter((id) => id !== category._id)
-                : [...prev.categorys, category._id],
+                : gameSetup.categorys.length < 5 ? [...prev.categorys, category._id] : prev.categorys,
         }))
     }
 
@@ -158,20 +160,35 @@ const CreateGamePage = () => {
                                     <div>
                                         <label htmlFor="timeLimit" className="text-purple-200 flex items-center gap-1">
                                             <Clock className="w-4 h-4 hidden sm:block" />
-                                            Time per Turn (seconds)
+                                            Time per Turn <span className="hidden sm:block">(seconds)</span>
                                         </label>
-                                        <InputField
-                                            id="defaultTurnTime"
-                                            name="defaultTurnTime"
-                                            type="number"
-                                            min="10"
-                                            max="120"
-                                            value={gameSetup.defaultTurnTime}
-                                            onChange={handleChangeData}
-                                        />
+                                        <div className="relative ">
+                                            <SelectOptions
+                                                id="defaultTurnTime"
+                                                name="defaultTurnTime"
+                                                value={gameSetup.defaultTurnTime}
+                                                onChange={handleChangeData}
+                                            >
+                                                <option value="10">10</option>
+                                                <option value="15">15</option>
+                                                <option value="20">20</option>
+                                                <option value="25">25</option>
+                                            </SelectOptions>
+                                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <svg
+                                                    className="w-4 h-4 text-gray-400"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div>
+                                    {/* <div>
                                         <label htmlFor="rounds" className="text-purple-200">
                                             Number of Rounds
                                         </label>
@@ -184,6 +201,39 @@ const CreateGamePage = () => {
                                             value={gameSetup.rounds}
                                             onChange={handleChangeData}
                                         />
+                                    </div> */}
+
+                                    <div>
+                                        <label htmlFor="rounds" className="text-purple-200">
+                                            Number of Rounds
+                                        </label>
+                                        <div className="relative ">
+                                            <SelectOptions
+                                                id="rounds"
+                                                name="rounds"
+                                                value={gameSetup.rounds}
+                                                onChange={handleChangeData}
+                                            >
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                                <option value="6">6</option>
+                                                <option value="7">7</option>
+                                            </SelectOptions>
+                                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                <svg
+                                                    className="w-4 h-4 text-gray-400"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -257,7 +307,7 @@ const CreateGamePage = () => {
                         <div className="flex gap-2 mb-3 flex-col">
                             <h2 className="text-md sm:text-xl font-semibold text-white flex items-center gap-2">
                                 <CategoryIcon className="size-4 sm:size-5 text-purple-400" />
-                                Categories ({gameSetup.categorys.length})
+                                Categories ({gameSetup.categorys.length}/5)
                             </h2>
                             <p className="text-purple-200 text-xs sm:text-sm">Choose at least one category for your game</p>
                         </div>
@@ -267,13 +317,14 @@ const CreateGamePage = () => {
                                 const isSelected = gameSetup.categorys.includes(category._id)
 
                                 return (
-                                    category.questionCount > 0 &&
+                                    category.questionCount > 3 &&
                                     <motion.button
                                         key={category._id}
+                                        disabled={gameSetup.categorys.length >= 5 && !isSelected}
                                         onClick={() => toggleCategory(category)}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className={`relative p-3 size-24 sm:size-32 rounded-xl transition-all duration-300 border border-dashboard-border ${isSelected
+                                        className={`disabled:cursor-not-allowed relative p-3 size-24 sm:size-32 rounded-xl transition-all duration-300 border border-dashboard-border ${isSelected
                                             ? `bg-indigo-800 shadow-lg`
                                             : 'bg-gradient-to-b from-dashboard-bg to-indigo-800'
                                             }`}
@@ -333,7 +384,7 @@ const CreateGamePage = () => {
                     </button>
 
                     {!canStartGame && (
-                        <p className="text-purple-300 text-sm mt-2">Add at least 2 players and select 1 category to start</p>
+                        <p className="text-purple-300 text-sm mt-2 text-center">Add at least 2 players and select 1 category to start</p>
                     )}
                 </motion.div>
             </motion.div>

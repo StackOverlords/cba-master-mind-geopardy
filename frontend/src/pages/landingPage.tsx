@@ -3,7 +3,8 @@ import DeviceGameIcon from "../components/ui/icons/deviceGameIcon";
 import PlayButton from "../components/ui/playButton";
 import logoMastermindDark from "../assets/appLogo/Logo-MasterMind.webp";
 import bghero from "../assets/bghero.webp";
-import logoCBADark from "../assets/appLogo/CBA Horizontal-blanco.webp";
+// import logoCBADark from "../assets/appLogo/CBA Horizontal-blanco.webp";
+import logoCBATarijaDark from "../assets/appLogo/tja blanco-06.webp";
 import SocialButton from "../components/ui/socialButton";
 import FacebookIcon from "../components/ui/icons/facebookIcon";
 import WhatsAppIcon from "../components/ui/icons/WhatsAppIcon";
@@ -62,7 +63,7 @@ const LandingPage = () => {
   // Cerrar modal crear juego
   const handleCloseCreateGameModal = () => {
     if (socketService.isActive()) {
-        socketService.disconnect();
+      socketService.disconnect();
     }
     setIsCreateGameModalOpen(false);
     setIsConnecting(false);
@@ -168,10 +169,15 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="w-full px-4 py-2 mt-auto flex items-center justify-center">
         <div className="w-full xl:w-7xl flex flex-col sm:flex-row items-center justify-center sm:justify-between px-6 z-20 sm:gap-2 gap-8">
-          <div>
-            <img
+          <div className="flex gap-3">
+            {/* <img
               className="h-10 drop-shadow-xl/45 drop-shadow-blue-500"
               src={logoCBADark}
+              alt={LANDING_PAGE_CONTENT.altTexts.cbaTarija}
+            /> */}
+            <img
+              className="h-12 drop-shadow-xl/45 drop-shadow-blue-500"
+              src={logoCBATarijaDark}
               alt={LANDING_PAGE_CONTENT.altTexts.cbaTarija}
             />
           </div>
