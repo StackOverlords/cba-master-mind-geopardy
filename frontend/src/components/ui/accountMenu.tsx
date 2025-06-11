@@ -21,7 +21,7 @@ interface MenuItemProps {
 }
 
 const AccountMenu = () => {
-    const { user: userData, isAuthenticated, hasRole, logout, isLoading } = useAuthStore();
+    const { user: userData, isAuthenticated, hasRole, logout, isLoadingButtons } = useAuthStore();
     const [isOpen, setIsOpen] = useState(false);
     const [openProfile, setOpenProfile] = useState(false);
     const [showHelpModal, setShowHelpModal] = useState(false);
@@ -175,7 +175,7 @@ const AccountMenu = () => {
                             }
                         })}
                         {renderDropdownMenuItem({
-                            icon: isLoading ? <SpinnerIcon className="size-5 animate-spin" /> : <LogoutIcon className="size-5" />,
+                            icon: isLoadingButtons.withGoogle || isLoadingButtons.withEmail || isLoadingButtons.login ? <SpinnerIcon className="size-5 animate-spin" /> : <LogoutIcon className="size-5" />,
                             text: "Sign out",
                             onClick: handleLogout
                         })}

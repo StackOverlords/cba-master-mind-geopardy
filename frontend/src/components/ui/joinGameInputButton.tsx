@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { socketService } from "../../services/socketService";
+import { socketService } from "../../services/socketService"; 
 
 interface JoinGameInputButtonProps {
   label: string;
   description: string;
   icon: string;
-  onSubmit: (code: string) => void;
+  // onSubmit: (code: string) => void;
   placeholder?: string;
   buttonText?: string;
   userId?: string; // Añadido para el userId
@@ -17,8 +17,7 @@ interface JoinGameInputButtonProps {
 const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
   label,
   description,
-  icon,
-  onSubmit,
+  icon, 
   placeholder = "Ejemplo: ABCD-1234",
   buttonText,
   userId,
@@ -38,8 +37,7 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(code);
+    e.preventDefault(); 
   };
 
   useEffect(() => {
@@ -52,9 +50,7 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
           userId: userId, // Asegúrate de que el userId esté definido
         },
       });
-      socketService.on("gameJoined", (data) => {
-        console.log("Juego unido exitosamente:", data);
-        console.log(code,setGameCode)
+      socketService.on("gameJoined", () => { 
         if (code && setGameCode) {
           setGameCode(code); // Llama a setGameCode con el código del juego
           if (setDeactivatedButtonStart) {
@@ -62,7 +58,7 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
           }
           socketService.emit("getGameState", code);
         }
-      });
+      }); 
     }
   }, [code, userId]);
   return (

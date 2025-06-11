@@ -1,12 +1,12 @@
 import { motion } from "motion/react";
-import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame";
+// import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame";
 import PodiumStep from "./leaderboard/podiumStep";
 import TrophyIcon from "../ui/icons/trophyIcon";
 import { useNavigate } from "react-router";
 import { Flag, Sparkles } from "lucide-react";
 
 interface Props {
-    players: ChampionShipPlayer[];
+    players: any[];
 };
 const PodiumResults: React.FC<Props> = ({
     players

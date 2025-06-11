@@ -12,7 +12,7 @@ import { useNavigate } from "react-router";
 import SpinnerIcon from "../ui/icons/spinnerIcon";
 
 const LoginForm = () => {
-    const { login, loginWithGoogle, isLoading,user } = useAuthStore()
+    const { login, loginWithGoogle, isLoadingButtons,user } = useAuthStore()
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loginData, setLoginData] = useState<LoginCredentials>({
@@ -99,12 +99,16 @@ const LoginForm = () => {
                     </button>
                 </div>
 
-                <GlowButton
+                {
+                    isLoadingButtons.login ? (<SpinnerIcon className="size-6 animate-spin" />) : (
+                        <GlowButton
                     type="submit"
                     className="w-full"
                 >
                     Sign In
                 </GlowButton>
+                    )
+                }
                 <p className="text-center">Don't have an account?
                     <a
                         href="/auth/sign-up"
@@ -116,10 +120,10 @@ const LoginForm = () => {
 
                 <AuthProviderButton
                     onClick={() => handleSignInWithGoogle()}
-                    disabled={isLoading}
-                    className={`${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                    disabled={isLoadingButtons.withGoogle}
+                    className={`${isLoadingButtons.withGoogle ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                 >
-                    {isLoading ? (
+                    {isLoadingButtons.withGoogle ? (
                         <SpinnerIcon className="size-4 animate-spin" />
                     ) : (
                         <GoogleIcon className="size-4" />

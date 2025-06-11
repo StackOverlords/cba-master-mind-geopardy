@@ -8,42 +8,49 @@ import type { CreateUserDTO } from "../shared/types";
 
 export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
-    isLoading: true,
+    isLoading: false,
+    isLoadingButtons:{
+        withGoogle: false,
+        withEmail: false,
+        login: false,
+        register: false,
+        loaderPage: false
+    },
     error: null,
     isAuthenticated: false,
 
     login: async (credentials: LoginCredentials) => {
-        set({ isLoading: true, error: null });
+        set({ isLoadingButtons: { withGoogle: false, withEmail: false, login: true, loaderPage: false }, error: null });
         try {
             const userData = await login(credentials);
             setLoginFlag();
-            set({ user: userData, isLoading: false, isAuthenticated: true });
+            set({ user: userData, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: true });
         } catch (error) {
-            set({ error: "Error al iniciar sesión", isLoading: false });
+            set({ error: "Error al iniciar sesión", isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false } });
             throw error;
-        }
+        }   
     },
 
     loginWithGoogle: async () => {
-        set({ isLoading: true, error: null });
+        set({ isLoadingButtons: { withGoogle: true, withEmail: false, login: false, loaderPage: false }, error: null });
         try {
             const userData = await signInWithGoogle();
             setLoginFlag();
-            set({ user: userData, isLoading: false, isAuthenticated: true });
+            set({ user: userData, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: true });
         } catch (error) {
-            set({ error: "Error con inicio de sesión Google", isLoading: false });
+            set({ error: "Error con inicio de sesión Google", isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false } }); 
             throw error;
         }
     },
 
     register: async (data: RegisterCredentials) => {
-        set({ isLoading: true, error: null });
+        set({ isLoadingButtons: { withGoogle: false, withEmail: true, login: false, loaderPage: false }, error: null });
         try {
             const userData = await register(data);
             setLoginFlag();
-            set({ user: userData, isLoading: false, isAuthenticated: true });
+            set({ user: userData, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: true });
         } catch (error) {
-            set({ error: "Error al registrar usuario", isLoading: false });
+            set({ error: "Error al registrar usuario", isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false } });
             throw error;
         }
     },
@@ -65,9 +72,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             removeLoginFlag();
             await logout();
-            set({ user: null, isLoading: false, isAuthenticated: false, error: null });
+            set({ user: null, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: false, error: null });
         } catch (error) {
-            set({ error: "Error al cerrar sesión" });
+            set({ error: "Error al cerrar sesión", isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false } });
             throw error;
         }
     },
@@ -84,13 +91,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             if (firebaseUser) {
                 try {
                     const userData = await getUserData(firebaseUser);
-                    set({ user: userData, isLoading: false, isAuthenticated: true });
+                    set({ user: userData, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: true });
                 } catch (error) {
-                    set({ user: null, isLoading: false, error: 'Error al cargar datos de usuario', isAuthenticated: false });
+                    set({ user: null, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, error: 'Error al cargar datos de usuario', isAuthenticated: false });
                 }
             } else {
                 removeLoginFlag();
-                set({ user: null, isLoading: false, isAuthenticated: false });
+                set({ user: null, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: false });
             }
         });
 
