@@ -269,10 +269,10 @@ export function QuestionsSection() {
     <section className="space-y-3">
       <header className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Question Management</h1>
-          <p className="text-slate-400">Create, edit, and organize quiz questions</p>
+          <h1 className="text-xl sm:text-3xl font-bold text-white mb-2">Question Management</h1>
+          <p className="text-xs sm:yext-base text-slate-400">Create, edit, and organize quiz questions</p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap text-xs sm:text-sm">
           <GlowButton
             onClick={handleOpenCreateDialog}
           >
@@ -281,7 +281,7 @@ export function QuestionsSection() {
           </GlowButton>
           <button
             onClick={() => setOpenUploadModal(true)}
-            className="px-4 py-2 bg-dashboard-border/50 hover:bg-dashboard-border/80 text-white rounded-md transition-colors flex items-center text-sm"
+            className="px-4 py-2 bg-dashboard-border/50 hover:bg-dashboard-border/80 text-white rounded-md transition-colors flex items-center"
           >
             <UploadIcon className="w-4 h-4 mr-2" />
             Upload Questions
@@ -290,7 +290,7 @@ export function QuestionsSection() {
       </header>
 
       <div className="flex items-center flex-wrap gap-2 mb-4">
-        <div className="relative w-full max-w-sm">
+        <div className="relative sm:w-full sm:max-w-sm">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
             <SearchIcon className="size-4 text-slate-400" />
           </div>
@@ -352,7 +352,7 @@ export function QuestionsSection() {
         </div>
 
       </div>
-      <div className="overflow-x-auto flex flex-col gap-4">
+      <div className="overflow-y-auto flex flex-col gap-2 sm:gap-4">
         {
           isLoading || isFetching ? (
             [...Array(5)].map((_, index) => (
@@ -366,9 +366,9 @@ export function QuestionsSection() {
           ) :
             filteredQuestions && filteredQuestions?.length > 0 ? filteredQuestions.map((question) => (
               <article key={question._id} className="bg-dashboard-bg/50 border border-dashboard-border/50 rounded-lg overflow-hidden hover:bg-dashboard-bg/70 transition-colors">
-                <div className="flex items-start p-4">
+                <div className="flex items-start p-2 sm:p-4">
                   <div className="flex-1">
-                    <header className="flex items-center justify-between gap-3 mb-2">
+                    <header className="flex items-center justify-between gap-2 sm:gap-3 mb-1 sm:mb-2">
                       <span className="inline-block px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full text-xs mt-1" >
                         {categories?.data.find((cat) => cat._id === question.categoryId)?.name || "Uncategorized"}
                       </span>
@@ -390,8 +390,8 @@ export function QuestionsSection() {
                         </button>
                       </div>
                     </header>
-                    <h3 className="font-medium mb-2">{question.question}</h3>
-                    <footer className="text-sm text-muted-foreground mb-2">
+                    <h3 className="font-medium text-xs sm:text-base mb-2">{question.question}</h3>
+                    <footer className="text-xs sm:text-sm text-muted-foreground mb-2">
                       <strong className="text-emerald-300">Respuesta correcta: </strong>
                       {question.answers.find((answer) => answer.isCorrect)?.text || "N/A"}
                     </footer>

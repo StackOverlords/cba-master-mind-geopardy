@@ -11,7 +11,7 @@ const GlowButton: React.FC<Props> = ({ children, onClick, className, type, ...pr
             type={type}
             onClick={onClick}
             className={cn(
-                "flex relative bg-[#170a2e] text-white border border-purple-500/50 rounded-md items-center justify-center px-6 py-2 text-sm group cursor-pointer",
+                "flex relative bg-[#170a2e] text-white border border-purple-500/50 rounded-md items-center justify-center px-6 text-xs py-2 sm:text-sm group cursor-pointer",
                 className)}
         >
             {children}
