@@ -18,7 +18,7 @@ const BackButton: React.FC<BackButtonProps> = ({ text, className, href }) => {
         <button
             onClick={handleGoBack}
             className={cn(
-            "absolute left-0 flex items-center gap-2 p-1 text-xs sm:text-sm text-purple-200 hover:text-white z-50 cursor-pointer",
+            "absolute left-0 flex items-center gap-2 p-1 text-xs sm:text-sm text-purple-200 hover:text-white z-50 cursor-pointer backdrop-blur-sm rounded-lg",
             className
             )}
         >
