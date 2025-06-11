@@ -217,7 +217,7 @@ export function UserManagementSection() {
                             filteredUsers && filteredUsers.map((user) => (
                                 <div
                                     key={user._id}
-                                    className="grid sm:grid-cols-2 items-center p-4 rounded-lg bg-dashboard-bg/50 border border-dashboard-border/50 hover:bg-dashboard-bg/70 transition-colors"
+                                    className="grid sm:grid-cols-2 items-center p-2 sm:p-4 rounded-lg bg-dashboard-bg/50 border border-dashboard-border/50 hover:bg-dashboard-bg/70 transition-colors"
                                 >
                                     <div className="flex items-center space-x-3">
                                         <div className="size-7 sm:size-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs uppercase">
@@ -233,7 +233,7 @@ export function UserManagementSection() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-end gap-4 mt-2">
+                                    <div className="flex items-center justify-end gap-2 sm:gap-4 mt-2">
                                         <span
                                             className={`px-2 py-1 rounded-full text-xs ${user.role === "admin"
                                                 ? "bg-red-500/20 text-red-300"

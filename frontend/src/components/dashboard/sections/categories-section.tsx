@@ -215,10 +215,10 @@ export function CategoriesSection() {
     <div className="space-y-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div className="grow">
-          <h1 className="text-3xl font-bold text-white mb-2">Category Management</h1>
-          <p className="text-slate-400">Organize and manage quiz question categories</p>
+          <h1 className="text-xl sm:text-3xl font-bold text-white mb-2">Category Management</h1>
+          <p className="text-xs sm:text-base text-slate-400">Organize and manage quiz question categories</p>
           <div className="flex items-center space-x-2 mt-4">
-            <div className="relative w-max">
+            <div className="relative sm:max-w-max sm:w-full">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
                 <SearchIcon className="size-4 text-slate-400" />
               </div>
@@ -264,7 +264,7 @@ export function CategoriesSection() {
         </GlowButton>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
         {
           isLoading || isFetching ? (
             Array.from({ length: 6 }).map((_, i) => (
@@ -283,11 +283,11 @@ export function CategoriesSection() {
                   key={category._id}
                   className="bg-dashboard-bg/50 border border-dashboard-border/50 rounded-lg overflow-hidden hover:bg-dashboard-bg/70 transition-colors flex flex-col justify-between"
                 >
-                  <div className="p-4 border-b border-dashboard-border/50">
+                  <div className="p-3 sm:p-4 border-b border-dashboard-border/50">
                     <header className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <div>
-                          <h3 className="text-white font-medium">{category.name}</h3>
+                          <h3 className="text-sm sm:text-base text-white font-medium">{category.name}</h3>
                           <span className="inline-block px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full text-xs mt-1">
                             {category.questionCount} questions
                           </span>
@@ -308,10 +308,10 @@ export function CategoriesSection() {
                     </header>
                   </div>
                   <section className="px-4 py-2 flex-1">
-                    <p className="text-slate-400 text-sm">{category.description}</p>
+                    <p className="text-slate-400 text-xs sm:text-sm">{category.description}</p>
                   </section>
-                  <footer className="px-4 pb-4">
-                    <button className="px-3 py-1.5 border border-dashboard-border text-slate-400 hover:bg-dashboard-border/50 hover:text-white rounded-md text-sm flex items-center transition-colors w-max">
+                  <footer className="px-4 pb-4 text-xs sm:text-sm">
+                    <button className="px-3 py-1.5 border border-dashboard-border text-slate-400 hover:bg-dashboard-border/50 hover:text-white rounded-md flex items-center transition-colors w-max">
                       <FileTextIcon className="size-4 mr-2" />
                       View Questions
                     </button>

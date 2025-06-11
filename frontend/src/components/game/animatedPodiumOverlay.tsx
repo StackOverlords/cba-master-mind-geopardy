@@ -3,6 +3,7 @@ import PodiumResults from "./podiumResults";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import type { ChampionShipPlayer } from "../../shared/types/ChampionShipGame";
+import BackButton from "../ui/backButton";
 
 const overlayVariants = {
     hidden: { opacity: 0, scale: 0.8 },
@@ -51,11 +52,16 @@ const AnimatedPodiumOverlay:React.FC<Props> = ({
 
     return (
         <motion.div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm bg-opacity-70 z-50 flex items-center justify-center"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm bg-opacity-70 z-50 flex justify-center h-dvh"
             initial="hidden"
             animate="visible"
             variants={overlayVariants}
         >
+            <BackButton
+            href="/"
+            text="Go Home"
+            className="left-4 top-4"
+            />
             <PodiumResults
             players={players}
             />

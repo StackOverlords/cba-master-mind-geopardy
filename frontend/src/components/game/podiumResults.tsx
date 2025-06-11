@@ -17,13 +17,33 @@ const PodiumResults: React.FC<Props> = ({
     const podium = sortedAll.filter(p => p.score > 0).slice(0, 3);
     const rest = sortedAll.filter(p => !podium.includes(p));
     return (
-        <div className="flex flex-col justify-center items-center p-2 sm:p-10 w-full">
-            <h2 className="text-xl sm:text-3xl font-bold text-yellow-400 text-center mb-2">
+        <div className="flex flex-col items-center p-2 sm:p-4 w-full overflow-y-auto">
+            <h2 className="text-xl sm:text-3xl font-bold text-yellow-400 text-center mb-2 mt-8">
                 🏆 Final Classification!
             </h2>
             <p className="text-xs sm:text-sm text-gray-300 text-center mb-6">
                 Only the fastest and wisest made it to the podium. Congratulations to everyone!
             </p>
+            <div className="text-xs flex gap-2 w-full max-w-sm">
+                <button
+                    // onClick={() => {
+                    //     setModalAction("restart");
+                    //     setShowModalConfirm(true);
+                    // }}
+                    className="w-full p-2 text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer"
+                >
+                    New Game
+                </button>
+                <button
+                    // onClick={() => {
+                    //     setModalAction("restart");
+                    //     setShowModalConfirm(true);
+                    // }}
+                    className="w-full py-2 px-3 text-white font-semibold rounded-md bg-dashboard-bg hover:bg-dashboard-border ease-in-out duration-200 hover:brightness-110 transition-all shadow-md border border-dashboard-border cursor-pointer"
+                >
+                    End Game
+                </button>
+            </div>
             {/* Podio */}
             <div className="flex justify-center items-end gap-2 sm:gap-3 mt-10">
                 {podium[1] && (

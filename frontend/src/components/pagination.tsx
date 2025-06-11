@@ -72,10 +72,10 @@ const Pagination: React.FC<PaginationProps> = ({
     };
 
     return (
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-1 items-center justify-between px-4 py-3 bg-dashboard-bg/50 border border-dashboard-border/50 rounded-lg">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-1 items-center justify-between px-2 sm:px-4 py-3 bg-dashboard-bg/50 border border-dashboard-border/50 rounded-lg">
             {/* Left side - Show rows selector */}
             <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-400">Show:</span>
+                <span className="text-xs sm:text-sm text-gray-400">Show:</span>
                 <SelectOptions
                     value={showRows}
                     onChange={(e) => onShowRowsChange?.(Number(e.target.value))}
@@ -89,12 +89,12 @@ const Pagination: React.FC<PaginationProps> = ({
             </div>
 
             {/* Page numbers */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-xs sm:text-sm">
                 {/* Previous button */}
                 <button
                     onClick={handlePrevious}
                     disabled={currentPage === 1}
-                    className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-white hover:bg-dashboard-border/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors duration-200"
+                    className="flex items-center justify-center size-6 sm:size-8 text-gray-400 hover:text-white hover:bg-dashboard-border/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors duration-200"
                 >
                     <ChevronLeftIcon className="size-4" />
                 </button>
@@ -103,13 +103,13 @@ const Pagination: React.FC<PaginationProps> = ({
                 {getVisiblePages().map((page, index) => (
                     <React.Fragment key={index}>
                         {page === '...' ? (
-                            <span className="flex items-center justify-center w-8 h-8 text-gray-500">
+                            <span className="flex items-center justify-center size-6 sm:size-8 text-gray-500">
                                 ...
                             </span>
                         ) : (
                             <button
                                 onClick={() => handlePageClick(page)}
-                                className={`flex items-center justify-center w-8 h-8 text-sm rounded-md transition-colors duration-200 ${currentPage === page
+                                className={`flex items-center justify-center size-6 sm:size-8 text-xs sm:text-sm rounded-md transition-colors duration-200 ${currentPage === page
                                     ? 'bg-dashboard-border/70 text-white'
                                     : 'text-gray-400 hover:text-white hover:bg-dashboard-border/50'
                                     }`}
@@ -124,7 +124,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 <button
                     onClick={handleNext}
                     disabled={currentPage === totalPages}
-                    className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-white hover:bg-dashboard-border/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors duration-200"
+                    className="flex items-center justify-center size-6 sm:size-8 text-gray-400 hover:text-white hover:bg-dashboard-border/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors duration-200"
                 >
                     <ChevronRightIcon className="size-4" />
                 </button>
