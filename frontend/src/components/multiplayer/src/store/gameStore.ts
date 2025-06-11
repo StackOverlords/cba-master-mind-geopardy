@@ -56,6 +56,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       userId: user.userId,
       score: user.score || 0,
       hasAnsweredThisTurn: user.hasAnsweredThisTurn || false,
+      avatar: user.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.username}`,
       // isActive: index === 0
     }));
     set({
