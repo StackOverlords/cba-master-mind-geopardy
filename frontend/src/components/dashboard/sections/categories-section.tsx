@@ -214,17 +214,6 @@ export function CategoriesSection() {
     setCurrentPage(1);
   };
 
-  const handleDownload = async (categoryName: string) => {
-    const res = await fetch(`/api/export/excel?category=${encodeURIComponent(categoryName)}`);
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${categoryName}_formatted.xlsx`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  };
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center flex-wrap gap-4">

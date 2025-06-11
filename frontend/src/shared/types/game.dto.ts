@@ -2,7 +2,8 @@ export interface PlayerChampionShip {
     username: string,
     score: number,
     _id: string,
-    avatar?: string
+    avatar?: string,
+    scoreTimestamp:number
 }
 export interface CreateGameChampionShipDto {
 

@@ -90,7 +90,7 @@ const TurnIndicator: React.FC<TurnIndicatorProps> = ({ players, currentPlayerInd
                                                     animate={{ scale: 1, rotate: 0 }}
                                                     className="absolute -top-2 -right-1 z-20"
                                                 >
-                                                    <Crown className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                                    <Crown className="w-4 h-4 text-yellow-400 fill-yellow-400 rotate-z-45" />
                                                 </motion.div>
                                             )}
 
