@@ -557,6 +557,14 @@
                       "score": {
                         "type": "number",
                         "example": 0
+                      },
+                      "currentTurn": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "scoreTimestamp": {
+                        "type": "number",
+                        "example": 1
                       }
                     }
                   }
