@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "react-router";
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from "react-hot-toast";
 import MainLayout from "./layouts/mainLayout";
 import LoginPage from "./pages/loginPage";
 // import HomePage from "./pages/homePage";
@@ -19,13 +19,14 @@ import { SettingsSection } from "./components/dashboard/sections/settings-sectio
 import DashboardSkeleton from "./components/dashboard/dashboardSkeleton";
 import CreateGamePage from "./pages/createGamePage";
 import GamePage from "./pages/game";
+import TeamPage from "./pages/teamPage";
 
 const App = () => {
   useEffect(() => {
     return () => {
-      unsubscribeAuth()
-    }
-  }, [])
+      unsubscribeAuth();
+    };
+  }, []);
 
   return (
     <>
@@ -36,29 +37,44 @@ const App = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route index path="/" element={<LandingPage />} />
+          <Route
+          path="/about"
+          element={
+            <TeamPage />
+          }
+        />
         </Route>
-        <Route element={
-          <ProtectedRoute roles={['admin', 'player']}>
-            <MainLayout />
-          </ProtectedRoute>
-        }>
+        <Route
+          element={
+            <ProtectedRoute roles={["admin", "player"]}>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/championship-game/:gameId" element={<GamePage />} />
           <Route path="/multiplayer" element={<IndexMultiplayer />} />
           <Route path="/create-game" element={<CreateGamePage />} />
         </Route>
-        <Route path="/dashboard/*" element={
-          <ProtectedRoute roles={['admin']} skeleton={<DashboardSkeleton />}>
-            <DashboardPage />
-          </ProtectedRoute>
-        }>
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute roles={["admin"]} skeleton={<DashboardSkeleton />}>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<OverviewSection userRole="admin" />} />
+          <Route
+            path="overview"
+            element={<OverviewSection userRole="admin" />}
+          />
           <Route path="users" element={<UserManagementSection />} />
           <Route path="categories" element={<CategoriesSection />} />
           <Route path="questions" element={<QuestionsSection />} />
           {/* <Route path="play" element={<DashboardPage />} /> */}
           <Route path="settings" element={<SettingsSection />} />
         </Route>
+        
         {/* <Route path="/dashboarddd" element={<DashboardPage />} /> */}
       </Routes>
       <Toaster
@@ -81,12 +97,12 @@ const App = () => {
             duration: 2000,
           },
           custom: {
-            duration: 1000
-          }
+            duration: 1000,
+          },
         }}
       />
     </>
   );
-}
+};
 
 export default App;

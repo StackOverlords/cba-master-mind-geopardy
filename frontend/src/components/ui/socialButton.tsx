@@ -8,11 +8,12 @@ const SocialButton: React.FC<Props> = ({ children, className, ...props }) => {
         <a
             {...props}
             rel="noreferrer"
-            target="_blank"
+            title={props.title || "Social Button"}
+            target={props.target ? "_blank" : "_self"}
             className={`text-gray-400 hover:text-white border-border/50 bg-background/20 hover:bg-background/70 transition-colors duration-500 ease-in-out border backdrop-blur-sm rounded-full p-2 ${className}`}>
             {children}
         </a>
     );
-}
+};
 
 export default SocialButton;

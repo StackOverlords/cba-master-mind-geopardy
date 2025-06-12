@@ -28,7 +28,7 @@ export const createUserApi = async (user: CreateUserDTO, accessToken: string): P
 
 export const validSessionApi = async (accessToken: string): Promise<UserData> => {
     try {
-        console.log(accessToken)
+        // console.log(accessToken)
         const response = await axios.post("auth/validSession", { accessToken });
         const userData: UserData = {
             _id: response.data._id,
@@ -38,7 +38,7 @@ export const validSessionApi = async (accessToken: string): Promise<UserData> =>
             role: response.data.role,
             completedRegister: response.data.completedRegister,
         };
-        console.log(userData);
+        // console.log(userData);
         return userData;
     } catch (error) {
         throw new Error("Error validating session");

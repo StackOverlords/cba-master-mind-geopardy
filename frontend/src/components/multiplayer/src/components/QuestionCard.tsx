@@ -21,7 +21,7 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
     correctAnswer,
     answerSelected, // Este es el texto de la respuesta seleccionada por otro jugador
   } = useGameStore();
-
+  // console.log(currentQuestion)
   if (!currentQuestion) return null;
 
   const handleAnswerClick = (index: number) => {
@@ -29,10 +29,10 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
     selectAnswer(index); 
     socketService.emit("answerQuestion", { gameCode: sessionStorage.getItem("gameCode"), answerText: currentQuestion.answers[index].text });
   };
- 
+
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       <motion.div
         key={currentQuestion._id}
         initial={{ opacity: 0, y: 20 }}

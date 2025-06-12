@@ -18,13 +18,13 @@ interface SocketServiceInterface {
 
 export const socketService: SocketServiceInterface = {
     connect: (userId) => {
-        console.log(userId," userId");
+        // console.log(userId," userId");
         if (socket && socket.connected) {
-            console.log("Socket ya está conectado.");
+            // console.log("Socket ya está conectado.");
             return;
         }
 
-        console.log("🔌 Intentando conectar al servidor WebSocket...");
+        // console.log("🔌 Intentando conectar al servidor WebSocket...");
         socket = io(SOCKET_URL, {
             // path: "/api/v1/socket.io/", // Asegúrate de que este path coincida con tu configuración del servidor
             transports: ["websocket", "polling"],
@@ -37,11 +37,11 @@ export const socketService: SocketServiceInterface = {
         });
 
         socket.on("connect", () => {
-            console.log("✅ Conectado al servidor WebSocket con ID:", socket?.id);
+            // console.log("✅ Conectado al servidor WebSocket con ID:", socket?.id);
         });
 
-        socket.on("disconnect", (reason:any) => {
-            console.log("❌ Desconectado del servidor WebSocket:", reason);
+        socket.on("disconnect", () => {
+            // console.log("❌ Desconectado del servidor WebSocket:", reason);
             // Podrías intentar reconectar aquí si la razón es inesperada,
             // o limpiar el objeto socket si la desconexión es intencional.
             // if (reason === "io server disconnect") {
@@ -49,20 +49,20 @@ export const socketService: SocketServiceInterface = {
             // }
         });
 
-        socket.on("connect_error", (error:any) => {
-            console.error("❌ Error de conexión WebSocket:", error.message, error);
+        socket.on("connect_error", () => {
+            // console.error("❌ Error de conexión WebSocket:", error.message, error);
         });
 
 
-        socket.on("error", (error:any) => {
-            console.error("❌ Error en el socket:", error.message, error);
+        socket.on("error", () => {
+            // console.error("❌ Error en el socket:", error.message, error);
         });
         // Aquí podrías registrar listeners globales si los necesitas
         // socket.on("globalNotification", (data) => { /* ... */ });
     },
     disconnect: () => {
         if (socket) {
-            console.log("🔌 Desconectando del servidor WebSocket...");
+            // console.log("🔌 Desconectando del servidor WebSocket...");
             socket.disconnect();
             socket = null; // Limpia la instancia
         }
@@ -72,7 +72,7 @@ export const socketService: SocketServiceInterface = {
         if (socket && socket.connected) {
             socket.emit(event, data);
         } else {
-            console.error(`No se puede emitir el evento "${event}". Socket no conectado.`);
+            // console.error(`No se puede emitir el evento "${event}". Socket no conectado.`);
             // Podrías encolar eventos o manejar este error de otra forma
         }
     },
@@ -81,7 +81,7 @@ export const socketService: SocketServiceInterface = {
         if (socket) {
             socket.on(event, callback);
         } else {
-            console.warn(`Socket no inicializado para escuchar el evento "${event}".`);
+            // console.warn(`Socket no inicializado para escuchar el evento "${event}".`);
         }
     },
 

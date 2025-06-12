@@ -1,11 +1,17 @@
 import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "../store/gameStore";
-import { PlayerCard } from "./PlayerCard";
 import { Timer } from "./Timer";
 import { QuestionCard } from "./QuestionCard";
 // import { ThemeToggle } from "./ThemeToggle";
-import { Clock } from "lucide-react";
+import {
+  Clock,
+  CornerUpLeft,
+  Gamepad,
+  Target,
+  Trophy,
+  Users,
+} from "lucide-react";
 import { socketService } from "../../../../services/socketService";
 import { useSound } from "../hooks/useSound";
 // import { FinalResults } from "./FinalResults";
@@ -13,13 +19,14 @@ import { useSound } from "../hooks/useSound";
 import PodiumResults from "../../../game/podiumResults";
 // import LeaderboardHeader from "../../../game/leaderboard/leaderboardHeader";
 import BackButton from "../../../ui/backButton";
+import PlayerCard from "./PlayerCard";
 const overlayVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-        opacity: 1,
-        scale: 1,
-        transition: { duration: 0.6, ease: "easeOut" },
-    },
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
 };
 interface GameScreenProps {
   user: any;
@@ -46,6 +53,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
     setAnswerSelected,
     // selectAnswer,
     setTimerGameOut,
+    setGameStatus
   } = useGameStore();
   const [currentPlayerId, setCurrentPlayerId] = React.useState<string | null>(
     null
@@ -61,94 +69,109 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
   const { playCorrect, playIncorrect, playTick, playCountdown } = useSound();
 
   const [pointsByRound, setPointsByRound] = React.useState<number>(100);
+  const [gameData, setGameData] = React.useState<any>(null);
   const [rounds, setRounds] = React.useState<number>(0);
+
+  //CleanGame
+  const handleCleanGame = () => {
+    setGameStatus("waiting");
+    setCurrentPlayerId(null);
+    setCurrentPlayerUsername("");
+    setTimer(0);
+    setCurrentRound(1);
+    setPointsByRound(100);
+    setGameData(null);
+    // setRounds(0);
+    setFinalScore(null);
+    setShowFeedback(false);
+    // setAnswerSelected(null);
+    setTimerGameOut(0);
+    // socketService.disconnect();
+    // sessionStorage.removeItem("gameCode");
+    // window.location.href = "/";
+  };
+
   useEffect(() => {
     if (user?._id && code) {
       socketService.connect(user._id);
 
       socketService.emit("getGameState", code);
       socketService.on("gameState", (data: any) => {
-        console.log("Game state received:", data);
-        const { defaultTurnTime, rounds } = data;
+        const { defaultTurnTime, rounds, gameData } = data;
         setRounds(rounds);
+        setGameData(gameData);
         defaultTurnTimeSet(defaultTurnTime);
       });
 
       socketService.on("gamePlayers", (playersJoined: any) => {
-        console.log("Players joined event received:", playersJoined);
-        initializeGame(playersJoined);
+        initializeGame(playersJoined.players);
       });
 
       socketService.on("newTurn", (data: any) => {
         const { currentPlayerId, currentPlayerUsername, timer } = data;
         setCurrentPlayerId(currentPlayerId);
         setTimer(timer);
-        setCurrentPlayerUsername(currentPlayerUsername);
+        setCurrentPlayerUsername(currentPlayerUsername); 
         setShowFeedback(false);
         nextQuestion(data.question);
       });
 
       // Actualizar el estado del juego cuando se recibe una nueva pregunta
-      socketService.on("updateTimerOut", (timerLeft: any) => {
-        // playCountdown();
-        console.log("Timer update received:", timerLeft);
+      socketService.on("updateTimerOut", (timerLeft: any) => { 
         startCountdown(timerLeft);
-        // nextQuestion({});
       });
 
       // Actualizar el estado de espera a responder
       socketService.on("updateTimer", (timer: any) => {
-        if(timer <= 5) {
+        if (timer <= 5) {
           playCountdown();
-        }else{
+        } else {
           playTick();
         }
         inTurn();
         setTimer(timer);
         if (timer <= 0) {
-          console.log("Timer finished, resetting game");
           resetGame();
         }
       });
 
       // Mostrar la respuesta correcta y el feedback
       socketService.on("answerResult", (data: any) => {
-        const { isCorrect, correctAnswer, players, answerSelected } = data;
+        const {
+          isCorrect,
+          correctAnswer,
+          players,
+          answerSelected,
+        } = data;
         setAnswerSelected(answerSelected);
         selectCorrectAnswer(correctAnswer);
-        setShowFeedback(true);
+        setShowFeedback(true); 
+        // console.log(players);
         initializeGame(players);
         if (isCorrect) {
-          console.log("Correct answer!");
           playCorrect();
         } else {
-          console.log("Incorrect answer.");
           playIncorrect();
         }
       });
 
       // Finalizar el juego y mostrar resultados
       socketService.on("gameOver", (data: any) => {
-        console.log("Game over evento received:", data);
         setFinalScore(data);
       });
 
       // Cuando la ronda termina, actualiza el estado del juego
       socketService.on("roundFinished", (currentRound: any) => {
-        console.log("Round finished:", currentRound);
-        // Aquí podrías actualizar el estado del juego para reflejar el fin de la ronda
         setCurrentRound(currentRound.currentRound);
       });
 
       // Contador antes de devolver a los jugadores a la pantalla de inicio
       socketService.on("updateTimerOutGame", (timeLeft: any) => {
-        console.log("updated timer out game received:", timeLeft);
         setTimerGameOut(timeLeft);
       });
 
       // Redirigir a los jugadores a la pantalla de inicio después de un tiempo
-      socketService.on("redirectToHome", (data: any) => {
-        console.log("Game timeout, redirecting to home", data);
+      socketService.on("redirectToHome", () => {
         sessionStorage.removeItem("gameCode");
         socketService.disconnect();
         window.location.href = "/";
@@ -161,95 +184,194 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
     }
   }, []);
   return (
-    <div className="min-h-screen  text-zinc-200">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="sticky bg-transparent backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          {/* Desktop Layout */}
-          <div className="hidden md:flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center">
-                  <h2 className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent font-PressStart2P text-lg font-extrabold">
-                    MASTER MIND
-                  </h2>
+      <header className="bg-transparent">
+        <div className="max-w-7xl mx-auto py-2 px-2">
+          <div className="bg-indigo-950/80 rounded-lg p-4 border border-indigo-500/30 shadow-lg w-full backdrop-blur-sm">
+            {/* Desktop Layout */}
+            <div className="hidden md:flex flex-wrap justify-between items-center gap-4">
+              <div className="flex space-x-6 flex-col">
+                <header className="flex items-center gap-4">
+                  {/* Back/Menu Button */}
+                  <button className="bg-indigo-900 p-3 rounded-xl hover:bg-indigo-700 group cursor-pointer transition-colors ease-in-out duration-200">
+                    <CornerUpLeft className="size-6 text-indigo-200 group-hover:text-white" />
+                  </button>
+
+                  {/* Game Title and Points */}
+                  <div>
+                    <h1 className="bg-gradient-to-r from-fuchsia-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent font-PressStart2P text-2xl md:text-3xl font-extrabold tracking-tighter drop-shadow-lg">
+                      MASTER MIND
+                    </h1>
+                    <motion.p
+                      className="text-yellow-400 font-bold flex items-center gap-2 text-sm"
+                      key={pointsByRound}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Trophy className="size-4" />
+                      {pointsByRound} points this round
+                    </motion.p>
+                  </div>
+                </header>
+
+                {/* Game Stats */}
+                <div className="flex space-x-4 text-sm mt-2">
+                  <div className="flex gap-2 items-center justify-center text-indigo-300 bg-indigo-900/40 px-3 py-1.5 rounded-lg border border-indigo-600/30">
+                    <Target className="size-4" />
+                    <p>
+                      Round {currentRound}/{rounds}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-indigo-300 bg-indigo-900/40 px-3 py-1.5 rounded-lg border border-indigo-600/30">
+                    <Users className="size-4" />
+                    <span>{players.length}</span>{" "}
+                    {/* Hardcoded - conectar con backend */}
+                  </div>
+                  <div className="flex items-center gap-2 text-indigo-300 bg-indigo-900/40 px-3 py-1.5 rounded-lg border border-indigo-600/30">
+                    <Clock className="size-4" />
+                    <span>{gameData?.defaultTurnTime}s</span>{" "}
+                    {/* Hardcoded - conectar con backend */}
+                  </div>
+                  <div className="flex items-center gap-2 text-indigo-300 bg-indigo-900/40 px-3 py-1.5 rounded-lg border border-indigo-600/30">
+                    <Gamepad className="size-4" />
+                    <span>{"Game: " + (gameData?.name || "Master Mind")}</span>
+                  </div>
                 </div>
               </div>
-              <span className="px-4 py-1 text-white rounded-lg text-base border border-[0.2px] border-white shadow-sm">
-                Round {currentRound}/{rounds}
-              </span>
-              <span className="px-4 py-1 text-white rounded-lg text-base border border-[0.2px] border-white shadow-sm">
-                Remaining points: {pointsByRound}
-              </span>
-            </div>
-          </div>
+                {players && (
+                  players.map((player)=>{
+                    if(player.userId === currentPlayerId) {
+                      return (
+                        <div key={player.userId} className="flex items-center space-x-3 bg-indigo-900/60 px-4 py-3 rounded-lg border border-indigo-500/40">
+                        <img
+                      src={player.avatar || "/placeholder-avatar.jpg"} // Hardcoded
+                      alt={player.username}
+                      className="h-10 w-10 rounded-full border-2 border-indigo-400"
+                    />
+                    <div>
+                      <p className="text-indigo-200 font-semibold text-sm">
+                        {player.username}'s Turn
+                      </p>
+                      <p className="text-indigo-300 text-xs">
+                        Score: {player.score} {/* Hardcoded */}
+                      </p>
+                    </div>
+              </div>
+                      );
+                    }
+                  })
+                )}
 
-          {/* Mobile Layout */}
-          <div className="md:hidden flex flex-col items-center space-y-4">
-            {/* Title centered */}
-            <div className="flex items-center">
-              <h2 className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent font-PressStart2P text-base font-extrabold text-center">
-                MASTER MIND
-              </h2>
+              {/* Current Player Section */}
             </div>
 
-            {/* Stats below in row or stacked based on screen size */}
-            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-              <span className="px-3 py-1 text-white rounded-lg text-sm border border-[0.2px] border-white shadow-sm text-center">
-                Round {currentRound}/{rounds}
-              </span>
-              <span className="px-3 py-1 text-white rounded-lg text-sm border border-[0.2px] border-white shadow-sm text-center">
-                Points: {pointsByRound}
-              </span>
+            {/* Mobile Layout */}
+            <div className="md:hidden flex flex-col space-y-4">
+              {/* Top Row - Title and Back Button */}
+              <div className="flex items-center justify-between">
+                <button className="bg-indigo-900 p-2 rounded-lg hover:bg-indigo-700 group cursor-pointer transition-colors ease-in-out duration-200">
+                  <CornerUpLeft className="size-5 text-indigo-200 group-hover:text-white" />
+                </button>
+                <h2 className="bg-gradient-to-r from-fuchsia-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent font-PressStart2P text-xl font-extrabold text-center flex-1 mx-4">
+                  MASTER MIND
+                </h2>
+                <div className="w-8"> {/* Spacer for centering */}</div>
+              </div>
+
+              {/* Points Display */}
+              <motion.div
+                className="text-yellow-400 font-bold flex items-center justify-center gap-2 text-sm"
+                key={pointsByRound}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Trophy className="size-4" />
+                {pointsByRound} points this round
+              </motion.div>
+
+              {/* Game Stats Row */}
+              <div className="flex flex-wrap justify-center gap-2 text-xs">
+                <span className="flex items-center border border-fuchsia-600 px-3 py-1.5 rounded-lg bg-fuchsia-900 bg-opacity-30 text-white">
+                  <Target className="size-3 mr-1" />
+                  <span className="font-bold text-fuchsia-300">
+                    {currentRound}
+                  </span>
+                  /{rounds}
+                </span>
+                <span className="flex items-center border border-cyan-600 px-3 py-1.5 rounded-lg bg-cyan-900 bg-opacity-30 text-white">
+                  <Users className="size-3 mr-1" />
+                  <span className="font-bold text-cyan-300">4</span> players
+                </span>
+                <span className="flex items-center border border-green-600 px-3 py-1.5 rounded-lg bg-green-900 bg-opacity-30 text-white">
+                  <Clock className="size-3 mr-1" />
+                  <span className="font-bold text-green-300">60s</span>
+                </span>
+              </div>
+
+              {/* Current Player Mobile */}
+              {players && (
+                players.map((player)=>{
+                  if(player.userId === currentPlayerId) {
+                    return (
+                      <div key={player.userId} className="flex items-center justify-center space-x-3 bg-indigo-900/60 px-4 py-2 rounded-lg border border-indigo-500/40">
+                  <img
+                    src={player.avatar || "/placeholder-avatar.jpg"} // Hardcoded
+                    alt={player.username}
+                    className="h-8 w-8 rounded-full border-2 border-indigo-400"
+                  />
+                  <div className="text-center">
+                    <p className="text-indigo-200 font-semibold text-sm">
+                      {player.username}'s Turn
+                    </p>
+                    <p className="text-indigo-300 text-xs">
+                      Score: {player.score}
+                    </p>
+                  </div>
+                </div>
+                    );
+                  }
+                })
+              )}
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto py-2 px-2">
         {/* Players grid - more compact and responsive */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 mb-6">
-          {players.map((player, index) => (
-            <PlayerCard
-              key={player.userId}
-              player={player}
-              isActive={
-                index === players.findIndex((p) => p.userId === currentPlayerId)
-              }
-            />
-          ))}
-        </div>
-        <div className="text-center mb-6">
+        <PlayerCard players={players} currentPlayerId={currentPlayerId} />
+        <div className="text-center mb-2">
           {gameStatus === "playing" && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center space-y-3 md:space-y-4 p-4 md:p-6  rounded-2xl border border-purple-200/50 backdrop-blur-xl max-w-sm md:max-w-lg mx-auto shadow-xl shadow-purple-500/10"
+              className="flex flex-col items-center space-y-3 md:space-y-4 p-4 md:p-6 rounded-2xl max-w-sm md:max-w-lg mx-auto bg-indigo-950/60 border border-indigo-500/30 backdrop-blur-sm shadow-xl"
             >
               <Timer timeLeft={timer} timeInRounds={timeInRounds} />
+
               <div className="text-center">
-                <h2 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-purple-700 via-pink-600 to-indigo-700 bg-clip-text text-transparent leading-tight">
-                    {currentPlayerId === user._id
+                <h2 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300 bg-clip-text text-transparent leading-tight drop-shadow-sm">
+                  {currentPlayerId === user._id
                     ? `It's your turn, ${currentPlayerUsername}!`
                     : `${currentPlayerUsername}'s turn`}
                 </h2>
-                <p className="text-purple-600/80 text-xs md:text-sm mt-1 font-semibold px-2">
-                    {currentPlayerId === user._id
+
+                <p className="text-indigo-200 text-xs md:text-sm mt-2 font-semibold px-2">
+                  {currentPlayerId === user._id
                     ? "Select the correct answer"
                     : "Waiting for the player to answer..."}
                 </p>
               </div>
-
-              {/* Decorative elements */}
-              <div className="absolute top-2 right-2 w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-              <div className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-75"></div>
             </motion.div>
           )}
           {gameStatus === "countdown" && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center justify-center space-y-3 text-indigo-700 p-4 md:p-5 bg-gradient-to-br from-indigo-50/95 to-purple-50/95 rounded-2xl backdrop-blur-xl max-w-xs md:max-w-sm mx-auto border border-indigo-200/60 shadow-xl shadow-indigo-500/15"
+              className="flex flex-col items-center space-y-3 md:space-y-4 p-4 md:p-6 rounded-2xl max-w-sm md:max-w-lg mx-auto bg-indigo-950/60 border border-indigo-500/30 backdrop-blur-sm shadow-xl"
             >
               {/* Timer Display */}
               <div className="flex items-center justify-center">
@@ -259,38 +381,38 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 >
                   {/* Outer ring */}
-                  <div className="absolute inset-0 rounded-full border-4 border-indigo-200/40"></div>
-                  
-                  {/* Progress ring - you can map your countdown here */}
+                  <div className="absolute inset-0 rounded-full border-4 border-cyan-400/30 shadow-lg shadow-cyan-500/30"></div>
+
+                  {/* Progress ring */}
                   <motion.div
-                    className="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent"
+                    className="absolute inset-0 rounded-full border-4 border-cyan-400 border-t-transparent shadow-lg shadow-cyan-500/50"
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                   ></motion.div>
-                  
+
                   {/* Center content */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <motion.div
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 1, repeat: Infinity }}
                     >
-                      <Clock className="w-6 h-6 md:w-7 md:h-7 text-indigo-600" />
+                      <Clock className="w-6 h-6 md:w-7 md:h-7 text-cyan-400 filter drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
                     </motion.div>
-                  </div>
-                  
-                  {/* Timer number - map your countdown value here */}
-                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2"> 
                   </div>
                 </motion.div>
               </div>
 
               {/* Status text */}
               <div className="text-center">
-                <span className="font-bold text-sm md:text-base bg-gradient-to-r from-indigo-700 to-purple-600 bg-clip-text text-transparent">
-                  Siguiente pregunta...
+                <span className="font-bold text-sm md:text-base text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 filter drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">
+                  Next question...
                 </span>
-                <p className="text-xs text-indigo-500/80 mt-1">
-                  Preparándose para continuar
+                <p className="text-xs text-cyan-200 mt-1 px-3 py-1.5 bg-cyan-500/10 rounded-lg border border-cyan-400/30">
+                  ⚡ Getting ready to continue
                 </p>
               </div>
 
@@ -299,12 +421,12 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="w-1.5 h-1.5 bg-indigo-400 rounded-full"
+                    className="w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-lg shadow-cyan-500/50"
                     animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ 
-                      duration: 1.5, 
-                      repeat: Infinity, 
-                      delay: i * 0.2 
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      delay: i * 0.2,
                     }}
                   />
                 ))}
@@ -336,16 +458,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
             initial="hidden"
             animate="visible"
             variants={overlayVariants}
-        >
-            <BackButton
-            href="/"
-            text="Go Home"
-            className="left-4 top-4"
-            />
+          >
+            <BackButton handleCleanGame={handleCleanGame} href="/" text="Go Home" className="left-4 top-4" />
             <PodiumResults
-            players={players}
+              players={players}
+              handleCleanGame={handleCleanGame}
+              showButtons={false}
             />
-        </motion.div>
+          </motion.div>
         </AnimatePresence>
       )}
     </div>

@@ -1,8 +1,41 @@
+
+/* src/index.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Poppins:wght@600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 @import "tailwindcss";
+
+/* Añade tus animaciones de blob aquí si no las tienes en tailwind.config.js */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite ease-in-out;
+}
+
+/* Puedes añadir esto si quieres un scrollbar más oscuro */
+body {
+  scrollbar-color: #4a4a4a #1a1a1a; /* thumb color, track color */
+  scrollbar-width: thin;
+}
+body::-webkit-scrollbar {
+  width: 8px;
+}
+body::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+body::-webkit-scrollbar-thumb {
+  background-color: #4a4a4a;
+  border-radius: 20px;
+  border: 2px solid #1a1a1a;
+} 
 
 :root {
   /* color-scheme: ligth dark; */

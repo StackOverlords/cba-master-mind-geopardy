@@ -28,6 +28,8 @@ interface GameStore extends GameState {
   setFinalScore: (rankings: any) => void;
   timerGameOut: number;
   setTimerGameOut: (timerGameOut: number) => void;
+
+  setGameStatus: (status: 'waiting' | 'countdown' | 'playing' | 'finished') => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -47,8 +49,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     ranking: [],
     playersScores: []
   },
-  initializeGame: (players: any) => {
-    console.log(players, "players in gameStore");
+  initializeGame: (players: any) => { 
     const playersSet: Player[] = players.map((user: any, index: any) => ({
       id: `player-${index}`,
       username: user.username,
@@ -165,6 +166,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     */
   },
   setTimerGameOut: (timerGameOut: number) => set({ timerGameOut }),
-  setAnswerSelected: (answerSelected: string | null) => set({ answerSelected })
+  setAnswerSelected: (answerSelected: string | null) => set({ answerSelected }),
+  setGameStatus: (status: 'waiting' | 'countdown' | 'playing' | 'finished') => set({ gameStatus: status })
 
 }));

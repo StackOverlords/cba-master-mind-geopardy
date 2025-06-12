@@ -6,9 +6,13 @@ import { useNavigate } from "react-router";
 import { Flag, Sparkles } from "lucide-react";
 
 interface Props {
+    handleCleanGame: () => void;
+    showButtons?: boolean;
     players: any[];
 };
 const PodiumResults: React.FC<Props> = ({
+    handleCleanGame,
+    showButtons = true,
     players
 }) => {
     const navigate = useNavigate()
@@ -21,6 +25,9 @@ const PodiumResults: React.FC<Props> = ({
         navigate('/create-game')
     }
     const handleEndGame = () => {
+        // console.log("Execute")
+        handleCleanGame();
+        sessionStorage.removeItem('gameCode');
         navigate('/')
     }
     const podium = sortedAll.filter(p => p.score > 0).slice(0, 3);
@@ -33,6 +40,8 @@ const PodiumResults: React.FC<Props> = ({
             <p className="text-xs sm:text-sm text-gray-300 text-center mb-6">
                 Only the fastest and wisest made it to the podium. Congratulations to everyone!
             </p>
+            {
+                showButtons&&
             <div className="text-xs flex gap-2 w-full max-w-sm">
                 <button
                     onClick={handleNewGame}
@@ -49,6 +58,7 @@ const PodiumResults: React.FC<Props> = ({
                     End Game
                 </button>
             </div>
+            }
             {/* Podio */}
             <div className="flex justify-center items-end gap-2 sm:gap-3 mt-10">
                 {podium[1] && (

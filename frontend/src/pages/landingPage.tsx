@@ -14,6 +14,7 @@ import CreateGameModal from "../components/game/createGameModal";
 import { useAuthStore } from "../stores/authStore";
 import { socketService } from "../services/socketService";
 import Header from "../components/header";
+import { InfoIcon } from "lucide-react";
 
 const LANDING_PAGE_CONTENT = {
   altTexts: {
@@ -111,7 +112,7 @@ const LandingPage = () => {
   };
 
   const handleCreateChampionshipGame = () => {
-    console.log("Creando juego de campeonato...");
+    // console.log("Creando juego de campeonato...");
     alert("Modo campeonato creado! (Implementar lógica local aquí)");
     setIsCreateGameModalOpen(false);
   };
@@ -183,14 +184,18 @@ const LandingPage = () => {
           </div>
           <AnimatedBadge />
           <div className="flex gap-3">
-            <SocialButton href="https://es-la.facebook.com/centrobolivianoamericano.tarija">
+            <SocialButton title="Facebook" target="_blank" href="https://es-la.facebook.com/centrobolivianoamericano.tarija">
               <FacebookIcon className="size-6" />
             </SocialButton>
-            <SocialButton href="https://api.whatsapp.com/send/?phone=59176192765&text&type=phone_number&app_absent=0">
+            <SocialButton title="WhatsApp" target="_blank" href="https://api.whatsapp.com/send/?phone=59176192765&text&type=phone_number&app_absent=0">
               <WhatsAppIcon className="size-6" />
             </SocialButton>
-            <SocialButton href="https://cba.org.bo/">
+            <SocialButton title="CBA" target="_blank" href="https://cba.org.bo/">
               <WorldIcon className="size-6" />
+            </SocialButton>
+            {/* Add link to About page */}
+            <SocialButton title="About" target={undefined} href="/about">
+              <InfoIcon className="size-6" />
             </SocialButton>
           </div>
         </div>

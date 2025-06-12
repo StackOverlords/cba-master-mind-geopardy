@@ -5,10 +5,11 @@ interface ModeSelectionButtonProps {
   isSelected: boolean;
   onClick: () => void;
   icon: string;
+  children?: React.ReactNode;
 }
 
 const ModeSelectionButton: React.FC<ModeSelectionButtonProps> = ({
-  label, description, isSelected, onClick, icon
+  label, description, isSelected, onClick, icon,children
 }) => {
   return (
     <button
@@ -35,6 +36,7 @@ const ModeSelectionButton: React.FC<ModeSelectionButtonProps> = ({
                 </svg>
               </div>
             )}
+          {children} 
           </div>
           <p className={`text-sm mt-1 ${
             isSelected ? 'text-blue-700' : 'text-slate-400'

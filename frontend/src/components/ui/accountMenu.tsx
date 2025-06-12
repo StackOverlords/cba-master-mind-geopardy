@@ -6,7 +6,7 @@ import HelpIcon from "./icons/helpIcon";
 import LogoutIcon from "./icons/logoutIcon";
 import UserIcon from "./icons/userIcon";
 import SpinnerIcon from "./icons/spinnerIcon";
-import HelpModal from "../help/helpModal";
+// import HelpModal from "../help/helpModal";
 
 // Constants
 const AVATAR_COLORS = ["#d59bf6", "#ffc93c", "#42b883", "#cca8e9"] as const;
@@ -17,13 +17,13 @@ interface MenuItemProps {
     icon: React.ReactNode;
     text: string;
     onClick?: () => void;
+    children?: React.ReactNode;
 }
 
 const AccountMenu = () => {
     const { user: userData, isAuthenticated, hasRole, logout, isLoadingButtons } = useAuthStore();
     const [isOpen, setIsOpen] = useState(false);
     const [openProfile, setOpenProfile] = useState(false);
-    const [showHelpModal, setShowHelpModal] = useState(false);
     const divRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
@@ -93,7 +93,7 @@ const AccountMenu = () => {
         );
     };
 
-    const renderDropdownMenuItem = ({ icon, text, onClick }: MenuItemProps) => (
+    const renderDropdownMenuItem = ({ icon, text, onClick,children }: MenuItemProps) => (
         <li>
             <button
                 onClick={onClick}
@@ -104,6 +104,7 @@ const AccountMenu = () => {
                     {icon}
                 </span>
                 <span className="mx-1 ml-5">{text}</span>
+                {children}
             </button>
         </li>
     );
@@ -143,7 +144,14 @@ const AccountMenu = () => {
                             onClick: () => {
                                 setOpenProfile(true);
                                 setIsOpen(false);
-                            }
+                            },
+                            children: (
+                                <> 
+                                    <span className="ml-2 px-2 py-0.5 rounded bg-yellow-400 text-gray-800 text-[10px] sm:text-xs font-semibold">
+                                        Coming soon
+                                    </span>
+                                </>
+                            )
                         })}
 
                         {hasRole('admin') && (
@@ -160,11 +168,8 @@ const AccountMenu = () => {
 
                         {renderDropdownMenuItem({
                             icon: <HelpIcon className="size-5" />,
-                            text: "Help",
-                            onClick: () => {
-                                setShowHelpModal(true);
-                                setIsOpen(false);
-                            }
+                            text: "About",
+                            onClick: () => navigate("/about")
                         })}
                         {renderDropdownMenuItem({
                             icon: isLoadingButtons.withGoogle || isLoadingButtons.withEmail || isLoadingButtons.login ? <SpinnerIcon className="size-5 animate-spin" /> : <LogoutIcon className="size-5" />,
@@ -175,10 +180,10 @@ const AccountMenu = () => {
                 </nav>
             )}
             {/* Help Modal */}
-            <HelpModal
+            {/* <HelpModal
                 isOpen={showHelpModal}
                 onClose={() => setShowHelpModal(false)}
-            />
+            /> */}
         </div>
     );
 };
