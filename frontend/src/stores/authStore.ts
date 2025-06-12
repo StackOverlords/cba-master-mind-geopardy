@@ -9,7 +9,7 @@ import type { CreateUserDTO } from "../shared/types";
 export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
     isLoading: false,
-    isLoadingButtons:{
+    isLoadingButtons: {
         withGoogle: false,
         withEmail: false,
         login: false,
@@ -28,7 +28,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } catch (error) {
             set({ error: "Error al iniciar sesión", isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false } });
             throw error;
-        }   
+        }
     },
 
     loginWithGoogle: async () => {
@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             setLoginFlag();
             set({ user: userData, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: true });
         } catch (error) {
-            set({ error: "Error con inicio de sesión Google", isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false } }); 
+            set({ error: "Error con inicio de sesión Google", isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false } });
             throw error;
         }
     },
@@ -87,17 +87,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     initialize: () => {
         // Escuchar cambios en el estado de autenticación
+        set({ isLoading: true })
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
                 try {
                     const userData = await getUserData(firebaseUser);
-                    set({ user: userData, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: true });
+                    set({ user: userData, isLoading: false, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: true });
                 } catch (error) {
-                    set({ user: null, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, error: 'Error al cargar datos de usuario', isAuthenticated: false });
+                    set({ user: null, isLoading: false, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, error: 'Error al cargar datos de usuario', isAuthenticated: false });
                 }
             } else {
                 removeLoginFlag();
-                set({ user: null, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: false });
+                set({ user: null, isLoading: false, isLoadingButtons: { withGoogle: false, withEmail: false, login: false, loaderPage: false }, isAuthenticated: false });
             }
         });
 
