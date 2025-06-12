@@ -133,7 +133,7 @@ const gameSchema = new Schema<IGame>({
     },
     code: {
         type: String,
-        unique: true, // Asegura que el código del juego sea único
+        // unique: true, // Asegura que el código del juego sea único
         required: false,
         trim: true,
     },

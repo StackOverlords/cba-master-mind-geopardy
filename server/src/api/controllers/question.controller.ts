@@ -73,13 +73,13 @@ export class QuestionController {
                 try { 
                     const nro = row.Nro || row.NroQuestion || row['Nro Question'] || '';
                     const questionText = row.Question || '';
-                    const optionA = row.A || '';
-                    const optionB = row.B || '';
-                    const optionC = row.C || '';
-                    const optionD = row.D || '';
-                    const correctAnswer = row.CorrectAnswer || row['Correct Answer'] || '';
-                    const category = row.Category || '';
-                    categoryExtract = category;
+                    const optionA = row.A.toString().trim() || '';
+                    const optionB = row.B.toString().trim() || '';
+                    const optionC = row.C.toString().trim() || '';
+                    const optionD = row.D.toString().trim() || '';
+                    const correctAnswer = row.CorrectAnswer.toString().trim() || '';
+                    const category = row.Category.toString().trim() || '';
+                    categoryExtract = category.toString().trim();
                     const approved = (row.Approved || '').toString().toUpperCase() === 'TRUE';
                     
                     if (!questionText) {
@@ -128,6 +128,7 @@ export class QuestionController {
                 questions: savedQuestions
             });
         } catch (error: any) {
+            console.log(JSON.stringify(error, null, 2));
             // Eliminar el archivo en caso de error
             if (req.file && fs.existsSync(req.file.path)) {
                 fs.unlinkSync(req.file.path);
