@@ -142,18 +142,20 @@ const CreateGamePage = () => {
                                 Game Settings
                             </h2>
                             <div className="space-y-4">
-                                <div className="flex flex-col">
-                                    <label htmlFor="gameTitle" className="text-purple-200 text-xs sm:text-sm">
-                                        Game Title
-                                    </label>
-                                    <InputField
-                                        id="name"
-                                        name="name"
-                                        placeholder="Trivia Battle"
-                                        value={gameSetup.name}
-                                        onChange={handleChangeData}
-                                        className="max-w-md"
-                                    />
+                                <div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="gameTitle" className="text-purple-200 text-xs sm:text-sm">
+                                            Game Title
+                                        </label>
+                                        <InputField
+                                            id="name"
+                                            name="name"
+                                            placeholder="Trivia Battle"
+                                            value={gameSetup.name}
+                                            onChange={handleChangeData}
+                                            className="max-w-md"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 text-xs sm:text-sm">
