@@ -126,13 +126,12 @@ export const handleDownloadTemplateWithExcelJS = async (categoryName: string) =>
     });
   
     // FILAS DE DATOS VACÍAS (9 filas más para completar 10 total)
-    for (let i = 2; i <= 10; i++) {
+    for (let i = 2; i <= 2; i++) {
       const dataRow = worksheet.addRow([
         i, '', '', '', '', '', '', categoryName, 'FALSE', ''
       ]);
-      
       dataRow.height = 20;
-      
+
       dataRow.eachCell((cell, colNumber) => {
         // Alternamos colores de fondo para mejor legibilidad
         const isEvenRow = i % 2 === 0;
@@ -265,8 +264,8 @@ export const handleDownloadTemplateWithExcelJS = async (categoryName: string) =>
     link.href = url;
     
     // Nombre de archivo con timestamp para evitar conflictos
-    const timestamp = new Date().toISOString().slice(0, 10);
-    link.download = `Template_${categoryName.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}.xlsx`;
+    // const timestamp = new Date().toISOString().slice(0, 10);
+    link.download = `${categoryName.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
     
     // Descarga elegante
     link.style.display = 'none';

@@ -90,7 +90,7 @@ export class SocketConnection {
             this.setupSocketEvents();
 
             if (process.env.NODE_ENV === 'development') {
-                console.log("✅ Socket.io inicializado correctamente");
+                // console.log("✅ Socket.io inicializado correctamente");
             }
 
         } catch (error) {
@@ -102,15 +102,15 @@ export class SocketConnection {
     }
 
     private setupSocketEvents(): void {
-        console.log("📡 Configurando eventos de Socket.io...");
+        // console.log("📡 Configurando eventos de Socket.io...");
         if (!this.io) return;
 
         this.io.on("connection", (socket: Socket) => {
-            console.log(`👤 Cliente conectado: ${socket.id}`);
+            // console.log(`👤 Cliente conectado: ${socket.id}`);
             const userId = socket.handshake.auth?.userId;
-            console.log(`👤 Usuario conectado: ${userId} con socket ID: ${socket.id}`);
+            // console.log(`👤 Usuario conectado: ${userId} con socket ID: ${socket.id}`);
             socket.on("disconnect", () => {
-                console.log(`👤 Cliente desconectado: ${socket.id}`);
+                // console.log(`👤 Cliente desconectado: ${socket.id}`);
                 this.handleDisconnect(socket);
             });
 
@@ -121,9 +121,9 @@ export class SocketConnection {
             // ***** Eventos del juego *****
             // Crear una nueva partida
             socket.on("createGame", async (userData: { userId: string; gameData: Omit<IGame, '_id' | 'code' | 'players' | 'questions'> }) => {
-                console.log(socket.handshake.auth.userId, "intenta crear una partida");
+                // console.log(socket.handshake.auth.userId, "intenta crear una partida");
                 try {
-                    console.log(userData.gameData)
+                    // console.log(userData.gameData)
                     const user = await UserModel.findById(userData.userId);
                     if (!user) {
                         socket.emit("error", { message: "Usuario no encontrado" });
@@ -174,7 +174,7 @@ export class SocketConnection {
 
                     socket.join(gameCode);
                     this.io?.to(gameCode).emit("playerJoined", { userId: userData.userId, username: user.name, score: 0 });
-                    console.log(`🎮 Juego creado con código: ${gameCode} por el usuario ${user.name} (${userData.userId})`);
+                    // console.log(`🎮 Juego creado con código: ${gameCode} por el usuario ${user.name} (${userData.userId})`);
                     socket.emit("gameCreated", { gameCode });
                 } catch (error) {
                     console.error("❌ Error al crear el juego:", error);
@@ -183,7 +183,7 @@ export class SocketConnection {
             });
 
             socket.on("joinGame", async (joinData: { gameCode: string; userData: { userId: string } }) => {
-                console.log("Uniendo a sala")
+                // console.log("Uniendo a sala")
                 const { gameCode, userData } = joinData;
                 const gameRoom = games[gameCode];
 
@@ -207,9 +207,9 @@ export class SocketConnection {
                     socket.join(gameCode);
                     socket.emit("gameJoined", { gameCode });
                     this.io?.to(gameCode).emit("playerReconnected", { userId: userData.userId, username: user.name });
-                    console.log(`👤 Usuario ${user.name} (${userData.userId}) reconectado a la partida: ${gameCode}`);
+                    // console.log(`👤 Usuario ${user.name} (${userData.userId}) reconectado a la partida: ${gameCode}`);
                     // Asegurarse de enviar el estado actual de la partida al reconectado
-                    console.log(gameRoom, "estado de la partida al reconectar");
+                    // console.log(gameRoom, "estado de la partida al reconectar");
                     socket.emit("gameState", { ownerId: gameRoom, players: gameRoom.players, gameData: gameRoom.gameData, currentQuestion: gameRoom.currentQuestion });
                     return;
                 }
@@ -225,7 +225,7 @@ export class SocketConnection {
                 socket.join(gameCode);
                 socket.emit("gameJoined", { gameCode });
                 this.io?.to(gameCode).emit("playerJoined", { userId: userData.userId, username: user.name, score: 0 });
-                console.log(`👤 Usuario ${user.name} (${userData.userId}) se unió a la partida: ${gameCode}`);
+                // console.log(`👤 Usuario ${user.name} (${userData.userId}) se unió a la partida: ${gameCode}`);
 
                 this.io?.to(socket.id).emit("gamePlayers", { players: gameRoom.players });
                 socket.broadcast.to(gameCode).emit("gamePlayers", { players: gameRoom.players });
@@ -247,21 +247,21 @@ export class SocketConnection {
                 }
             });
             socket.on("getRooms", () => {
-                console.log(socket.id, "solicita la lista de partidas");
+                // console.log(socket.id, "solicita la lista de partidas");
                 socket.emit("roomsList", games);
-                console.log("🗂️ Lista de partidas enviadas:", JSON.stringify(games));
+                // console.log("🗂️ Lista de partidas enviadas:", JSON.stringify(games));
             });
 
             // En SocketConnection class, dentro de setupSocketEvents()
             socket.on("startGame", async (gameData: { gameCode: string, userId: string }) => {
                 const { gameCode, userId } = gameData;
                 if (!gameCode || !userId) {
-                    console.log("Datos de partida incompletos:", gameData);
+                    // console.log("Datos de partida incompletos:", gameData);
                     socket.emit("error", { message: "Datos de partida incompletos" });
                     return;
                 }
                 // Verificar que todos esten ready: 
-                console.log("Iniciando partida con código:", gameCode);
+                // console.log("Iniciando partida con código:", gameCode);
                 const gameRoom = games[gameCode];
                 let isReadyGame = true;
                 gameRoom.players.forEach(player => {
@@ -270,25 +270,25 @@ export class SocketConnection {
                         return;
                     }
                 });
-                console.log(gameRoom.players, "jugadores en la partida");
+                // console.log(gameRoom.players, "jugadores en la partida");
                 if (!isReadyGame) {
-                    console.log("No todos los jugadores están listos");
+                    // console.log("No todos los jugadores están listos");
                     socket.emit("error", { message: "No todos los jugadores están listos para iniciar la partida." });
                     return;
                 }
                 if (!gameRoom) {
-                    console.log("Partida no encontrada")
+                    // console.log("Partida no encontrada")
                     socket.emit("error", { message: "Partida no encontrada" });
                     return;
                 }
-                console.log(userId, "intenta iniciar la partida");
+                // console.log(userId, "intenta iniciar la partida");
                 if (gameRoom.ownerId !== userId) {
-                    console.log("Solo el creador puede iniciar la partida");
+                    // console.log("Solo el creador puede iniciar la partida");
                     socket.emit("error", { message: "Solo el creador puede iniciar la partida" });
                     return;
                 }
                 if (gameRoom.players.length < 2) {
-                    console.log("Se necesitan al menos 2 jugadores para iniciar la partida");
+                    // console.log("Se necesitan al menos 2 jugadores para iniciar la partida");
                     socket.emit("error", { message: "Se necesitan al menos 2 jugadores para iniciar la partida." });
                     return;
                 }
@@ -296,16 +296,16 @@ export class SocketConnection {
                 // Obtener las categorías seleccionadas para esta partida
                 const selectedCategories = gameRoom.gameData.categorys;
                 if (!selectedCategories || selectedCategories.length === 0) {
-                    console.log("No se seleccionaron categorías para esta partida");
+                    // console.log("No se seleccionaron categorías para esta partida");
                     socket.emit("error", { message: "No se seleccionaron categorías para esta partida." });
                     return;
                 }
 
                 // Calcular la cantidad total de preguntas necesarias
                 const numberOfPlayers = gameRoom.players.length;
-                console.log(numberOfPlayers, "jugadores");
+                // console.log(numberOfPlayers, "jugadores");
                 const totalQuestionsNeeded = (numberOfPlayers * gameRoom.rounds) + EXTRA_QUESTIONS_BUFFER;
-                console.log(totalQuestionsNeeded, "preguntas necesarias");
+                // console.log(totalQuestionsNeeded, "preguntas necesarias");
 
                 let allAvailableQuestions: IQuestion[] = [];
                 const questionsPerCategoryBase = Math.floor(totalQuestionsNeeded / selectedCategories.length);
@@ -313,7 +313,7 @@ export class SocketConnection {
 
                 // Paso 1: Intentar obtener una cantidad equitativa de cada categoría
                 for (const category of selectedCategories) {
-                    console.log(category, "categoría");
+                    // console.log(category, "categoría");
                     // Calcular cuántas preguntas intentar obtener para esta categoría
                     const countToFetch = questionsPerCategoryBase + (remainderQuestions > 0 ? 1 : 0);
                     if (remainderQuestions > 0) remainderQuestions--;
@@ -343,11 +343,11 @@ export class SocketConnection {
 
                 // Mezclar todas las preguntas obtenidas
                 allAvailableQuestions = allAvailableQuestions.sort(() => 0.5 - Math.random());
-                console.log(allAvailableQuestions.length, "preguntas disponibles después de compensación");
+                // console.log(allAvailableQuestions.length, "preguntas disponibles después de compensación");
 
                 // Verificar si tenemos suficientes preguntas en total después de la compensación
                 if (allAvailableQuestions.length < totalQuestionsNeeded) {
-                    console.log("No hay suficientes preguntas disponibles en las categorías seleccionadas para iniciar la partida con esta configuración.");
+                    // console.log("No hay suficientes preguntas disponibles en las categorías seleccionadas para iniciar la partida con esta configuración.");
                     socket.emit("error", { message: "No hay suficientes preguntas disponibles en las categorías seleccionadas para iniciar la partida con esta configuración. Intenta con más categorías o menos rondas." });
                     return;
                 }
@@ -369,13 +369,14 @@ export class SocketConnection {
                         questions: gameRoom.questionsAvailable.map((q: IQuestion) => q._id),
                     }
                 );
-
+                // Agregar un delay antes de enviar la señal de la partida:
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar 2 segundos
                 this.io?.to(gameCode).emit("gameStarted", {
                     gameCode: gameCode,
                     players: gameRoom.players
                 });
-                console.log("Enviando broadcast de inicio de partida a la sala:", gameCode);
-                console.log(`🚀 Partida ${gameCode} iniciada con categorías: ${selectedCategories.join(', ')}.`);
+                // console.log("Enviando broadcast de inicio de partida a la sala:", gameCode);
+                // console.log(`🚀 Partida ${gameCode} iniciada con categorías: ${selectedCategories.join(', ')}.`);
                 this.sendNextQuestion(gameCode);
             });
 
@@ -414,6 +415,7 @@ export class SocketConnection {
                     // Asume que la pregunta tiene una propiedad 'points' o calcula en base a la categoría/dificultad
                     pointsAwarded = turnPoint; // Ejemplo de puntos
                     currentPlayer.score += pointsAwarded;
+                    gameRoom.players[gameRoom.currentPlayerIndex].score = currentPlayer.score; // Actualizar el jugador en la sala
                 }
 
                 // Emitir el resultado de la respuesta a todos en la sala
@@ -463,7 +465,7 @@ export class SocketConnection {
 
             socket.on("playerReady", async ({ gameCode, userId }: { gameCode: string, userId: string }) => {
                 const gameRoom = games[gameCode];
-                console.log(userId, "intenta cambiar su estado de listo");
+                // console.log(userId, "intenta cambiar su estado de listo");
                 if (!gameRoom) {
                     socket.emit("error", { message: "Partida no encontrada" });
                     return;
@@ -474,7 +476,7 @@ export class SocketConnection {
                     return;
                 }
                 player.isReady = !player.isReady; // Cambiar el estado de "listo"
-                console.log(`Jugador ${player.username} (${userId}) está ${player.isReady ? "listo" : "no listo"} en la partida ${gameCode}`);
+                // console.log(`Jugador ${player.username} (${userId}) está ${player.isReady ? "listo" : "no listo"} en la partida ${gameCode}`);
                 this.io?.to(gameCode).emit("gamePlayers", { players: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score, isReady: p.isReady, avatar: p.avatar })) });
             });
 
@@ -482,6 +484,9 @@ export class SocketConnection {
         });
     }
     private async sendNextQuestion(gameCode: string): Promise<void> {
+        // Agregar 1 segundo de delay antes de enviar la siguiente pregunta
+        // console.log("Enviando siguiente pregunta para la partida:", gameCode);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo
         const gameRoom = games[gameCode];
         games[gameCode].pointsByRound = 100; // Asignar puntos por ronda al iniciar el turno
         this.io?.to(gameCode).emit("updatePointsShow", 100); // Enviar puntos por ronda al frontend
@@ -493,7 +498,7 @@ export class SocketConnection {
 
         // Si no quedan preguntas disponibles, la partida termina (o se cargan más si es un juego muy largo)
         if (gameRoom.questionsAvailable.length === 0) {
-            console.log(`🏁 No quedan más preguntas para la partida ${gameCode}.`);
+            // console.log(`🏁 No quedan más preguntas para la partida ${gameCode}.`);
             this.endGame(gameCode);
             return;
         }
@@ -529,19 +534,26 @@ export class SocketConnection {
         this.io?.to(gameCode).emit("newTurn", {
             currentPlayerId: currentPlayer.userId,
             currentPlayerUsername: currentPlayer.username,
+            score: currentPlayer.score,
             question: questionForClient,
             timer: gameRoom.defaultTurnTime
         });
         if (gameRoom.currentRound <= gameRoom.rounds) {
             this.io?.to(gameCode).emit("roundFinished", { currentRound: gameRoom.currentRound });
         }
-        console.log(`❓ Pregunta enviada para ${currentPlayer.username} en la partida ${gameCode}`);
+        // console.log(`❓ Pregunta enviada para ${currentPlayer.username} en la partida ${gameCode}`);
 
         // Iniciar el temporizador del turno
-        this.startTurnTimer(gameCode);
+        this.startTurnTimer(gameCode,{
+            currentPlayerId: currentPlayer.userId,
+            currentPlayerUsername: currentPlayer.username,
+            score: currentPlayer.score,
+            question: questionForClient,
+            timer: gameRoom.defaultTurnTime
+        });
     }
 
-    private startTurnTimer(gameCode: string): void { /// ERRORCORREGIR
+    private startTurnTimer(gameCode: string, newTurn: any): void {
         const gameRoom = games[gameCode];
         if (!gameRoom) return;
 
@@ -557,7 +569,7 @@ export class SocketConnection {
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 gameRoom.turnTimer = null;
-                console.log(`⌛ Tiempo agotado para ${gameRoom.players[gameRoom.currentPlayerIndex].username} en ${gameCode}`);
+                // console.log(`⌛ Tiempo agotado para ${gameRoom.players[gameRoom.currentPlayerIndex].username} en ${gameCode}`);
                 // Si el tiempo se agota y el jugador no respondió, considera su respuesta como incorrecta
                 const currentPlayer = gameRoom.players[gameRoom.currentPlayerIndex];
                 if (!currentPlayer.hasAnsweredThisTurn) {
@@ -574,17 +586,24 @@ export class SocketConnection {
             }
             this.io?.to(gameCode).emit("updateTimer", timeLeft); // A todos los jugadores en la sala
             if (timeLeft <= 0.8 * gameRoom.defaultTurnTime) {
-                games[gameCode].pointsByRound = 80; // Asignar puntos por ronda
-                this.io?.to(gameCode).emit("updatePointsShow", 80)
+                if(games[gameCode].pointsByRound){
+                    games[gameCode].pointsByRound = 80; // Asignar puntos por ronda
+                    this.io?.to(gameCode).emit("updatePointsShow", 80)
+                }
             }
             if (timeLeft <= 0.5 * gameRoom.defaultTurnTime) {
-                games[gameCode].pointsByRound = 50; // Asignar puntos por ronda
-                this.io?.to(gameCode).emit("updatePointsShow", 50)
+                if(games[gameCode].pointsByRound){
+                    games[gameCode].pointsByRound = 50; // Asignar puntos por ronda
+                    this.io?.to(gameCode).emit("updatePointsShow", 50)
+                }
             }
             if (timeLeft <= 0.2 * gameRoom.defaultTurnTime) {
-                games[gameCode].pointsByRound = 20; // Asignar puntos por ronda
-                this.io?.to(gameCode).emit("updatePointsShow", 20)
+                if(games[gameCode].pointsByRound){
+                    games[gameCode].pointsByRound = 20; // Asignar puntos por ronda
+                    this.io?.to(gameCode).emit("updatePointsShow", 20)
+                }
             }
+            // this.io?.to(gameCode).emit("newTurn",(newTurn));
             timeLeft--;
         }, 1000);
 
@@ -601,7 +620,7 @@ export class SocketConnection {
             // Todos los jugadores han tenido su turno en esta ronda
             gameRoom.currentPlayerIndex = 0; // Reiniciar para el siguiente jugador en la próxima ronda
             gameRoom.currentRound++; // Avanzar a la siguiente ronda
-            console.log(`🎉 Fin de la ronda ${gameRoom.currentRound - 1} en la partida ${gameCode}. Iniciando ronda ${gameRoom.currentRound}.`);
+            // console.log(`🎉 Fin de la ronda ${gameRoom.currentRound - 1} en la partida ${gameCode}. Iniciando ronda ${gameRoom.currentRound}.`);
             // this.io?.to(gameCode).emit("roundFinished", { currentRound: gameRoom.currentRound });
 
             // Actualizar la ronda en la base de datos
@@ -611,14 +630,14 @@ export class SocketConnection {
         // --- Criterios de finalización del juego ---
         // 1. Si se ha superado el número de rondas definidas.
         if (gameRoom.currentRound > gameRoom.rounds) {
-            console.log(`🎉 La partida ${gameCode} ha alcanzado el límite de ${gameRoom.rounds} rondas.`);
+            // console.log(`🎉 La partida ${gameCode} ha alcanzado el límite de ${gameRoom.rounds} rondas.`);
             this.endGame(gameCode);
             return;
         }
 
         // 2. Si no quedan preguntas disponibles en el pool (a pesar de las rondas).
         if (gameRoom.questionsAvailable.length === 0) {
-            console.log(`🏁 No quedan más preguntas disponibles para la partida ${gameCode}. Finalizando.`);
+            // console.log(`🏁 No quedan más preguntas disponibles para la partida ${gameCode}. Finalizando.`);
             this.endGame(gameCode);
             return;
         }
@@ -683,16 +702,16 @@ export class SocketConnection {
             playersScores: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score }))
         });
 
-        console.log(`🏆 Partida ${gameCode} finalizada. Mostrando resultados.`);
+        // console.log(`🏆 Partida ${gameCode} finalizada. Mostrando resultados.`);
 
         // 5. Iniciar un temporizador para la redirección y limpieza final
         const timeOutGameInSeconds = 60; // Esperar 5 segundos antes de redirigir
-        console.log(`⏳ Redireccionando a los jugadores de la sala ${gameCode} en ${timeOutGameInSeconds} segundos.`);
+        // console.log(`⏳ Redireccionando a los jugadores de la sala ${gameCode} en ${timeOutGameInSeconds} segundos.`);
 
         // Usamos setTimeout para una espera única. La lógica de limpieza va DENTRO del callback.
         setTimeout(() => {
             // Esta parte se ejecuta DESPUÉS de 5 segundos
-            console.log(`🚪 Enviando señal de redirección a la sala ${gameCode}.`);
+            // console.log(`🚪 Enviando señal de redirección a la sala ${gameCode}.`);
 
             // Señal para que los clientes redirijan
             this.io?.to(gameCode).emit("redirectToHome", { message: `La partida ha terminado. Serás redirigido.` });
@@ -701,7 +720,7 @@ export class SocketConnection {
             this.io?.sockets.in(gameCode).socketsLeave(gameCode);
             delete games[gameCode];
 
-            console.log(`🗑️ Sala de juego ${gameCode} y datos en memoria eliminados.`);
+            // console.log(`🗑️ Sala de juego ${gameCode} y datos en memoria eliminados.`);
 
         }, timeOutGameInSeconds * 1000); // Convertir segundos a milisegundos
     }
@@ -716,7 +735,7 @@ export class SocketConnection {
             gameRoom.players = gameRoom.players.filter(player => player.socketId !== socket.id);
 
             if (gameRoom.players.length < initialPlayerCount && disconnectedPlayer) {
-                console.log(`👤 Jugador ${disconnectedPlayer.username} (${disconnectedPlayer.userId}) abandonó la partida ${gameCode}. Jugadores restantes: ${gameRoom.players.length}`);
+                // console.log(`👤 Jugador ${disconnectedPlayer.username} (${disconnectedPlayer.userId}) abandonó la partida ${gameCode}. Jugadores restantes: ${gameRoom.players.length}`);
                 this.io?.to(gameCode).emit("playerLeft", { userId: disconnectedPlayer.userId, username: disconnectedPlayer.username });
                 this.io?.to(gameCode).emit("gamePlayers", { players: gameRoom.players.map(p => ({ userId: p.userId, username: p.username, score: p.score, isReady: p.isReady, avatar: p.avatar })) });
 
@@ -734,7 +753,7 @@ export class SocketConnection {
                 // Si la partida se queda sin jugadores, o el propietario se desconecta, manejar la situación
                 if (gameRoom.players.length === 0) {
                     delete games[gameCode];
-                    console.log(`🗑️ Partida ${gameCode} eliminada por falta de jugadores.`);
+                    // console.log(`🗑️ Partida ${gameCode} eliminada por falta de jugadores.`);
                     await GameModel.findOneAndDelete({ code: gameCode }); // Eliminar de la DB también
                     this.io?.to(gameCode).emit("gameOverPlayersCero", { reason: "no-players" });
                 } else if (disconnectedPlayer.userId === gameRoom.ownerId) {
@@ -742,7 +761,7 @@ export class SocketConnection {
                     // 1. Asignar un nuevo propietario (el siguiente en la lista)
                     // 2. Terminar la partida
                     // 3. Pausar la partida
-                    console.log(`🚨 El propietario de la partida ${gameCode} se ha desconectado. Partida en pausa o terminada.`);
+                    // console.log(`🚨 El propietario de la partida ${gameCode} se ha desconectado. Partida en pausa o terminada.`);
                     this.io?.to(gameCode).emit("gameCancelledOwnerLeft", { message: "El propietario de la partida se ha desconectado. La partida se terminará." });
                     this.endGame(gameCode); // Ejemplo: Terminar la partida
                 }

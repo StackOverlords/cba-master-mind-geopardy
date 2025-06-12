@@ -40,7 +40,7 @@ const UploadFilesModal: React.FC<UploadModalProps> = ({ handleCloseModal }) => {
                     />
                 ));
             },
-            onError: (error: any) => {
+            onError: (error: any) => { 
                 toast.custom((t) => (
                     <ErrorAlert
                         t={t}
@@ -84,8 +84,8 @@ const UploadFilesModal: React.FC<UploadModalProps> = ({ handleCloseModal }) => {
                 <header>
                     <h2 className="text-xl font-medium text-white">Upload a File</h2>
                     <p className="text-sm text-slate-400">Attach the file below</p>
+                    <p className="text-sm text-red-400">Please ensure there are no empty cells in your file.</p>
                 </header>
-
                 <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
                     <div>
                         {file ? (

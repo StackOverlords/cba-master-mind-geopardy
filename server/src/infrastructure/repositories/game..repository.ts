@@ -8,29 +8,38 @@ export class GameRepository {
         const game = new GameModel(gameData);
 
         if (gameData.generateQuestions && gameData.categorys?.length) {
-
-            const numPlayers = gameData.playersLocal?.length || 1;
+            const numPlayers = gameData.playersLocal?.length || gameData.players?.length || 1;
             const numRounds = gameData.rounds || 1;
-            const EXTRA_QUESTIONS_BUFFER = 5; // Un colchón de 5 preguntas adicionales. ¡Puedes ajustarlo!
-            const totalQuestionsNeeded = (numPlayers * numRounds) + EXTRA_QUESTIONS_BUFFER;
+            const numCategories = gameData.categorys.length;
+            const questionsPerCategory = Math.ceil((numPlayers * numRounds) / numCategories);
 
-            const allAvailableQuestions = await QuestionModel.find({
-                isDeleted: false,
-                categoryId: { $in: gameData.categorys }
-            }).select('_id').lean();
-
-            if (allAvailableQuestions.length < totalQuestionsNeeded) {
-                throw new Error(`No hay suficientes preguntas. Se necesitan ${totalQuestionsNeeded} pero solo hay ${allAvailableQuestions.length} disponibles en las categorías seleccionadas. Intenta con menos rondas o más categorías.`);
-            }
- 
-            const shuffledQuestions = allAvailableQuestions.sort(() => 0.5 - Math.random());
-
-            const questionIds = shuffledQuestions
-                .slice(0, totalQuestionsNeeded)
-                .map(q => q._id);
-            game.questions = questionIds as Types.ObjectId[];
+            const questionsResult = await QuestionModel.aggregate([
+                {
+                    $match: {
+                        isDeleted: false,
+                        categoryId: { $in: gameData.categorys.map(id => new mongoose.Types.ObjectId(id)) }
+                    }
+                },
+                { $addFields: { randomSort: { $rand: {} } } },
+                { $sort: { categoryId: 1, randomSort: 1 } },
+                {
+                    $group: {
+                        _id: "$categoryId",
+                        questions: { $push: "$$ROOT._id" }
+                    }
+                },
+                {
+                    $project: {
+                        questions: {
+                            $slice: ["$questions", questionsPerCategory]
+                        }
+                    }
+                },
+                { $unwind: "$questions" },
+                { $project: { _id: "$questions" } }
+            ]).exec();
+            game.questions = questionsResult.map(q => q._id);
         }
-
         return await game.save();
     };
     async findById(id: string): Promise<IGame | null> {

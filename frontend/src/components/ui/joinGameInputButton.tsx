@@ -12,6 +12,7 @@ interface JoinGameInputButtonProps {
   setGameCode?: (code: string) => void; // Añadido para setGameCode 
   gameState?:any;
   setDeactivatedButtonStart?: (deactivated: boolean) => void; // Añadido para setDeactivatedButtonStart
+  children?: React.ReactNode; // Añadido para children
 }
 
 const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
@@ -22,7 +23,8 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
   buttonText,
   userId,
   setGameCode, // Añadido para setGameCode
-  setDeactivatedButtonStart
+  setDeactivatedButtonStart,
+  children
 }) => {
   const [code, setCode] = useState("");
   const [isValid, setIsValid] = useState(true); // Nuevo estado para validación
@@ -63,12 +65,15 @@ const JoinGameInputButton: React.FC<JoinGameInputButtonProps> = ({
   }, [code, userId]);
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="w-full p-6 rounded-xl bg-dashboard-bg/50 border-2 border-dashboard-border/50 hover:border-dashboard-border/70 transition-all duration-200 shadow-sm">
+      <div className="w-full p-6 rounded-xl bg-dashboard-bg/50 border-2 border-dashboard-border/50 hover:border-dashboard-border/70 transition-all duration-200 shadow-sm bg">
         <div className="flex flex-col space-y-4">
           <div className="flex items-center space-x-4">
-            <span className="text-3xl">{icon}</span>
+            <span className="text-3xl">{icon}</span> 
             <div>
-              <h3 className="text-white font-semibold text-lg">{label}</h3>
+              <div className="flex w-full items-center justify-between">
+                <h3 className="text-white font-semibold text-lg">{label}</h3>
+              {children} 
+              </div>
               <p className="text-slate-400 text-sm mt-1">{description}</p>
             </div>
           </div>

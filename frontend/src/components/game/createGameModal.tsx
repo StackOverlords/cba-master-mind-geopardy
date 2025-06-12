@@ -251,13 +251,13 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
   const handleCreateMultiplayerGame = async () => {
     setIsLoadingCreate(true);
     if (!multiplayerConfig.name.trim()) {
-      toast.error((t) => (  
+      toast.error((t) => (
         <ErrorToast
           t={t}
           title="Game name is required"
           description="Please enter a name for the game"
         />
-      ))
+      ));
       setIsLoadingCreate(false);
       return;
     }
@@ -663,6 +663,11 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           isSelected={false}
           onClick={() => handleModeSelection("playerVsPlayer")}
           icon="🌐"
+          children={
+            <span className="ml-2 px-2 py-0.5 rounded bg-yellow-400 text-gray-800 text-[10px] sm:text-xs font-semibold">
+              Beta
+            </span>
+          }
         />
         <ModeSelectionButton
           label={TextComponent.championship}
@@ -681,6 +686,11 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           setGameCode={(code) => setGameCode(code)}
           gameState={gameState}
           setDeactivatedButtonStart={(val) => setDeactivatedButtonStart(val)}
+          children={
+            <span className="ml-2 px-2 py-0.5 rounded bg-yellow-400 text-gray-800 text-[10px] sm:text-xs font-semibold">
+              Beta
+            </span>
+          }
         />
       </div>
     </motion.div>
@@ -947,13 +957,11 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                 : "bg-dashboard-border/50 text-white cursor-not-allowed"
             }`}
           >
-            {
-              isLoadingCreate?(
-                <SpinnerIcon className="inline-block mr-2 w-5 h-5 animate-spin" />
-              ):(
-                TextComponent.createGame
-              )
-            }
+            {isLoadingCreate ? (
+              <SpinnerIcon className="inline-block mr-2 w-5 h-5 animate-spin" />
+            ) : (
+              TextComponent.createGame
+            )}
           </button>
         </div>
       );

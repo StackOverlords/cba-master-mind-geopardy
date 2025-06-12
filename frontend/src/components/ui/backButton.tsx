@@ -5,12 +5,15 @@ import { cn } from "../../lib/utils";
 interface BackButtonProps {
     text?: string;
     className?: string;
-    href: string
+    href: string;
+    handleCleanGame: () => void;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ text, className, href }) => {
+const BackButton: React.FC<BackButtonProps> = ({ text, className, href, handleCleanGame }) => {
     const navigate = useNavigate()
     const handleGoBack = () => {
+        handleCleanGame();
+        sessionStorage.removeItem('gameCode');
         navigate(href);
     };
 

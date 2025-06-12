@@ -19,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				poppins: ['Poppins', 'sans-serif'],
+				lato: ['Lato', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))', // Define el color border
 				input: 'hsl(var(--input))',
@@ -103,14 +107,29 @@ export default {
 						transform: 'translateY(0)',
 						animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)'
 					}
-				}
+				},
+				 blob: {
+				"0%": {
+					transform: "translate(0px, 0px) scale(1)",
+				},
+				"33%": {
+					transform: "translate(30px, -50px) scale(1.1)",
+				},
+				"66%": {
+					transform: "translate(-20px, 20px) scale(0.9)",
+				},
+				"100%": {
+					transform: "translate(0px, 0px) scale(1)",
+				},
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-				'bounce': 'bounce 1s infinite'
-			}
+				'bounce': 'bounce 1s infinite',
+				 blob: "blob 7s infinite ease-in-out",
+			},
 		}
 	},
 	plugins: [
