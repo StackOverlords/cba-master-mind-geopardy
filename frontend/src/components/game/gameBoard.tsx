@@ -254,7 +254,7 @@ const GameBoard: React.FC<Props> = ({
                             }`}
                     >
                         <div
-                            className={`flex items-center justify-center p-2 rounded-md bg-indigo-950 border-indigo-400/50 border text-indigo-200 font-bold text-center text-xs sm:text-sm w-full h-full ${categories.length === 1 ? "col-span-full" : ""
+                            className={`flex items-center justify-center p-2 rounded-md bg-indigo-950 border-indigo-400/50 border text-indigo-200 font-bold text-center text-[8px] sm:text-sm w-full h-full ${categories.length === 1 ? "col-span-full" : ""
                                 }`}
                         >
                             {category.name}

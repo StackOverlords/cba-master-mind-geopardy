@@ -13,6 +13,8 @@ import { useGameStore } from "../multiplayer/src/store/gameStore";
 import ErrorToast from "../toastAlerts/errorAlert";
 import toast from "react-hot-toast";
 import SpinnerIcon from "../ui/icons/spinnerIcon";
+import InputField from "../ui/inputField";
+import SelectOptions from "../ui/selectOptions";
 
 const httpClient = new HttpClient();
 
@@ -403,7 +405,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                     width: `${Math.min(
                       ((playersJoined?.length || 0) /
                         multiplayerConfig.maxPlayers) *
-                        100,
+                      100,
                       100
                     )}%`,
                   }}
@@ -454,11 +456,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                             )}
                           </h4>
                           <p
-                            className={`text-xs font-semibold ${
-                              player.isReady
+                            className={`text-xs font-semibold ${player.isReady
                                 ? "text-green-400"
                                 : "text-zinc-400"
-                            }`}
+                              }`}
                           >
                             {player.isReady ? "Listo" : "Esperando..."}
                           </p>
@@ -471,11 +472,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                             layout
                             onClick={() => handleReady(player.userId)}
                             className={`w-full text-sm font-bold rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 py-2
-                  ${
-                    player.isReady
-                      ? "bg-green-600 border-2 border-green-500 text-white shadow-lg shadow-green-500/20"
-                      : "bg-zinc-700/50 border-2 border-dashed border-violet-500/60 text-violet-300 hover:bg-violet-500/80 hover:text-white hover:border-solid animate-pulse"
-                  }`}
+                  ${player.isReady
+                                ? "bg-green-600 border-2 border-green-500 text-white shadow-lg shadow-green-500/20"
+                                : "bg-zinc-700/50 border-2 border-dashed border-violet-500/60 text-violet-300 hover:bg-violet-500/80 hover:text-white hover:border-solid animate-pulse"
+                              }`}
                           >
                             {player.isReady ? (
                               <>
@@ -500,11 +500,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                           // INDICADOR VISUAL PARA OTROS JUGADORES (NO INTERACTIVO)
                           <div
                             className={`w-full text-sm font-bold rounded-lg flex items-center justify-center gap-2 py-2
-                 ${
-                   player.isReady
-                     ? "bg-green-600/30 text-green-400"
-                     : "bg-zinc-700/30 text-zinc-400"
-                 }`}
+                 ${player.isReady
+                                ? "bg-green-600/30 text-green-400"
+                                : "bg-zinc-700/30 text-zinc-400"
+                              }`}
                           >
                             {player.isReady ? (
                               <span>✓ Listo</span>
@@ -733,7 +732,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
         <label className="block text-xs font-medium text-gray-300 mb-1.5">
           {TextComponent.nameLabel}
         </label>
-        <input
+        <InputField
           type="text"
           value={multiplayerConfig.name}
           onChange={(e) =>
@@ -751,7 +750,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           <label className="block text-xs font-medium text-gray-300 mb-1.5">
             {TextComponent.turnTimeLabel}
           </label>
-          <select
+          <SelectOptions
             value={multiplayerConfig.defaultTurnTime}
             onChange={(e) =>
               setMultiplayerConfig((prev) => ({
@@ -759,7 +758,6 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                 defaultTurnTime: Number(e.target.value),
               }))
             }
-            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-300 appearance-none"
           >
             <option value={30} className="bg-gray-800 text-gray-300">
               30 seconds
@@ -773,13 +771,13 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
             <option value={120} className="bg-gray-800 text-gray-300">
               2 minutes
             </option>
-          </select>
+          </SelectOptions>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-300 mb-1.5">
             {TextComponent.maxRounds}
           </label>
-          <select
+          <SelectOptions
             value={multiplayerConfig.rounds}
             onChange={(e) =>
               setMultiplayerConfig((prev) => ({
@@ -787,7 +785,6 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                 rounds: Number(e.target.value),
               }))
             }
-            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-300 appearance-none"
           >
             <option value={2} className="bg-gray-800 text-gray-300">
               2 rounds
@@ -804,7 +801,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
             <option value={10} className="bg-gray-800 text-gray-300">
               10 rounds
             </option>
-          </select>
+          </SelectOptions>
         </div>
       </div>
 
@@ -831,14 +828,13 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
             <button
               key={category?._id}
               onClick={() => toggleCategory(category._id)}
-              className={`p-2.5 text-left border rounded-lg transition-all text-sm ${
-                multiplayerConfig.categories.includes(category._id)
-                  ? "border-blue-500  text-blue-800"
-                  : "border-gray-200 text-gray-600"
-              }`}
+              className={`p-2.5 text-left border rounded-lg transition-all text-sm ${multiplayerConfig.categories.includes(category._id)
+                  ? "border-blue-500  text-blue-400"
+                  : "border-dashboard-border"
+                }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-medium text-xs text-gray-300">
+                <span className="font-medium text-xs text-white">
                   {category.name}
                 </span>
                 {multiplayerConfig.categories.includes(category._id) && (
@@ -861,11 +857,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
               </div>
               {category.description && (
                 <p
-                  className={`text-[10px] mt-0.5 ${
-                    multiplayerConfig.categories.includes(category._id)
-                      ? "text-blue-600"
-                      : "text-gray-400"
-                  }`}
+                  className={`text-[10px] mt-0.5 ${multiplayerConfig.categories.includes(category._id)
+                      ? "text-blue-400"
+                      : "text-gray-300"
+                    }`}
                 >
                   {category.description}
                 </p>
@@ -951,11 +946,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
           <button
             onClick={handleCreateMultiplayerGame}
             disabled={!canCreate}
-            className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${
-              canCreate
+            className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${canCreate
                 ? "bg-dashboard-border/80 hover:bg-dashboard-border text-white"
                 : "bg-dashboard-border/50 text-white cursor-not-allowed"
-            }`}
+              }`}
           >
             {isLoadingCreate ? (
               <SpinnerIcon className="inline-block mr-2 w-5 h-5 animate-spin" />
@@ -1018,7 +1012,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({
                 )}
               </h2>
               <button
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 text-gray-400 hover:bg-dashboard-border hover:text-white rounded-md transition-colors"
                 onClick={onClose}
                 aria-label="Close modal"
               >
