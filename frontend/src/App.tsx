@@ -19,6 +19,7 @@ import { SettingsSection } from "./components/dashboard/sections/settings-sectio
 import DashboardSkeleton from "./components/dashboard/dashboardSkeleton";
 import CreateGamePage from "./pages/createGamePage";
 import GamePage from "./pages/game";
+import GameDashboard from "./pages/gameDashboard";
 
 const App = () => {
   useEffect(() => {
@@ -42,6 +43,7 @@ const App = () => {
             <MainLayout />
           </ProtectedRoute>
         }>
+          <Route path="/games" element={<GameDashboard />} />
           <Route path="/championship-game/:gameId" element={<GamePage />} />
           <Route path="/multiplayer" element={<IndexMultiplayer />} />
           <Route path="/create-game" element={<CreateGamePage />} />
