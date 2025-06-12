@@ -38,6 +38,7 @@ export class GameRepository {
                 { $unwind: "$questions" },
                 { $project: { _id: "$questions" } }
             ]).exec();
+            
             game.questions = questionsResult.map(q => q._id);
         }
         return await game.save();

@@ -1,7 +1,7 @@
 export const GameNotFound = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-      <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md text-center border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-gray-900">
+      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md text-center border border-gray-200 transition-colors duration-300">
         <svg
           className="w-16 h-16 text-red-500 mb-4"
           xmlns="http://www.w3.org/2000/svg"
