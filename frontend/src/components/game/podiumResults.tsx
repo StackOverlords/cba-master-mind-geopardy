@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import { Flag, Sparkles } from "lucide-react";
 
 interface Props {
-    handleCleanGame: () => void;
+    handleCleanGame?: () => void;
     showButtons?: boolean;
     players: any[];
 };
@@ -26,7 +26,7 @@ const PodiumResults: React.FC<Props> = ({
     }
     const handleEndGame = () => {
         // console.log("Execute")
-        if(!showButtons){
+        if(!showButtons && handleCleanGame) {
             handleCleanGame();
             sessionStorage.removeItem('gameCode');
         }

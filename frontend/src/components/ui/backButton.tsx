@@ -6,13 +6,15 @@ interface BackButtonProps {
     text?: string;
     className?: string;
     href: string;
-    handleCleanGame: () => void;
+    handleCleanGame?: () => void;
 }
 
 const BackButton: React.FC<BackButtonProps> = ({ text, className, href, handleCleanGame }) => {
     const navigate = useNavigate()
     const handleGoBack = () => {
-        handleCleanGame();
+        if (handleCleanGame) {
+            handleCleanGame();
+        }
         sessionStorage.removeItem('gameCode');
         navigate(href);
     };
