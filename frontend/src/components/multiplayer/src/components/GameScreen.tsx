@@ -194,7 +194,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ user, code }) => {
               <div className="flex space-x-6 flex-col">
                 <header className="flex items-center gap-4">
                   {/* Back/Menu Button */}
-                  <button className="bg-indigo-900 p-3 rounded-xl hover:bg-indigo-700 group cursor-pointer transition-colors ease-in-out duration-200">
+                  <button onClick={()=>window.location.href='/'} className="bg-indigo-900 p-3 rounded-xl hover:bg-indigo-700 group cursor-pointer transition-colors ease-in-out duration-200">
                     <CornerUpLeft className="size-6 text-indigo-200 group-hover:text-white" />
                   </button>
 

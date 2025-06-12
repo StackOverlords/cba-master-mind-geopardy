@@ -47,7 +47,7 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-relaxed">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-white leading-relaxed">
             {currentQuestion.question}
           </h2>
         </motion.div>
@@ -70,7 +70,7 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <span className="w-10 h-10 bg-gray-100 dark:bg-gray-600 rounded-xl flex items-center justify-center text-sm font-bold border border-gray-200 dark:border-gray-500">
+                  <span className="w-10 h-10 bg-gray-100 bg-gray-600 rounded-xl flex items-center justify-center text-sm font-bold border border-gray-200 border-gray-500">
                     {String.fromCharCode(65 + index)}
                   </span>
                   <span className="text-lg font-medium leading-relaxed">{answer.text}</span>
@@ -109,13 +109,13 @@ export const QuestionCard: React.FC<Props> = ({ socketService, user, currentPlay
               {answerSelected && answer.text === answerSelected  && (
                 <motion.div
                   layoutId="selected-by-other"
-                  className="absolute top-2 right-2 flex items-center gap-2 bg-gray-200/60 dark:bg-gray-900/60 backdrop-blur-sm py-1 px-2 rounded-full text-xs pointer-events-none"
+                  className="absolute top-2 right-2 flex items-center gap-2 bg-gray-200/60 bg-gray-900/60 backdrop-blur-sm py-1 px-2 rounded-full text-xs pointer-events-none"
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
-                  <User className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300" />
-                  <span className="font-semibold text-gray-800 dark:text-gray-200">{currentPlayerUsername?currentPlayerUsername:''}</span>
+                  <User className="w-3.5 h-3.5 text-gray-700 text-white" />
+                  <span className="font-semibold text-gray-800 text-white">{currentPlayerUsername?currentPlayerUsername:''}</span>
                 </motion.div>
               )}
 

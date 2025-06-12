@@ -66,7 +66,7 @@ export const Timer: React.FC<Props> = ({
 
                 <div className="absolute inset-0 flex items-center justify-center">
                     <motion.span
-                        className="sm:text-xl text-sm font-bold text-gray-900 dark:text-white"
+                        className="sm:text-xl text-sm font-bold text-white"
                         animate={timeLeft <= 5 ? { color: '#EF4444' } : {}}
                     >
                         {timeLeft}
