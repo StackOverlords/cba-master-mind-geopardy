@@ -70,7 +70,7 @@ const PlayerRow: React.FC<PlayerRowProps> = ({ player, isCurrentUser, position }
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
           />
-          <span className={`font-medium ${isCurrentUser ? "text-white" : ""}`}>
+          <span className={`font-medium truncate sm:text-wrap xl:truncate ${isCurrentUser ? "text-white" : ""}`}>
             {username}
             {isCurrentUser && (
               <span className="ml-2 text-xs text-blue-300">(You)</span>

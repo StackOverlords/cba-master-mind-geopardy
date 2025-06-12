@@ -157,8 +157,8 @@ export function UserManagementSection() {
                                 value={sort}
                                 onChange={(e) => setSort(e.target.value as 'asc' | 'desc')}
                             >
-                                <option value="asc">Asc</option>
-                                <option value="desc">Desc</option>
+                                <option className="bg-gray-800 text-gray-300" value="asc">Asc</option>
+                                <option className="bg-gray-800 text-gray-300" value="desc">Desc</option>
                             </SelectOptions>
                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <svg
@@ -178,9 +178,9 @@ export function UserManagementSection() {
                                 value={role}
                                 onChange={(e) => setRole(e.target.value as UserRole)}
                             >
-                                <option value="guest">All users</option>
-                                <option value="player">Player</option>
-                                <option value="admin">Admin</option>
+                                <option className="bg-gray-800 text-gray-300" value="guest">All users</option>
+                                <option className="bg-gray-800 text-gray-300" value="player">Player</option>
+                                <option className="bg-gray-800 text-gray-300" value="admin">Admin</option>
                             </SelectOptions>
                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <svg

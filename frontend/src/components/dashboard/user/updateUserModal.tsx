@@ -70,8 +70,8 @@ const UpdateUserModal: React.FC<Props> = ({
                                     value={user?.role}
                                     onChange={handleChangeUserData}
                                 >
-                                    <option value="player">Player</option>
-                                    <option value="admin">Admin</option>
+                                    <option className="bg-gray-800 text-gray-300" value="player">Player</option>
+                                    <option className="bg-gray-800 text-gray-300" value="admin">Admin</option>
                                 </SelectOptions>
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <svg

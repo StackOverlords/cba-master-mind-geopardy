@@ -123,7 +123,7 @@ const QuestionModal: React.FC<Props> = ({
                             value={question.categoryId}
                         >
                             {categories && categories.map((category) => (
-                                <option key={category._id} value={category._id}>
+                                <option className="bg-gray-800 text-gray-300" key={category._id} value={category._id}>
                                     {category.name}
                                 </option>
                             ))}

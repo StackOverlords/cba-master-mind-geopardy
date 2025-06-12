@@ -246,8 +246,8 @@ export function CategoriesSection() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as 'asc' | 'desc')}
               >
-                <option value="asc">Asc</option>
-                <option value="desc">Desc</option>
+                <option className="bg-gray-800 text-gray-300" value="asc">Asc</option>
+                <option className="bg-gray-800 text-gray-300" value="desc">Desc</option>
               </SelectOptions>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg

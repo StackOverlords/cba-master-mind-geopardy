@@ -316,9 +316,9 @@ export function QuestionsSection() {
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            <option value="all">All Categories</option>
+            <option className="bg-gray-800 text-gray-300" value="all">All Categories</option>
             {categories && categories.data.map((category) => (
-              <option key={category._id} value={category._id}>
+              <option className="bg-gray-800 text-gray-300" key={category._id} value={category._id}>
                 {category.name}
               </option>
             ))}
@@ -342,8 +342,8 @@ export function QuestionsSection() {
             value={sort}
             onChange={(e) => setSort(e.target.value as 'asc' | 'desc')}
           >
-            <option value="asc">Asc</option>
-            <option value="desc">Desc</option>
+            <option className="bg-gray-800 text-gray-300" value="asc">Asc</option>
+            <option className="bg-gray-800 text-gray-300" value="desc">Desc</option>
           </SelectOptions>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
             <svg

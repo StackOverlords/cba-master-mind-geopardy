@@ -220,10 +220,10 @@ const CreateGamePage = () => {
                                                 value={gameSetup.defaultTurnTime}
                                                 onChange={handleChangeData}
                                             >
-                                                <option value="10">10</option>
-                                                <option value="15">15</option>
-                                                <option value="20">20</option>
-                                                <option value="25">25</option>
+                                                <option className="bg-gray-800 text-gray-300" value="10">10</option>
+                                                <option className="bg-gray-800 text-gray-300" value="15">15</option>
+                                                <option className="bg-gray-800 text-gray-300" value="20">20</option>
+                                                <option className="bg-gray-800 text-gray-300" value="25">25</option>
                                             </SelectOptions>
                                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <svg
@@ -265,13 +265,13 @@ const CreateGamePage = () => {
                                                 value={gameSetup.rounds}
                                                 onChange={handleChangeData}
                                             >
-                                                <option value="1">1</option>
-                                                <option value="2">2</option>
-                                                <option value="3">3</option>
-                                                <option value="4">4</option>
-                                                <option value="5">5</option>
-                                                <option value="6">6</option>
-                                                <option value="7">7</option>
+                                                <option className="bg-gray-800 text-gray-300" value="1">1</option>
+                                                <option className="bg-gray-800 text-gray-300" value="2">2</option>
+                                                <option className="bg-gray-800 text-gray-300" value="3">3</option>
+                                                <option className="bg-gray-800 text-gray-300" value="4">4</option>
+                                                <option className="bg-gray-800 text-gray-300" value="5">5</option>
+                                                <option className="bg-gray-800 text-gray-300" value="6">6</option>
+                                                <option className="bg-gray-800 text-gray-300" value="7">7</option>
                                             </SelectOptions>
                                             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                                 <svg

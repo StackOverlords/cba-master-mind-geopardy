@@ -18,7 +18,7 @@ const PodiumStep: React.FC<Props> = ({
 }) => {
 
     return (
-        <article>
+        <article className="w-24 sm:w-40 md:w-56">
             <motion.div
                 className="flex flex-col items-center z-30 relative"
                 whileHover={{ scale: 1.05, y: -5 }}
@@ -37,12 +37,12 @@ const PodiumStep: React.FC<Props> = ({
                     />
                 </div>
 
-                <h3 className="text-white font-bold text-lg text-wrap sm:text-xl mb-1 text-center drop-shadow-lg">{player.username}</h3>
+                <h3 className="text-white max-w-full font-bold truncate sm:text-wrap text-sm sm:text-base md:text-xl mb-1 text-center drop-shadow-lg">{player.username}</h3>
 
-                <p className="text-slate-300 text-xs mb-4 drop-shadow">Earn {player.score} points</p>
+                <p className="text-slate-300 text-[10px] sm:text-xs mb-4 drop-shadow">Earn {player.score} points</p>
             </motion.div>
 
-            <div className="relative w-24 sm:w-40 md:w-56 -mt-8" style={{ perspective: "200px" }}>
+            <div className="relative w-full -mt-8" style={{ perspective: "200px" }}>
                 <div
                     className={`
                 w-full h-20 shadow-xl relative z-10 bg-gradient-to-b from-[#1c1f2c] to-[#131724]`}

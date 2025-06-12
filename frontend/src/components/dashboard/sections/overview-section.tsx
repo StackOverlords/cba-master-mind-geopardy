@@ -81,8 +81,11 @@ export function OverviewSection() {
     return (
         <div className="space-y-6">
             <header>
-                <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
-                <p className="text-slate-400">Manage your quiz application and monitor performance</p>
+               <div className="flex gap-3">
+               <h1 className="text-base sm:text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
+               <span className="rounded-md px-2 py-0.5 bg-yellow-400 text-xs h-max w-max text-gray-800 font-medium">Beta</span>
+               </div>
+                <p className="text-xs sm:text-base text-slate-400">Manage your quiz application and monitor performance</p>
             </header>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
