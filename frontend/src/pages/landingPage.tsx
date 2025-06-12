@@ -177,7 +177,7 @@ const LandingPage = () => {
               alt={LANDING_PAGE_CONTENT.altTexts.cbaTarija}
             /> */}
             <img
-              className="h-12 drop-shadow-xl/45 drop-shadow-blue-500"
+              className="h-12"
               src={logoCBATarijaDark}
               alt={LANDING_PAGE_CONTENT.altTexts.cbaTarija}
             />
