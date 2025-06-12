@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
-import { Plus, X, Trophy, Users, Clock, Target, Check, CornerUpLeft } from "lucide-react"
+import { Plus, X, Trophy, Users, Clock, Target, Check, CornerUpLeft, Sparkles } from "lucide-react"
 import { usePaginatedCategories } from "../hooks/queries/category/useGetAllCategories"
 import type { Category } from "../shared/types/category"
 import InputField from "../components/ui/inputField"
@@ -18,6 +18,7 @@ const CreateGamePage = () => {
     const { data: categoriesData } = usePaginatedCategories({
         limit: -1,
     })
+    const startButtonRef = useRef<HTMLButtonElement | null>(null)
     const userId = useAuthStore((state) => state.user?._id)
     const navigate = useNavigate()
     const [gameSetup, setGameSetup] = useState<CreateGameChampionShipDto>({
@@ -112,6 +113,48 @@ const CreateGamePage = () => {
             )
         }
     }
+    const generateGameData = () => {
+        if (!categoriesData || categoriesData.data.length === 0) {
+            toast.custom((t) => (
+                <ErrorToast
+                    t={t}
+                    title="Error"
+                    description="No categories available to generate game data."
+                />
+            ))
+            return;
+        }
+
+        // Seleccionar aleatoriamente entre 1 y 5 categorías
+        const shuffledCategories = [...categoriesData.data].sort(() => 0.5 - Math.random());
+        const selectedCategories = shuffledCategories.slice(0, Math.floor(Math.random() * 5) + 1);
+
+        // Nombres de ejemplo para los jugadores
+        const exampleNames = ["Luna", "Max", "Zoe", "Kai", "Nova", "Leo", "Milo", "Aria"];
+        const playerCount = Math.floor(Math.random() * 3) + 2; // Entre 2 y 4 jugadores
+        const shuffledNames = [...exampleNames].sort(() => 0.5 - Math.random()).slice(0, playerCount);
+
+        const generatedPlayers: PlayerChampionShip[] = shuffledNames.map((name) => ({
+            _id: Date.now().toString() + Math.random().toString().slice(2),
+            username: name,
+            score: 0,
+            avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${name}`,
+            scoreTimestamp: 0,
+        }));
+
+        // Actualizar estado
+        setGameSetup((prev) => ({
+            ...prev,
+            name: 'Trivia Battle',
+            categorys: selectedCategories.map((cat) => cat._id),
+            playersLocal: generatedPlayers,
+        }));
+
+        setTimeout(() => {
+            startButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            startButtonRef.current?.focus(); // opcional
+        }, 300);
+    };
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -146,14 +189,22 @@ const CreateGamePage = () => {
                                     <label htmlFor="gameTitle" className="text-purple-200 text-xs sm:text-sm">
                                         Game Title
                                     </label>
-                                    <InputField
-                                        id="name"
-                                        name="name"
-                                        placeholder="Trivia Battle"
-                                        value={gameSetup.name}
-                                        onChange={handleChangeData}
-                                        className="max-w-md"
-                                    />
+                                    <div className="flex gap-2 justify-between">
+                                        <InputField
+                                            id="name"
+                                            name="name"
+                                            placeholder="Trivia Battle"
+                                            value={gameSetup.name}
+                                            onChange={handleChangeData}
+                                        />
+                                        <button
+                                            onClick={generateGameData}
+                                            className="bg-dashboard-bg hover:bg-dashboard-border transition-colors ease-in-out duration-200 px-3 rounded-md mt-1 disabled:cursor-not-allowed border border-dashboard-border flex items-center w-max gap-2 text-nowrap"
+                                        >
+                                            <Sparkles className="size-4" />
+                                            <span className="hidden sm:block text-sm">Generate Game</span>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 text-xs sm:text-sm">
@@ -362,6 +413,7 @@ const CreateGamePage = () => {
                     className="mt-8 flex items-center justify-center flex-col"
                 >
                     <button
+                        ref={startButtonRef}
                         onClick={handleStartGame}
                         disabled={!canStartGame || isPending}
                         className="bg-gradient-to-r from-purple-400 to-blue-400 hover:brightness-110 transition-all 

@@ -24,7 +24,7 @@ const Header = () => {
 
     return (
         <nav className="absolute top-0 px-4 py-3 w-full flex items-center justify-center">
-            <div className={`w-full xl:w-7xl flex items-center justify-between sm:px-6 z-20 ${isAuthenticated?'flex-row':'flex-col gap-2 sm:flex-row'}`}>
+            <div className={`w-full xl:w-7xl flex items-center justify-between sm:px-6 z-20 ${isAuthenticated || hasLogged ? 'flex-row' : 'flex-col gap-2 sm:flex-row'}`}>
                 <div className="flex items-center justify-center">
                     <img
                         className="sm:h-10 h-9"
