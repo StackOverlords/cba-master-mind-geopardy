@@ -1,13 +1,3 @@
-// import { OverviewSection } from "./sections/overview-section"
-// import { UserManagementSection } from "./sections/userManagement-section"
-// import { CategoriesSection } from "./sections/categories-section"
-// import { QuestionsSection } from "./sections/questions-section"
-// import { AnalyticsSection } from "./sections/analytics-section"
-// import { PlaySection } from "./sections/play-section"
-// import { HistorySection } from "./sections/history-section"
-// import { LeaderboardSection } from "./sections/leaderboard-section"
-// import { SettingsSection } from "./sections/settings-section"
-import type { UserRole } from "../../shared/auth.types"
 import LeftCollapseIcon from "../ui/icons/leftCollapse"
 import AccountMenu from "../ui/accountMenu"
 import { useEffect, useState } from "react"
@@ -18,7 +8,6 @@ import { Outlet } from "react-router"
 
 interface DashboardContentProps {
     activeSection: string
-    userRole: UserRole
     sidebarOpen: boolean
     setSidebarOpen: (open: boolean) => void
 }
@@ -29,30 +18,6 @@ export function DashboardContent({ activeSection, sidebarOpen, setSidebarOpen }:
     useEffect(() => {
         setHasLogged(hasLoggedBefore());
     }, [isAuthenticated]);
-    // const renderSection = () => {
-    //     switch (activeSection) {
-    //         case "overview":
-    //             return <OverviewSection userRole={userRole} />
-    //         case "users":
-    //             return userRole === "admin" ? <UserManagementSection /> : <OverviewSection userRole={userRole} />
-    //         case "categories":
-    //             return userRole === "admin" ? <CategoriesSection /> : <OverviewSection userRole={userRole} />
-    //         case "questions":
-    //             return userRole === "admin" ? <QuestionsSection /> : <OverviewSection userRole={userRole} />
-    //         //   case "analytics":
-    //         //     return userRole === "admin" ? <AnalyticsSection /> : <OverviewSection userRole={userRole} />
-    //         case "play":
-    //             return <PlaySection />
-    //         //   case "history":
-    //         //     return <HistorySection />
-    //         //   case "leaderboard":
-    //         //     return <LeaderboardSection />
-    //         case "settings":
-    //             return <SettingsSection />
-    //         default:
-    //             return <OverviewSection userRole={userRole} />
-    //     }
-    // }
 
     return (
         <div className="flex flex-col h-screen">

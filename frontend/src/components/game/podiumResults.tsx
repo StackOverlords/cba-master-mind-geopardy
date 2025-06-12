@@ -26,8 +26,10 @@ const PodiumResults: React.FC<Props> = ({
     }
     const handleEndGame = () => {
         // console.log("Execute")
-        handleCleanGame();
-        sessionStorage.removeItem('gameCode');
+        if(!showButtons){
+            handleCleanGame();
+            sessionStorage.removeItem('gameCode');
+        }
         navigate('/')
     }
     const podium = sortedAll.filter(p => p.score > 0).slice(0, 3);

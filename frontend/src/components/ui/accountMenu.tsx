@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useAuthStore } from "../../stores/authStore";
 import DashboardIcon from "./icons/dashboardIcon";
 import HelpIcon from "./icons/helpIcon";
@@ -7,6 +7,7 @@ import LogoutIcon from "./icons/logoutIcon";
 import UserIcon from "./icons/userIcon";
 import SpinnerIcon from "./icons/spinnerIcon";
 // import HelpModal from "../help/helpModal";
+import { Home } from "lucide-react";
 
 // Constants
 const AVATAR_COLORS = ["#d59bf6", "#ffc93c", "#42b883", "#cca8e9"] as const;
@@ -26,6 +27,7 @@ const AccountMenu = () => {
     const [openProfile, setOpenProfile] = useState(false);
     const divRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const location = useLocation()
 
     const toggleDropdown = () => setIsOpen(prev => !prev);
 
@@ -154,14 +156,20 @@ const AccountMenu = () => {
                             )
                         })}
 
-                        {hasRole('admin') && (
-                            <>
-                                {renderDropdownMenuItem({
+                        {location.pathname.includes("dashboard") ? (
+                            renderDropdownMenuItem({
+                                icon: <Home className="size-5" />,
+                                text: "Home",
+                                onClick: () => navigate("/")
+                            })
+                        ) : (
+                            hasRole('admin') && (
+                                renderDropdownMenuItem({
                                     icon: <DashboardIcon className="size-5" />,
                                     text: "Dashboard",
                                     onClick: () => navigate("/dashboard")
-                                })}
-                            </>
+                                })
+                            )
                         )}
 
                         <hr className="border border-border/50" role="separator" />

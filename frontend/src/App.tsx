@@ -20,6 +20,7 @@ import DashboardSkeleton from "./components/dashboard/dashboardSkeleton";
 import CreateGamePage from "./pages/createGamePage";
 import GamePage from "./pages/game";
 import TeamPage from "./pages/teamPage";
+import GameDashboard from "./pages/gameDashboard";
 
 const App = () => {
   useEffect(() => {
@@ -51,6 +52,7 @@ const App = () => {
             </ProtectedRoute>
           }
         >
+          <Route path="/games" element={<GameDashboard />} />
           <Route path="/championship-game/:gameId" element={<GamePage />} />
           <Route path="/multiplayer" element={<IndexMultiplayer />} />
           <Route path="/create-game" element={<CreateGamePage />} />
@@ -66,8 +68,9 @@ const App = () => {
           <Route index element={<Navigate to="overview" replace />} />
           <Route
             path="overview"
-            element={<OverviewSection userRole="admin" />}
+            element={<OverviewSection />}
           />
+          <Route path="overview" element={<OverviewSection />} />
           <Route path="users" element={<UserManagementSection />} />
           <Route path="categories" element={<CategoriesSection />} />
           <Route path="questions" element={<QuestionsSection />} />
